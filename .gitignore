@@ -1,0 +1,9 @@
+/node_modules
+/vendor
+/js
+.idea
+.vscode
+*.log
+*.tar
+*.tgz
+.DS_Store

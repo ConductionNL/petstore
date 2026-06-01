@@ -1,0 +1,92 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PetStore Register",
+    "description": "Categories, pets, and orders for the PetStore app.",
+    "version": "0.2.0"
+  },
+  "x-openregister": {
+    "type": "application",
+    "app": "petstore",
+    "openregister": "^v0.2.10",
+    "description": "PetStore — pets, orders, categories on the Conduction stack.",
+    "rbac": true,
+    "multitenancy": true
+  },
+  "paths": {},
+  "components": {
+    "registers": {
+      "petstore": {
+        "slug": "petstore",
+        "title": "PetStore",
+        "description": "Categories, pets, and orders for the PetStore app.",
+        "version": "0.2.0",
+        "schemas": ["category", "pet", "order"]
+      }
+    },
+    "schemas": {
+      "category": {
+        "slug": "category",
+        "icon": "Tag",
+        "version": "0.2.0",
+        "title": "Category",
+        "description": "A category of pets (Dogs, Cats, Reptiles, Fish, ...).",
+        "type": "object",
+        "required": ["name"],
+        "x-openregister": { "publicRead": false, "publicWrite": false },
+        "properties": {
+          "name":        { "type": "string", "example": "Dogs" },
+          "description": { "type": "string", "example": "Friendly mammals, four legs, often barks" }
+        }
+      },
+      "pet": {
+        "slug": "pet",
+        "icon": "Paw",
+        "version": "0.2.0",
+        "title": "Pet",
+        "description": "A pet in the store.",
+        "type": "object",
+        "required": ["name", "category", "status"],
+        "x-openregister": { "publicRead": false, "publicWrite": false },
+        "properties": {
+          "name":   { "type": "string", "example": "doggie" },
+          "category": {
+            "type": "string",
+            "x-openregister-relations": {
+              "schema": "category",
+              "cardinality": "many-to-one"
+            }
+          },
+          "status": { "type": "string", "enum": ["available", "pending", "sold"] },
+          "tags":   { "type": "array", "items": { "type": "string" } },
+          "photoUrls": { "type": "array", "items": { "type": "string", "format": "uri" } },
+          "price":  { "type": "number",  "minimum": 0, "example": 49.95 },
+          "notes":  { "type": "string" }
+        }
+      },
+      "order": {
+        "slug": "order",
+        "icon": "Receipt",
+        "version": "0.2.0",
+        "title": "Order",
+        "description": "A customer order for a pet.",
+        "type": "object",
+        "required": ["pet", "quantity", "status"],
+        "x-openregister": { "publicRead": false, "publicWrite": false },
+        "properties": {
+          "pet": {
+            "type": "string",
+            "x-openregister-relations": {
+              "schema": "pet",
+              "cardinality": "many-to-one"
+            }
+          },
+          "quantity": { "type": "integer", "minimum": 1, "example": 1 },
+          "shipDate": { "type": "string", "format": "date-time" },
+          "status":   { "type": "string", "enum": ["placed", "approved", "delivered"] },
+          "complete": { "type": "boolean", "default": false }
+        }
+      }
+    }
+  }
+}
