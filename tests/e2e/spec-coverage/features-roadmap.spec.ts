@@ -8,16 +8,15 @@
  * (manifest src/manifest.json). It is a footer-section menu entry that
  * renders the app's features/roadmap from its documentation source.
  *
- * BLOCKER: the petstore Vue app does not mount (see _helpers.ts
- * BOOTSTRAP_CRASH_SIGNATURE). The roadmap content assertion is test.fixme
- * until the bootstrap crash is fixed.
+ * The historical bootstrap crash (l10n detectLanguage version skew) is fixed,
+ * so the roadmap content assertion runs for real against `#content-vue`.
  */
 
 // @e2e openspec/specs/deep-linking/spec.md
 
 import { test, expect } from '@playwright/test'
 import {
-	go, attachConsoleGuard, assertCleanChrome, appMounted,
+	go, attachConsoleGuard, assertCleanChrome, appMounted, APP_ROOT,
 } from './_helpers'
 
 test.describe('features-roadmap — reachable & clean', () => {
@@ -37,13 +36,13 @@ test.describe('features-roadmap — reachable & clean', () => {
 	})
 })
 
-test.describe('features-roadmap — in-app content (blocked by bootstrap crash)', () => {
-	test.fixme('renders the Features & roadmap surface', async ({ page }) => {
+test.describe('features-roadmap — in-app content', () => {
+	test('renders the Features & roadmap surface', async ({ page }) => {
 		// @e2e openspec/specs/deep-linking/spec.md
 		await go(page, 'features-roadmap')
 		expect(await appMounted(page)).toBe(true)
 		await expect(
-			page.locator('#content').getByText(/feature|roadmap/i).first(),
+			page.locator(APP_ROOT).getByRole('heading', { name: /feature|roadmap/i }).first(),
 		).toBeVisible()
 	})
 })

@@ -14,17 +14,17 @@
  *     is captured separately into `server5xx`)
  *   - favicon
  *
- * IMPORTANT — KNOWN BOOTSTRAP BUG (see BUG-PETSTORE-BOOTSTRAP below):
- * the petstore Vue app currently CRASHES at module-eval time inside the
- * `petstore-shared-nc-vue` chunk with
+ * FIXED BOOTSTRAP BUG (historical): the petstore Vue app used to CRASH at
+ * module-eval time inside the `petstore-shared-nc-vue` chunk with
  *   TypeError: getGettextBuilder(...).detectLanguage is not a function
- * because the bundled @nextcloud/vue / @conduction/nextcloud-vue code calls
- * the pre-2.0 `detectLanguage()` GettextBuilder method, while the resolved
- * `@nextcloud/l10n` is 2.2.0 which removed it. As a result NO in-app UI
- * renders on any route — `#content` stays empty. The `pageerror` carrying
- * this signature is therefore tracked separately as `bootstrapCrash` so the
- * structural tests can prove the bug is still present and the content tests
- * (test.fixme) document the intended behaviour for once it is fixed.
+ * because `@nextcloud/vue@8.39.0`'s gettext init calls `detectLanguage()`,
+ * while petstore pinned `@nextcloud/l10n` to ^2.0.1 (resolving 2.2.0, which
+ * removed `detectLanguage`). The fix pinned `@nextcloud/l10n` to ^3.4.1 — the
+ * version `@nextcloud/vue@8.39.0` itself declares (`^3.4.1`) and which still
+ * provides `detectLanguage`. The app now mounts into `#content-vue` on every
+ * route. The `bootstrapCrash` bucket below is kept as a defensive sentinel:
+ * any regression of this signature is surfaced separately from ordinary
+ * console errors.
  */
 
 import { type Page, expect } from '@playwright/test'
@@ -37,6 +37,30 @@ const IGNORE = [
 	'Failed to load user status',
 	'favicon',
 	'Failed to load resource',
+	// The example-detail deep-link spec intentionally navigates to the
+	// synthetic id `demo-id-1`, which does not exist in the OpenRegister
+	// `example` schema. The detail view then surfaces the expected
+	// object-not-found ("Error fetching …/demo-id-1") — a 404, not a 5xx,
+	// and exactly the behaviour the route should exhibit for a missing id.
+	'Error fetching app-template-example/demo-id-1',
+	'Error fetching example/demo-id-1',
+]
+
+/**
+ * URL fragments for 5xx responses that are OpenRegister optional-integration
+ * adapters (Talk, OpenProject, Collectives, Maps, Analytics, …). The detail
+ * view's sidebar probes these per-object sub-resources; in this dev container
+ * those backend apps are not installed, so OpenRegister answers 501 Not
+ * Implemented / 503 Service Unavailable. They are environment gaps in
+ * OpenRegister's integration surface, not petstore 5xx, and are present
+ * fleet-wide — ignore them while still catching any genuine petstore 5xx.
+ */
+const IGNORE_5XX = [
+	'/talk',
+	'/integrations/',
+	'/collectives',
+	'/maps',
+	'/analytics',
 ]
 
 /** Signature of the known petstore bootstrap crash (dependency version skew). */
@@ -67,6 +91,7 @@ export function attachConsoleGuard(page: Page): ConsoleGuard {
 		if (r.status() < 500) return
 		const url = r.url()
 		if (IGNORE.some((s) => url.includes(s))) return
+		if (IGNORE_5XX.some((s) => url.includes(s))) return
 		guard.server5xx.push(`${r.status()} ${url}`)
 	})
 	return guard
@@ -78,30 +103,52 @@ export async function dismissOverlays(page: Page): Promise<void> {
 		await page.keyboard.press('Escape').catch(() => {})
 		await wizard.waitFor({ state: 'hidden', timeout: 4000 }).catch(() => {})
 	}
+	// The petstore "Support Petstore" promo dialog opens over the app content
+	// and intercepts pointer/innerText calls. Close it if present so content
+	// assertions can reach the underlying app surface.
+	const support = page.getByRole('dialog', { name: /Support Petstore/i })
+	if (await support.isVisible().catch(() => false)) {
+		await support.getByRole('button', { name: /^Close$/ }).click().catch(async () => {
+			await page.keyboard.press('Escape').catch(() => {})
+		})
+		await support.waitFor({ state: 'hidden', timeout: 4000 }).catch(() => {})
+	}
 }
 
 /** Direct-navigate to an app route (history-mode router base /apps/petstore). */
 export async function go(page: Page, route = ''): Promise<void> {
 	const url = route ? `${APP}/${route}` : APP
-	await page.goto(url)
-	await page.waitForLoadState('networkidle').catch(() => {})
+	await page.goto(url, { waitUntil: 'domcontentloaded' }).catch(() => {})
+	// `networkidle` is best-effort only: the example-detail route fires a burst
+	// of (legitimately 404-ing, for non-existent demo ids) object-fetch XHRs
+	// that may never let the network fully settle. Bound the wait so it can
+	// never consume the whole test budget and close the page mid-navigation.
+	await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {})
 	await dismissOverlays(page)
 	await page.waitForTimeout(800)
 }
 
 /**
+ * The petstore Vue app mounts into Nextcloud's `#content-vue` SPA root (class
+ * `content app-petstore`), NOT `#content` (which does not exist for this app).
+ * Scope every in-app assertion to this root so we never accidentally hit the
+ * global Nextcloud header app-menu (NAV-TRAP).
+ */
+export const APP_ROOT = '#content-vue'
+
+/**
  * Click a left-hand IN-APP navigation entry by its visible label, scoped to
- * the petstore app navigation region so we never hit the global Nextcloud
- * header app-menu (NAV-TRAP). The in-app nav is rendered by the manifest
- * shell inside `#content` once the Vue app mounts.
+ * the petstore app navigation region. The in-app nav is rendered by the
+ * manifest shell inside `#content-vue` once the Vue app mounts.
  */
 export async function navClick(page: Page, label: string): Promise<void> {
 	await dismissOverlays(page)
 	const link = page
-		.locator(`#content .app-navigation a:has-text("${label}"), #content nav a:has-text("${label}")`)
+		.locator(`${APP_ROOT} nav a:has-text("${label}"), ${APP_ROOT} .app-navigation a:has-text("${label}")`)
 		.first()
 	await link.click()
 	await page.waitForLoadState('networkidle').catch(() => {})
+	await dismissOverlays(page)
 	await page.waitForTimeout(800)
 }
 
@@ -116,13 +163,23 @@ export async function assertCleanChrome(page: Page, guard: ConsoleGuard): Promis
 	await expect(header).toBeVisible()
 	expect(guard.errors, `unexpected petstore console errors: ${guard.errors.join(' | ')}`).toEqual([])
 	expect(guard.server5xx, `unexpected petstore 5xx: ${guard.server5xx.join(' | ')}`).toEqual([])
+	expect(
+		guard.bootstrapCrash,
+		`petstore bootstrap crash regressed (${BOOTSTRAP_CRASH_SIGNATURE}): ${guard.bootstrapCrash.join(' | ')}`,
+	).toEqual([])
 }
 
-/** True once the petstore Vue app has actually mounted content into #content. */
+/**
+ * True once the petstore Vue app has actually mounted content into the
+ * `#content-vue` SPA root. A mounted manifest shell renders an in-app
+ * navigation (with the Dashboard/Examples route links) plus a content body.
+ */
 export async function appMounted(page: Page): Promise<boolean> {
 	return page.evaluate(() => {
-		const c = document.querySelector('#content')
-		// A mounted manifest shell renders an app-navigation + content body.
-		return !!c && !!c.querySelector('.app-navigation, nav, .app-content, main')
+		const c = document.querySelector('#content-vue')
+		if (!c) return false
+		const hasShell = !!c.querySelector('nav, .app-navigation, .app-content, main')
+		const hasRouteLink = !!c.querySelector('a[href*="/apps/petstore/"]')
+		return hasShell && hasRouteLink
 	})
 }
