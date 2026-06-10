@@ -20,10 +20,24 @@
 			"order": 20
 		},
 		{
+			"id": "Categories",
+			"label": "Categories",
+			"icon": "icon-category-organization",
+			"route": "Categories",
+			"order": 30
+		},
+		{
+			"id": "Orders",
+			"label": "Orders",
+			"icon": "icon-category-workflow",
+			"route": "Orders",
+			"order": 40
+		},
+		{
 			"id": "Documentation",
 			"label": "Documentation",
 			"icon": "icon-info",
-			"href": "https://codeberg.org/Conduction/nextcloud-app-template",
+			"href": "https://codeberg.org/Conduction/petstore",
 			"section": "footer",
 			"order": 90
 		},
@@ -51,11 +65,11 @@
 					"gridWidth": 3,
 					"gridHeight": 1,
 					"props": {
-						"title": "Open examples",
+						"title": "Available pets",
 						"iconClass": "icon-files",
-						"register": "app-template",
-						"schema": "example",
-						"countLabel": "examples",
+						"register": "petstore",
+						"schema": "pet",
+						"countLabel": "pets",
 						"variant": "primary"
 					}
 				}
@@ -65,39 +79,130 @@
 			"id": "Examples",
 			"route": "/examples",
 			"type": "index",
-			"title": "Examples",
+			"title": "Pets",
 			"config": {
-				"register": "app-template",
-				"schema": "example",
+				"register": "petstore",
+				"schema": "pet",
 				"columns": [
-					"title",
+					"name",
+					"category",
 					"status",
-					"updatedAt"
+					"price"
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true
 				}
-			},
-			"widgets": [
-				{
-					"widgetKey": "object-table",
-					"slot": "body",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 12,
-					"gridHeight": 6
-				}
-			]
+			}
 		},
 		{
 			"id": "ExampleDetail",
 			"route": "/examples/:id",
 			"type": "detail",
-			"title": "Example",
+			"title": "Pet",
 			"config": {
-				"register": "app-template",
-				"schema": "example",
+				"register": "petstore",
+				"schema": "pet",
+				"sidebar": true
+			},
+			"widgets": [
+				{
+					"widgetKey": "object-data",
+					"slot": "sidebar",
+					"tabGroup": "data",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 1,
+					"gridHeight": 1
+				},
+				{
+					"widgetKey": "audit-trail",
+					"slot": "sidebar",
+					"tabGroup": "audit",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 1,
+					"gridHeight": 1
+				}
+			]
+		},
+		{
+			"id": "Categories",
+			"route": "/categories",
+			"type": "index",
+			"title": "Categories",
+			"config": {
+				"register": "petstore",
+				"schema": "category",
+				"columns": [
+					"name",
+					"description"
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
+			}
+		},
+		{
+			"id": "CategoryDetail",
+			"route": "/categories/:id",
+			"type": "detail",
+			"title": "Category",
+			"config": {
+				"register": "petstore",
+				"schema": "category",
+				"sidebar": true
+			},
+			"widgets": [
+				{
+					"widgetKey": "object-data",
+					"slot": "sidebar",
+					"tabGroup": "data",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 1,
+					"gridHeight": 1
+				},
+				{
+					"widgetKey": "audit-trail",
+					"slot": "sidebar",
+					"tabGroup": "audit",
+					"gridX": 0,
+					"gridY": 0,
+					"gridWidth": 1,
+					"gridHeight": 1
+				}
+			]
+		},
+		{
+			"id": "Orders",
+			"route": "/orders",
+			"type": "index",
+			"title": "Orders",
+			"config": {
+				"register": "petstore",
+				"schema": "order",
+				"columns": [
+					"pet",
+					"quantity",
+					"status",
+					"complete"
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				}
+			}
+		},
+		{
+			"id": "OrderDetail",
+			"route": "/orders/:id",
+			"type": "detail",
+			"title": "Order",
+			"config": {
+				"register": "petstore",
+				"schema": "order",
 				"sidebar": true
 			},
 			"widgets": [
@@ -127,7 +232,7 @@
 			"type": "settings",
 			"title": "Settings",
 			"config": {
-				"saveEndpoint": "/index.php/apps/app-template/api/settings",
+				"saveEndpoint": "/index.php/apps/petstore/api/settings",
 				"sections": [
 					{
 						"title": "Version",
@@ -135,7 +240,7 @@
 							{
 								"type": "version-info",
 								"props": {
-									"appName": "App Template",
+									"appName": "PetStore",
 									"showUpdateButton": false,
 									"isUpToDate": true,
 									"title": "Version Information",
@@ -155,7 +260,7 @@
 					"gridWidth": 12,
 					"gridHeight": 1,
 					"props": {
-						"appName": "App Template",
+						"appName": "PetStore",
 						"showUpdateButton": false,
 						"isUpToDate": true,
 						"title": "Version Information",
@@ -170,7 +275,7 @@
 			"type": "roadmap",
 			"title": "Features & roadmap",
 			"config": {
-				"documentationUrl": "https://nextcloud-app-template.conduction.nl"
+				"documentationUrl": "https://petstore.conduction.nl"
 			}
 		}
 	]

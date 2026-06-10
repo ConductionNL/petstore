@@ -8,7 +8,7 @@
     <summary lang="nl">{APP_SUMMARY}</summary>
     <description lang="en"><![CDATA[{APP_DESCRIPTION}]]></description>
     <description lang="nl"><![CDATA[{APP_DESCRIPTION}]]></description>
-    <version>0.1.3</version>
+    <version>0.1.5</version>
     <licence>eupl</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>PetStore</namespace>

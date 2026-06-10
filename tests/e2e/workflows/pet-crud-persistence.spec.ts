@@ -14,20 +14,18 @@
  *     -> delete (gone). This is the canonical "the sample CRUD works" proof.
  *     A unique `e2e-<runId>` prefix isolates the run; afterAll cleans up.
  *
- *  B. UI MANIFEST-SHELL CRUD (mostly test.fixme — documents real bugs) —
- *     drives the petstore Examples page that the manifest shell renders and
- *     checks whether the UI can perform CRUD against real data. Live probing
- *     (2026-06-10) found the shipped manifest is the UNMODIFIED template
- *     scaffold: its Examples/detail pages target register `app-template` /
- *     schema `example`, which DOES NOT EXIST in OpenRegister ("Register not
- *     found: 'app-template'"). The petstore data domain (pet/category/order)
- *     is never surfaced. Consequences observed on the live UI:
- *       - the object-table renders only the "No items found" empty-state and
- *         fires NO object-fetch XHR at all;
- *       - there is NO Add / Create affordance on the index page, so there is
- *         no manifest-shell create FORM to submit.
- *     These UI-CRUD expectations are therefore parked as test.fixme with the
- *     bug documented inline (source is NOT modified — add-tests-only).
+ *  B. UI MANIFEST-SHELL CRUD (now GREEN — bug fixed) — drives the petstore
+ *     Examples page that the manifest shell renders and checks whether the UI
+ *     can perform CRUD against real data. Live probing (2026-06-10) found the
+ *     shipped manifest was the UNMODIFIED template scaffold: its
+ *     Examples/detail pages targeted register `app-template` / schema
+ *     `example`, which DOES NOT EXIST in OpenRegister. FIXED (2026-06-10,
+ *     wave-3): src/manifest.json now points the index + detail (+ dashboard
+ *     stats, settings endpoint, app naming) at the real petstore domain —
+ *     register `petstore`, schema `pet` (plus category/order pages). The
+ *     object-table now fetches and renders real seeded petstore rows, and
+ *     CnIndexPage's built-in Add affordance + form dialog let the create FORM
+ *     commit a new pet end-to-end.
  *
  * @e2e openspec/specs/item-management/spec.md
  */
@@ -132,13 +130,11 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 		expect(guard.bootstrapCrash, 'bootstrap crash regressed').toEqual([])
 	})
 
-	// BUG (template-scaffold drift): the manifest Examples/detail pages target
-	// register `app-template` / schema `example`, which does not exist in
-	// OpenRegister (real petstore data is register `petstore`, schema `pet`).
-	// The object-table therefore can never show seeded petstore data and the
-	// index fires no object-fetch XHR at all. Un-fixme once the manifest is
-	// pointed at register `petstore` / schema `pet`.
-	test.fixme('seeded pet appears as a row in the Examples object-table', async ({ page }) => {
+	// FIXED (2026-06-10, wave-3): the manifest Examples/detail pages now target
+	// register `petstore` / schema `pet` (was the template-scaffold
+	// `app-template`/`example`, which does not exist in OpenRegister). The
+	// object-table now fetches and renders real seeded petstore data.
+	test('seeded pet appears as a row in the Examples object-table', async ({ page }) => {
 		const runId = makeRunId()
 		const api = await pwRequest.newContext({
 			baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
@@ -160,13 +156,12 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 	})
 
 	// CROSS-CUTTING FORM-SUBMISSION CHECK.
-	// On the index page there is NO Add / Create affordance at all (only a
-	// "Settings" button) — the template-scaffold object-table renders no
-	// create action — so there is no manifest-shell create FORM to submit.
-	// The cross-cutting "does the create form actually commit?" question can
-	// therefore not even be reached on petstore: there is no form. Un-fixme
-	// once a create affordance + form is wired for register `petstore`/`pet`.
-	test.fixme('create FORM in the UI submits and persists a new pet', async ({ page }) => {
+	// FIXED (2026-06-10, wave-3): with the manifest pointed at register
+	// `petstore`/`pet`, CnIndexPage renders its built-in Add affordance
+	// (showAdd defaults true) plus the built-in form dialog (showFormDialog
+	// defaults true). The nc-vue form-submit fix has landed, so the create
+	// form now commits a new pet that shows up as a real persisted row.
+	test('create FORM in the UI submits and persists a new pet', async ({ page }) => {
 		const runId = makeRunId()
 		await go(page, 'examples')
 		await dismissOverlays(page)
@@ -180,10 +175,23 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 		await expect(addBtn, 'no create affordance on the Examples index').toBeVisible()
 		await addBtn.click()
 
+		// CnFormDialog renders schema fields via NcTextField / NcSelect, so
+		// the controls are accessible textboxes/comboboxes labelled by the
+		// schema property (required ones carry a trailing " *"). Fill the
+		// three required pet fields (name, category, status) so the Create
+		// button enables, then submit.
 		const name = `${runId}-form-pet`
-		const dialog = page.getByRole('dialog')
-		await dialog.locator('input[name="name"], input#name').first().fill(name)
-		await dialog.getByRole('button', { name: /save|create|submit/i }).first().click()
+		const dialog = page.getByRole('dialog', { name: /create pet/i })
+		await dialog.getByRole('textbox', { name: /^name/i }).fill(name)
+		await dialog.getByRole('textbox', { name: /^category/i }).fill('Dogs')
+
+		// status is an NcSelect (enum available/pending/sold) — open and pick.
+		await dialog.getByRole('combobox', { name: /^status/i }).click()
+		await page.getByRole('option', { name: 'available', exact: true }).first().click()
+
+		const createBtn = dialog.getByRole('button', { name: /^create$/i })
+		await expect(createBtn).toBeEnabled()
+		await createBtn.click()
 
 		// The committed pet must show up as a real persisted row.
 		await expect(root.locator(`table tbody tr:has-text("${name}")`)).toBeVisible()

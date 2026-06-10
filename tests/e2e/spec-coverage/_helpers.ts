@@ -37,11 +37,14 @@ const IGNORE = [
 	'Failed to load user status',
 	'favicon',
 	'Failed to load resource',
-	// The example-detail deep-link spec intentionally navigates to the
+	// The pet-detail deep-link spec intentionally navigates to the
 	// synthetic id `demo-id-1`, which does not exist in the OpenRegister
-	// `example` schema. The detail view then surfaces the expected
+	// `pet` schema. The detail view then surfaces the expected
 	// object-not-found ("Error fetching …/demo-id-1") — a 404, not a 5xx,
 	// and exactly the behaviour the route should exhibit for a missing id.
+	// (Legacy template-scaffold ids kept for back-compat.)
+	'Error fetching petstore-pet/demo-id-1',
+	'Error fetching pet/demo-id-1',
 	'Error fetching app-template-example/demo-id-1',
 	'Error fetching example/demo-id-1',
 ]
