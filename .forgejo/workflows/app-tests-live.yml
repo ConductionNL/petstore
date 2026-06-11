@@ -10,7 +10,9 @@
 #
 # Gate status for petstore (see TESTING-CI-ROLLOUT.md for the evidence table):
 #   deep-e2e: true  — e2e _fixtures uses register slug 'petstore', run-id-prefixed cleanup; not live-verified this pass
-#   newman:   false  — TODO: app-template.postman_collection.json present but no run-newman.sh runner yet
+#   newman:   true   — ARMED: tests/integration/run-newman.sh runs the app-template collection
+#                     (minimal self-contained health/contract baseline; parameterised by base_url).
+#                     Verified live (localhost:8080): 1 request / 1 assertion, 0 failures.
 
 name: app-tests-live
 
@@ -36,5 +38,10 @@ jobs:
       app-id: petstore
       is-openregister: false
       run-e2e: true
-      run-newman: false
+      run-newman: true
+      # NON-GATING (GAP-5): runs the visual-regression project + uploads
+      # snapshots/diffs as an artifact. Committed baselines are dev-container
+      # native, so they won't byte-match the CI Linux runner until regenerated
+      # in-CI (see tests-live.yml run-visual caveat) — continue-on-error.
+      run-visual: true
       newman-entrypoint: tests/integration/run-newman.sh
