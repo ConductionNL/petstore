@@ -21,9 +21,11 @@
  */
 
 import { defineConfig, devices } from '@playwright/test'
+import * as path from 'path'
 
 export default defineConfig({
 	testDir: './tests/e2e',
+	globalSetup: path.resolve(__dirname, 'tests/e2e/global-setup.ts'),
 	timeout: 30_000,
 	expect: { timeout: 10_000 },
 	fullyParallel: false,
@@ -37,6 +39,7 @@ export default defineConfig({
 
 	use: {
 		baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+		storageState: path.resolve(__dirname, 'tests/e2e/.auth/admin.json'),
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 	},
@@ -46,7 +49,7 @@ export default defineConfig({
 		// PR pipelines don't reshoot screenshots on every push.
 		{
 			name: 'chromium',
-			testIgnore: ['**/docs-screenshots.spec.ts'],
+			testIgnore: ['**/docs-screenshots.spec.ts', '**/visual/**'],
 			use: { ...devices['Desktop Chrome'] },
 		},
 		// Documentation capture project (ADR-030 / journeydoc). Opt-in:
@@ -58,6 +61,24 @@ export default defineConfig({
 			use: {
 				...devices['Desktop Chrome'],
 				viewport: { width: 1280, height: 800 },
+			},
+			timeout: 90_000,
+		},
+		// Visual-regression project (GAP-5). Opt-in / non-gating:
+		//   npx playwright test --project visual
+		//   npx playwright test --project visual --update-snapshots  (rebaseline)
+		// Fixed viewport + authenticated session => deterministic shots.
+		// Baselines live in tests/e2e/visual/*-snapshots/ and ARE committed.
+		// PLATFORM CAVEAT: PNG baselines are host-font/GPU specific, so a CI
+		// Linux runner will not byte-match a dev-container baseline; the visual
+		// project must regenerate its baselines in-CI before it can gate.
+		{
+			name: 'visual',
+			testMatch: /visual\/.*\.visual\.spec\.ts$/,
+			use: {
+				...devices['Desktop Chrome'],
+				viewport: { width: 1280, height: 800 },
+				storageState: 'tests/e2e/.auth/admin.json',
 			},
 			timeout: 90_000,
 		},
