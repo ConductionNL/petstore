@@ -1,0 +1,42 @@
+# frontend-unit.yml — OFFLINE Vitest gate for petstore.
+#
+# Runs the pure-logic + component-mount Vitest suite under tests/vitest/**
+# (settings Pinia store; StatusBadge / EmailField component mounts via
+# @vue/test-utils + @vitejs/plugin-vue2 in jsdom). No Nextcloud runtime, no
+# browser — @nextcloud/* are aliased to deterministic stubs in
+# vitest.config.js. Always gating. Additive — does not touch app-tests-live.yml
+# / tests-live.yml. PetStore is the fleet reference for the component-test
+# harness (see tests/vitest/README.md).
+
+name: frontend-unit
+
+on:
+  pull_request:
+    branches:
+      - development
+      - main
+      - beta
+  push:
+    branches:
+      - development
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-unit:
+    name: Frontend unit (Vitest — petstore)
+    runs-on: codeberg-small
+    container:
+      image: code.forgejo.org/oci/ci-node:20
+    steps:
+      - name: Checkout
+        uses: https://code.forgejo.org/actions/checkout@v4
+
+      - name: Install npm deps
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+      - name: Run Vitest unit suite
+        run: npm run test:unit
