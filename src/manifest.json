@@ -58,10 +58,23 @@
 			"title": "Dashboard",
 			"widgets": [
 				{
-					"widgetKey": "stats-block",
+					"widgetKey": "page-header",
 					"slot": "body",
 					"gridX": 0,
 					"gridY": 0,
+					"gridWidth": 12,
+					"gridHeight": 1,
+					"props": {
+						"title": "Dashboard",
+						"description": "Daily overview of pets, orders and categories",
+						"icon": "Paw"
+					}
+				},
+				{
+					"widgetKey": "stats-block",
+					"slot": "body",
+					"gridX": 0,
+					"gridY": 1,
 					"gridWidth": 3,
 					"gridHeight": 1,
 					"props": {
@@ -69,8 +82,104 @@
 						"iconClass": "icon-files",
 						"register": "petstore",
 						"schema": "pet",
+						"filters": { "status": "available" },
 						"countLabel": "pets",
+						"variant": "success"
+					}
+				},
+				{
+					"widgetKey": "stats-block",
+					"slot": "body",
+					"gridX": 3,
+					"gridY": 1,
+					"gridWidth": 3,
+					"gridHeight": 1,
+					"props": {
+						"title": "Pending reservations",
+						"iconClass": "icon-history",
+						"register": "petstore",
+						"schema": "pet",
+						"filters": { "status": "pending" },
+						"countLabel": "pets",
+						"variant": "warning"
+					}
+				},
+				{
+					"widgetKey": "stats-block",
+					"slot": "body",
+					"gridX": 6,
+					"gridY": 1,
+					"gridWidth": 3,
+					"gridHeight": 1,
+					"props": {
+						"title": "Open orders",
+						"iconClass": "icon-category-workflow",
+						"register": "petstore",
+						"schema": "order",
+						"filters": { "complete": "false" },
+						"countLabel": "orders",
 						"variant": "primary"
+					}
+				},
+				{
+					"widgetKey": "stats-block",
+					"slot": "body",
+					"gridX": 9,
+					"gridY": 1,
+					"gridWidth": 3,
+					"gridHeight": 1,
+					"props": {
+						"title": "Categories",
+						"iconClass": "icon-category-organization",
+						"register": "petstore",
+						"schema": "category",
+						"countLabel": "categories",
+						"variant": "default"
+					}
+				},
+				{
+					"widgetKey": "chart-by-field",
+					"slot": "body",
+					"gridX": 0,
+					"gridY": 2,
+					"gridWidth": 6,
+					"gridHeight": 3,
+					"props": {
+						"title": "Pets per category",
+						"register": "petstore",
+						"schema": "pet",
+						"field": "category",
+						"chartType": "donut"
+					}
+				},
+				{
+					"widgetKey": "chart-by-field",
+					"slot": "body",
+					"gridX": 6,
+					"gridY": 2,
+					"gridWidth": 6,
+					"gridHeight": 3,
+					"props": {
+						"title": "Orders by status",
+						"register": "petstore",
+						"schema": "order",
+						"field": "status",
+						"chartType": "bar"
+					}
+				},
+				{
+					"widgetKey": "recent-objects",
+					"slot": "body",
+					"gridX": 0,
+					"gridY": 5,
+					"gridWidth": 12,
+					"gridHeight": 3,
+					"props": {
+						"title": "Recent orders",
+						"register": "petstore",
+						"schema": "order",
+						"columns": ["pet", "quantity", "shipDate", "status", "complete"],
+						"limit": 5
 					}
 				}
 			]

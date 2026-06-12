@@ -39,6 +39,9 @@
 
 import ExampleWidget from './widgets/ExampleWidget.vue'
 import StatsBlockWidget from './widgets/StatsBlockWidget.vue'
+import PageHeaderWidget from './widgets/PageHeaderWidget.vue'
+import ChartByFieldWidget from './widgets/ChartByFieldWidget.vue'
+import RecentObjectsWidget from './widgets/RecentObjectsWidget.vue'
 import ExampleModal from './modals/ExampleModal.vue'
 import EmailField from './formFields/EmailField.vue'
 import StatusBadge from './cellRenderers/StatusBadge.vue'
@@ -76,6 +79,77 @@ export default {
 				iconClass: { type: 'string' },
 				countLabel: { type: 'string' },
 				variant: { type: 'string' },
+				filters: { type: 'object' },
+			},
+		},
+	},
+
+	/**
+	 * Dashboard page header (title + description). Restores the page chrome
+	 * the v2 body-widgets render path does not provide; place it at gridY 0
+	 * spanning all 12 columns.
+	 */
+	'page-header': {
+		kind: 'widget',
+		component: PageHeaderWidget,
+		defaultSize: { w: 12, h: 1 },
+		minSize: { w: 6, h: 1 },
+		maxSize: { w: 12, h: 1 },
+		allowedSlots: ['body'],
+		propsSchema: {
+			type: 'object',
+			properties: {
+				title: { type: 'string' },
+				description: { type: 'string' },
+				icon: { type: 'string' },
+			},
+		},
+	},
+
+	/**
+	 * Dashboard chart card: counts the objects of one register/schema
+	 * grouped by a field and renders the distribution (donut/pie/bar/…).
+	 */
+	'chart-by-field': {
+		kind: 'widget',
+		component: ChartByFieldWidget,
+		defaultSize: { w: 6, h: 3 },
+		minSize: { w: 3, h: 2 },
+		maxSize: { w: 12, h: 4 },
+		allowedSlots: ['body'],
+		propsSchema: {
+			type: 'object',
+			properties: {
+				register: { type: 'string' },
+				schema: { type: 'string' },
+				field: { type: 'string' },
+				title: { type: 'string' },
+				chartType: { type: 'string' },
+				height: { type: 'number' },
+			},
+		},
+	},
+
+	/**
+	 * Dashboard table card: the newest N objects of one register/schema.
+	 * Bridges live OpenRegister data to CnDataTable (the built-in
+	 * object-table widget is presentational and does not self-fetch).
+	 */
+	'recent-objects': {
+		kind: 'widget',
+		component: RecentObjectsWidget,
+		defaultSize: { w: 12, h: 3 },
+		minSize: { w: 6, h: 2 },
+		maxSize: { w: 12, h: 6 },
+		allowedSlots: ['body'],
+		propsSchema: {
+			type: 'object',
+			properties: {
+				register: { type: 'string' },
+				schema: { type: 'string' },
+				columns: { type: 'array' },
+				title: { type: 'string' },
+				limit: { type: 'number' },
 			},
 		},
 	},
