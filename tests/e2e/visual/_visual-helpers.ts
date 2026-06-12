@@ -179,7 +179,15 @@ export async function shootByNav(
 		await page.waitForTimeout(300)
 	}
 
-	const nav = page.locator('[id^="app-navigation"], .app-navigation, nav').first()
+	// Target the app SIDEBAR navigation. A bare `nav` fallback must come
+	// last and only when no sidebar exists: Nextcloud's top header app-menu
+	// is also a <nav> and precedes the sidebar in the DOM, so a combined
+	// selector + .first() silently picks the header (which never has the
+	// app's nav labels) and every shootByNav falls back to the app root.
+	const sidebar = page.locator('#app-navigation-vue, [id^="app-navigation"], .app-navigation').first()
+	const nav = (await sidebar.isVisible().catch(() => false))
+		? sidebar
+		: page.locator('nav').first()
 	const link = nav.getByRole('link', { name: label, exact: true }).first()
 	if (await link.isVisible().catch(() => false)) {
 		await link.click().catch(() => {})
