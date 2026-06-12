@@ -4,3 +4,16 @@
 #content {
 	height: 100%;
 }
+
+/*
+ * Interim page chrome for the v2 manifest body-widgets render path:
+ * CnPageRenderer mounts a bare CnWidgetGrid (no padding, 4px gap) when a
+ * page declares body widgets. Remove once @conduction/nextcloud-vue ships
+ * default page padding for that path (> beta.111).
+ */
+.cn-page-renderer > .cn-widget-grid[data-slot='body'] {
+	padding: calc(var(--default-grid-baseline, 4px) * 4)
+		calc(var(--default-grid-baseline, 4px) * 4)
+		calc(var(--default-grid-baseline, 4px) * 8);
+	gap: calc(var(--default-grid-baseline, 4px) * 3) !important;
+}

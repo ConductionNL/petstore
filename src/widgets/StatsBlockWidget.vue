@@ -60,6 +60,15 @@ export default {
 			type: String,
 			default: 'default',
 		},
+		/**
+		 * Optional OpenRegister query filters merged into the count request,
+		 * e.g. { status: "available" } or { complete: "false" }. Without it
+		 * the widget counts every object of the schema.
+		 */
+		filters: {
+			type: Object,
+			default: () => ({}),
+		},
 	},
 
 	data() {
@@ -75,7 +84,7 @@ export default {
 				'/apps/openregister/api/objects/{register}/{schema}',
 				{ register: String(this.register), schema: String(this.schema) },
 			)
-			const { data } = await axios.get(url, { params: { _limit: 1 } })
+			const { data } = await axios.get(url, { params: { ...this.filters, _limit: 1 } })
 			this.count = typeof data?.total === 'number' ? data.total : 0
 		} catch (e) {
 			// Leave the count at 0 rather than breaking the dashboard.
