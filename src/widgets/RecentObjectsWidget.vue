@@ -11,6 +11,7 @@ this bridge to show live data.
 -->
 <template>
 	<CnWidgetWrapper :title="title"
+		flush
 		:show-refresh="false"
 		:show-request-feature="false">
 		<CnDataTable :columns="normalizedColumns"
