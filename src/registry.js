@@ -38,6 +38,7 @@
 // See: https://codeberg.org/Conduction/hydra → openspec/architecture/adr-036-universal-widget-manifest.md
 
 import ExampleWidget from './widgets/ExampleWidget.vue'
+import StatsBlockWidget from './widgets/StatsBlockWidget.vue'
 import ExampleModal from './modals/ExampleModal.vue'
 import EmailField from './formFields/EmailField.vue'
 import StatusBadge from './cellRenderers/StatusBadge.vue'
@@ -53,6 +54,32 @@ export default {
 	 * Not referenced by src/manifest.json by default — wire it up by
 	 * adding a widgets[] entry with widgetKey: "example-widget".
 	 */
+	/**
+	 * Dashboard stats card referenced by src/manifest.json (Dashboard page,
+	 * widgetKey "stats-block"). Overrides the (absent) built-in: nc-vue
+	 * beta.101 has no built-in dashboard stats-block, so without this entry
+	 * the Dashboard renders empty with an "Unknown widgetKey" warning.
+	 */
+	'stats-block': {
+		kind: 'widget',
+		component: StatsBlockWidget,
+		defaultSize: { w: 3, h: 1 },
+		minSize: { w: 2, h: 1 },
+		maxSize: { w: 12, h: 2 },
+		allowedSlots: ['body'],
+		propsSchema: {
+			type: 'object',
+			properties: {
+				register: { type: 'string' },
+				schema: { type: 'string' },
+				title: { type: 'string' },
+				iconClass: { type: 'string' },
+				countLabel: { type: 'string' },
+				variant: { type: 'string' },
+			},
+		},
+	},
+
 	'example-widget': {
 		kind: 'widget',
 		component: ExampleWidget,

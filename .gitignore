@@ -7,3 +7,8 @@
 *.tar
 *.tgz
 .DS_Store
+
+# Playwright auth state + artefacts
+tests/e2e/.auth/
+tests/e2e/test-results/
+tests/e2e/playwright-report/
