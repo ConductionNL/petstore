@@ -22,6 +22,7 @@ import customComponents from './customComponents.js'
 import registry from './registry.js'
 import Paw from 'vue-material-design-icons/Paw.vue'
 import Receipt from 'vue-material-design-icons/Receipt.vue'
+import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
@@ -34,7 +35,7 @@ Vue.use(PiniaVuePlugin)
 Vue.use(VueRouter)
 
 // Register library-side icon set + lib translations once at bootstrap.
-registerIcons({ Paw, Receipt })
+registerIcons({ Paw, Receipt, FileDocumentOutline })
 try {
 	registerTranslations()
 } catch (e) {
