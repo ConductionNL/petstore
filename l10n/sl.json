@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Prilagođena primjerna komponenta",
+        "Dashboard": "Nadzorna ploča",
+        "Documentation": "Dokumentacija",
+        "Items": "Stavke",
+        "Item": "Stavka",
+        "Open items": "Otvorene stavke",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Zamijenite tijelo ove komponente s bilo kakvim prilagođenim ponašanjem koje vaša stranica treba — sučelje u stvarnom vremenu, integracije s dobavljačima, sve što ne odgovara ugrađenim vrstama stranica.",
+        "Settings": "Postavke",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Ovo je kanonski primjer stranice prilagođene vrste u obrascu prikazivača manifesta. Prikazuje se kada stranica manifesta deklarira `type: \"custom\"` i `component: \"CustomExample\"`.",
+        "Version Information": "Informacije o verziji",
+        "Information about the current installation.": "Informacije o trenutnoj instalaciji.",
+        "items": "stavke",
+        "App Template": "Predložak aplikacije",
+        "No data yet": "Još nema podataka",
+        "Cancel": "Odustani",
+        "Confirm": "Potvrdi",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Konfiguracija prije pokretanja aplikacije. Većina postavki nalazi se unutar aplikacije na /settings (upravljano manifestom).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Ovdje dodajte polja postavki. Pogledajte src/views/AdminRoot.vue za administrativnu ploču prije pokretanja.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Još nema postavki prije pokretanja. Uredite `src/views/AdminRoot.vue` kako biste ovdje dodali polja."
+    },
+    "plurals": null
+}

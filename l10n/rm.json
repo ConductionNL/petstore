@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Componente di esempio personalizzato",
+        "Dashboard": "Dashboard",
+        "Documentation": "Documentazione",
+        "Items": "Elementi",
+        "Item": "Elemento",
+        "Open items": "Elementi aperti",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Sostituisci il corpo di questo componente con qualsiasi comportamento personalizzato di cui la tua pagina ha bisogno — interfaccia in tempo reale, integrazioni con fornitori, tutto ciò che non si adatta ai tipi di pagina integrati.",
+        "Settings": "Impostazioni",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Questo è l'esempio canonico di una pagina di tipo personalizzato nel pattern di rendering dei manifest. Viene renderizzata quando una pagina del manifest dichiara `type: \"custom\"` e `component: \"CustomExample\"`.",
+        "Version Information": "Informazioni sulla versione",
+        "Information about the current installation.": "Informazioni sull'installazione corrente.",
+        "items": "elementi",
+        "App Template": "Modello di app",
+        "No data yet": "Nessun dato ancora",
+        "Cancel": "Annulla",
+        "Confirm": "Conferma",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Configurazione prima dell'avvio dell'app. La maggior parte delle impostazioni si trova nell'app in /settings (basata su manifest).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Aggiungi qui i campi delle impostazioni. Vedi src/views/AdminRoot.vue per il pannello di amministrazione pre-avvio.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Ancora nessuna impostazione pre-avvio. Modifica `src/views/AdminRoot.vue` per aggiungere campi qui."
+    },
+    "plurals": null
+}

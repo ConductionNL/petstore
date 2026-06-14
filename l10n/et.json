@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Kohandatud näidiskomponent",
+        "Dashboard": "Armatuurlaud",
+        "Documentation": "Dokumentatsioon",
+        "Items": "Elemendid",
+        "Item": "Element",
+        "Open items": "Avatud elemendid",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Asendage selle komponendi sisu mis tahes kohandatud käitumisega, mida teie leht vajab — reaalajas kasutajaliides, tarnija integratsioonid, kõik, mis ei sobi sisseehitatud lehttüüpidesse.",
+        "Settings": "Seaded",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "See on kanoonilise kohandatud tüüpi lehe näide manifesti renderdaja mustris. See renderdatakse, kui manifesti leht deklareerib `type: \"custom\"` ja `component: \"CustomExample\"`.",
+        "Version Information": "Versiooni teave",
+        "Information about the current installation.": "Teave praeguse installatsiooni kohta.",
+        "items": "elemendid",
+        "App Template": "Rakenduse mall",
+        "No data yet": "Andmed puuduvad",
+        "Cancel": "Tühista",
+        "Confirm": "Kinnita",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Rakenduse käivitamiseelne konfiguratsioon. Enamik seadeid asuvad rakenduses aadressil /settings (manifesti põhjal).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Lisage siia oma seadete väljad. Vaadake käivitamiseelse administraatori paneeli jaoks src/views/AdminRoot.vue.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Käivitamiseelseid seadeid pole veel. Muutke `src/views/AdminRoot.vue`, et siia välju lisada."
+    },
+    "plurals": null
+}

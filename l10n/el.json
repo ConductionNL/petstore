@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Προσαρμοσμένο παράδειγμα στοιχείου",
+        "Dashboard": "Πίνακας ελέγχου",
+        "Documentation": "Τεκμηρίωση",
+        "Items": "Στοιχεία",
+        "Item": "Στοιχείο",
+        "Open items": "Ανοιχτά στοιχεία",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Αντικαταστήστε το σώμα αυτού του στοιχείου με οποιαδήποτε προσαρμοσμένη συμπεριφορά χρειάζεται η σελίδα σας — διεπαφή χρήστη σε πραγματικό χρόνο, ενσωματώσεις προμηθευτών, οτιδήποτε δεν ταιριάζει στους ενσωματωμένους τύπους σελίδων.",
+        "Settings": "Ρυθμίσεις",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Αυτό είναι το κανονικό παράδειγμα σελίδας προσαρμοσμένου τύπου στο μοτίβο απόδοσης manifest. Αποδίδεται όταν μια σελίδα manifest δηλώνει `type: \"custom\"` και `component: \"CustomExample\"`.",
+        "Version Information": "Πληροφορίες έκδοσης",
+        "Information about the current installation.": "Πληροφορίες για την τρέχουσα εγκατάσταση.",
+        "items": "στοιχεία",
+        "App Template": "Πρότυπο εφαρμογής",
+        "No data yet": "Δεν υπάρχουν ακόμα δεδομένα",
+        "Cancel": "Ακύρωση",
+        "Confirm": "Επιβεβαίωση",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Ρύθμιση παραμέτρων πριν την εκκίνηση της εφαρμογής. Οι περισσότερες ρυθμίσεις βρίσκονται μέσα στην εφαρμογή στο /settings (βάσει manifest).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Προσθέστε τα πεδία ρυθμίσεών σας εδώ. Δείτε το src/views/AdminRoot.vue για τον πίνακα διαχείρισης πριν την εκκίνηση.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Δεν υπάρχουν ακόμα ρυθμίσεις πριν την εκκίνηση. Επεξεργαστείτε το `src/views/AdminRoot.vue` για να προσθέσετε πεδία εδώ."
+    },
+    "plurals": null
+}

@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Sérsniðið dæmihlutfall",
+        "Dashboard": "Mælaborð",
+        "Documentation": "Skjölun",
+        "Items": "Hlutir",
+        "Item": "Hlutur",
+        "Open items": "Opnir hlutir",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Skiptu um meginmál þessa íhluts með hvaða sérsniðinni hegðun sem síðan þín þarf á — notendaviðmót í rauntíma, samþættingar söluaðila, allt sem passar ekki við innbyggðar síðugerðir.",
+        "Settings": "Stillingar",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Þetta er hið kanóníska dæmi um sérsniðna síðu í útgáfumynstur birtingarinnar. Hún er birt þegar birtingarsíða lýsir yfir `type: \"custom\"` og `component: \"CustomExample\"`.",
+        "Version Information": "Útgáfuupplýsingar",
+        "Information about the current installation.": "Upplýsingar um núverandi uppsetningu.",
+        "items": "hlutir",
+        "App Template": "Forritalíkan",
+        "No data yet": "Engin gögn enn",
+        "Cancel": "Hætta við",
+        "Confirm": "Staðfesta",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Stilling fyrir ræsingu forritsins. Flestar stillingar eru inni í forritinu á /settings (knúin af birtingu).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Bættu stillingarreitum þínum við hér. Sjá src/views/AdminRoot.vue fyrir stjórnandaglugga fyrir ræsingu.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Engar stillingar fyrir ræsingu enn. Breyttu `src/views/AdminRoot.vue` til að bæta við reitum hér."
+    },
+    "plurals": null
+}

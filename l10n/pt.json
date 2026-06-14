@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Componente de exemplo personalizado",
+        "Dashboard": "Painel de controlo",
+        "Documentation": "Documentação",
+        "Items": "Itens",
+        "Item": "Item",
+        "Open items": "Itens abertos",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Substitua o corpo deste componente por qualquer comportamento personalizado que a sua página necessite — interface de utilizador em tempo real, integrações com fornecedores, tudo o que não se enquadre nos tipos de página integrados.",
+        "Settings": "Definições",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Este é o exemplo canónico de uma página de tipo personalizado no padrão de renderização do manifesto. É renderizada quando uma página de manifesto declara `type: \"custom\"` e `component: \"CustomExample\"`.",
+        "Version Information": "Informações de versão",
+        "Information about the current installation.": "Informações sobre a instalação atual.",
+        "items": "itens",
+        "App Template": "Modelo de aplicação",
+        "No data yet": "Sem dados ainda",
+        "Cancel": "Cancelar",
+        "Confirm": "Confirmar",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Configuração anterior ao arranque da aplicação. A maioria das definições encontra-se dentro da aplicação em /settings (orientado pelo manifesto).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Adicione aqui os campos de definições. Consulte src/views/AdminRoot.vue para o painel de administração anterior ao arranque.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Ainda não existem definições anteriores ao arranque. Edite `src/views/AdminRoot.vue` para adicionar campos aqui."
+    },
+    "plurals": null
+}

@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Benutzerdefiniertes Beispiel-Komponente",
+        "Dashboard": "Dashboard",
+        "Documentation": "Dokumentation",
+        "Items": "Elemente",
+        "Item": "Element",
+        "Open items": "Offene Elemente",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Ersetzen Sie den Inhalt dieser Komponente durch das gewünschte Verhalten Ihrer Seite — Echtzeit-UI, Anbieterintegrationen, alles was nicht in die integrierten Seitentypen passt.",
+        "Settings": "Einstellungen",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Dies ist das kanonische Beispiel einer benutzerdefinierten Seite im Manifest-Renderer-Muster. Sie wird gerendert, wenn eine Manifest-Seite `type: \"custom\"` und `component: \"CustomExample\"` deklariert.",
+        "Version Information": "Versionsinformationen",
+        "Information about the current installation.": "Informationen über die aktuelle Installation.",
+        "items": "Elemente",
+        "App Template": "App-Vorlage",
+        "No data yet": "Noch keine Daten",
+        "Cancel": "Abbrechen",
+        "Confirm": "Bestätigen",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Konfiguration vor dem App-Start. Die meisten Einstellungen befinden sich in der App unter /settings (manifest-gesteuert).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Fügen Sie hier Ihre Einstellungsfelder hinzu. Siehe src/views/AdminRoot.vue für das Admin-Panel vor dem Start.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Noch keine Einstellungen vor dem Start. Bearbeiten Sie `src/views/AdminRoot.vue`, um hier Felder hinzuzufügen."
+    },
+    "plurals": null
+}

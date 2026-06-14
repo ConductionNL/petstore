@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Egyéni példakomponens",
+        "Dashboard": "Műszerfal",
+        "Documentation": "Dokumentáció",
+        "Items": "Elemek",
+        "Item": "Elem",
+        "Open items": "Nyitott elemek",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Cserélje ki ezt a komponens törzsét bármilyen egyedi viselkedésre, amire az oldala szüksége van — valós idejű felhasználói felület, szállítói integrációk, bármi, ami nem illeszkedik a beépített oldaltípusokhoz.",
+        "Settings": "Beállítások",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Ez a kanonikus példa egy egyéni típusú oldalra a manifest megjelenítő mintában. Akkor jelenik meg, amikor egy manifest oldal deklarálja a `type: \"custom\"` és `component: \"CustomExample\"` értékeket.",
+        "Version Information": "Verziószám-információk",
+        "Information about the current installation.": "Információk a jelenlegi telepítésről.",
+        "items": "elemek",
+        "App Template": "Alkalmazássablon",
+        "No data yet": "Még nincs adat",
+        "Cancel": "Mégse",
+        "Confirm": "Megerősítés",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Alkalmazás-indítás előtti konfiguráció. A legtöbb beállítás az alkalmazásban található a /settings helyen (manifest-vezérelt).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Adja hozzá a beállítási mezőket itt. Lásd a src/views/AdminRoot.vue fájlt az indítás előtti felügyeleti panelhez.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Még nincsenek indítás előtti beállítások. Szerkessze a `src/views/AdminRoot.vue` fájlt mezők hozzáadásához."
+    },
+    "plurals": null
+}

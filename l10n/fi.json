@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Mukautettu esimerkkikomponentti",
+        "Dashboard": "Kojelauta",
+        "Documentation": "Dokumentaatio",
+        "Items": "Kohteet",
+        "Item": "Kohde",
+        "Open items": "Avoimet kohteet",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Korvaa tämän komponentin runko sillä räätälöidyllä toiminnolla, jota sivusi tarvitsee — reaaliaikainen käyttöliittymä, toimittajaintegraatiot, kaikki mikä ei sovi sisäänrakennettuihin sivutyyppeihin.",
+        "Settings": "Asetukset",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Tämä on kanoninen esimerkki mukautetun tyypin sivusta manifestin renderöintimallissa. Se renderöidään, kun manifestisivu julistaa `type: \"custom\"` ja `component: \"CustomExample\"`.",
+        "Version Information": "Versiotiedot",
+        "Information about the current installation.": "Tietoja nykyisestä asennuksesta.",
+        "items": "kohteet",
+        "App Template": "Sovelluspohja",
+        "No data yet": "Ei vielä tietoja",
+        "Cancel": "Peruuta",
+        "Confirm": "Vahvista",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Sovelluksen käynnistystä edeltävä konfiguraatio. Useimmat asetukset sijaitsevat sovelluksessa osoitteessa /settings (manifestin ohjaama).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Lisää asetuskentät tähän. Katso src/views/AdminRoot.vue käynnistystä edeltävää hallintapaneelia varten.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Käynnistystä edeltäviä asetuksia ei vielä ole. Muokkaa `src/views/AdminRoot.vue` lisätäksesi kenttiä tähän."
+    },
+    "plurals": null
+}
