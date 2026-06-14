@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Niestandardowy przykładowy komponent",
+        "Dashboard": "Pulpit nawigacyjny",
+        "Documentation": "Dokumentacja",
+        "Items": "Elementy",
+        "Item": "Element",
+        "Open items": "Otwarte elementy",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Zastąp treść tego komponentu dowolnym niestandardowym zachowaniem, którego potrzebuje Twoja strona — interfejs użytkownika w czasie rzeczywistym, integracje z dostawcami, wszystko, co nie pasuje do wbudowanych typów stron.",
+        "Settings": "Ustawienia",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "To jest kanoniczny przykład strony niestandardowego typu we wzorcu renderera manifestu. Jest renderowana, gdy strona manifestu deklaruje `type: \"custom\"` i `component: \"CustomExample\"`.",
+        "Version Information": "Informacje o wersji",
+        "Information about the current installation.": "Informacje o bieżącej instalacji.",
+        "items": "elementy",
+        "App Template": "Szablon aplikacji",
+        "No data yet": "Brak danych",
+        "Cancel": "Anuluj",
+        "Confirm": "Potwierdź",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Konfiguracja przed uruchomieniem aplikacji. Większość ustawień znajduje się wewnątrz aplikacji pod adresem /settings (sterowana manifestem).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Dodaj tutaj pola ustawień. Zobacz src/views/AdminRoot.vue dla panelu administratora przed uruchomieniem.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Brak ustawień przed uruchomieniem. Edytuj `src/views/AdminRoot.vue`, aby dodać tutaj pola."
+    },
+    "plurals": null
+}

@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Özel örnek bileşen",
+        "Dashboard": "Gösterge paneli",
+        "Documentation": "Belgeleme",
+        "Items": "Öğeler",
+        "Item": "Öğe",
+        "Open items": "Açık öğeler",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Bu bileşenin gövdesini sayfanızın ihtiyaç duyduğu özel davranışla değiştirin — gerçek zamanlı kullanıcı arayüzü, satıcı entegrasyonları, yerleşik sayfa türlerine uymayan her şey.",
+        "Settings": "Ayarlar",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Bu, manifest oluşturucu desenindeki özel tür sayfanın kanonik örneğidir. Bir manifest sayfası `type: \"custom\"` ve `component: \"CustomExample\"` bildirdiğinde oluşturulur.",
+        "Version Information": "Sürüm Bilgisi",
+        "Information about the current installation.": "Mevcut kurulum hakkında bilgi.",
+        "items": "öğeler",
+        "App Template": "Uygulama Şablonu",
+        "No data yet": "Henüz veri yok",
+        "Cancel": "İptal",
+        "Confirm": "Onayla",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Uygulama başlatma öncesi yapılandırma. Çoğu ayar, uygulamanın içinde /settings konumunda bulunur (manifest güdümlü).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Ayar alanlarınızı buraya ekleyin. Başlatma öncesi yönetici paneli için src/views/AdminRoot.vue dosyasına bakın.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Henüz başlatma öncesi ayar yok. Buraya alan eklemek için `src/views/AdminRoot.vue` dosyasını düzenleyin."
+    },
+    "plurals": null
+}

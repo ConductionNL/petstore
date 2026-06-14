@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Komponenti shembullor i personalizuar",
+        "Dashboard": "Paneli i kontrollit",
+        "Documentation": "Dokumentimi",
+        "Items": "Artikujt",
+        "Item": "Artikull",
+        "Open items": "Artikujt e hapur",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Zëvendësoni trupin e këtij komponenti me çfarëdo sjellje të personalizuar që ka nevojë faqja juaj — ndërfaqe përdoruesi në kohë reale, integrime me shitës, çdo gjë që nuk përshtatet me llojet e integruara të faqeve.",
+        "Settings": "Cilësimet",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Ky është shembulli kanonik i një faqeje me tip të personalizuar në modelin e renderit të manifestit. Renderohet kur një faqe manifesti deklaron `type: \"custom\"` dhe `component: \"CustomExample\"`.",
+        "Version Information": "Informacioni i versionit",
+        "Information about the current installation.": "Informacion mbi instalimin aktual.",
+        "items": "artikuj",
+        "App Template": "Shablloni i aplikacionit",
+        "No data yet": "Nuk ka të dhëna ende",
+        "Cancel": "Anulo",
+        "Confirm": "Konfirmo",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Konfigurimi para nisjes së aplikacionit. Shumica e cilësimeve gjenden brenda aplikacionit në /settings (të drejtuar nga manifesti).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Shtoni fushat e cilësimeve tuaja këtu. Shihni src/views/AdminRoot.vue për panelin e administratorit para nisjes.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Ende nuk ka cilësime para nisjes. Modifikoni `src/views/AdminRoot.vue` për të shtuar fusha këtu."
+    },
+    "plurals": null
+}

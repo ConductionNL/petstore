@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Tilpasset eksempelkomponent",
+        "Dashboard": "Kontrollpanel",
+        "Documentation": "Dokumentasjon",
+        "Items": "Elementer",
+        "Item": "Element",
+        "Open items": "Åpne elementer",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Erstatt innholdet i denne komponenten med den skreddersydde atferden siden din trenger — brukergrensesnitt i sanntid, leverandørintegrasjoner, alt som ikke passer til de innebygde sidetypene.",
+        "Settings": "Innstillinger",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Dette er det kanoniske eksempelet på en side av tilpasset type i manifestgjengivelsesmønsteret. Den gjengis når en manifestside erklærer `type: \"custom\"` og `component: \"CustomExample\"`.",
+        "Version Information": "Versjonsinformasjon",
+        "Information about the current installation.": "Informasjon om den gjeldende installasjonen.",
+        "items": "elementer",
+        "App Template": "App-mal",
+        "No data yet": "Ingen data ennå",
+        "Cancel": "Avbryt",
+        "Confirm": "Bekreft",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Konfigurasjon før app-oppstart. De fleste innstillinger befinner seg inne i appen på /settings (manifeststyrt).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Legg til innstillingsfeltene dine her. Se src/views/AdminRoot.vue for administratorpanelet før oppstart.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Ingen innstillinger før oppstart ennå. Rediger `src/views/AdminRoot.vue` for å legge til felter her."
+    },
+    "plurals": null
+}

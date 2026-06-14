@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Персонализиран примерен компонент",
+        "Dashboard": "Табло",
+        "Documentation": "Документация",
+        "Items": "Елементи",
+        "Item": "Елемент",
+        "Open items": "Отворени елементи",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Заменете тялото на този компонент с каквото персонализирано поведение се нуждае вашата страница — потребителски интерфейс в реално време, интеграции с доставчици, всичко, което не се вписва в вградените типове страници.",
+        "Settings": "Настройки",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Това е каноничният пример за страница от потребителски тип в шаблона за рендиране на манифест. Рендира се, когато страница от манифеста декларира `type: \"custom\"` и `component: \"CustomExample\"`.",
+        "Version Information": "Информация за версията",
+        "Information about the current installation.": "Информация за текущата инсталация.",
+        "items": "елементи",
+        "App Template": "Шаблон на приложение",
+        "No data yet": "Все още няма данни",
+        "Cancel": "Отказ",
+        "Confirm": "Потвърди",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Конфигурация преди стартиране на приложението. Повечето настройки се намират в приложението на /settings (управлявани от манифест).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Добавете вашите полета за настройки тук. Вижте src/views/AdminRoot.vue за административния панел преди стартиране.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Все още няма настройки преди стартиране. Редактирайте `src/views/AdminRoot.vue`, за да добавите полета тук."
+    },
+    "plurals": null
+}

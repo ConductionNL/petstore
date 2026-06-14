@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Composant exemple personnalisé",
+        "Dashboard": "Tableau de bord",
+        "Documentation": "Documentation",
+        "Items": "Éléments",
+        "Item": "Élément",
+        "Open items": "Éléments ouverts",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Remplacez le corps de ce composant par le comportement personnalisé dont votre page a besoin — interface temps réel, intégrations fournisseurs, tout ce qui ne correspond pas aux types de pages intégrés.",
+        "Settings": "Paramètres",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Ceci est l'exemple canonique d'une page de type personnalisé dans le modèle de rendu de manifeste. Elle est rendue lorsqu'une page de manifeste déclare `type: \"custom\"` et `component: \"CustomExample\"`.",
+        "Version Information": "Informations de version",
+        "Information about the current installation.": "Informations sur l'installation actuelle.",
+        "items": "éléments",
+        "App Template": "Modèle d'application",
+        "No data yet": "Aucune donnée pour l'instant",
+        "Cancel": "Annuler",
+        "Confirm": "Confirmer",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Configuration avant le démarrage de l'application. La plupart des paramètres se trouvent dans l'application à /settings (piloté par manifeste).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Ajoutez vos champs de paramètres ici. Voir src/views/AdminRoot.vue pour le panneau d'administration avant démarrage.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "Aucun paramètre avant démarrage pour l'instant. Modifiez `src/views/AdminRoot.vue` pour ajouter des champs ici."
+    },
+    "plurals": null
+}

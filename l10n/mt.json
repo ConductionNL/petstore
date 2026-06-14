@@ -1,0 +1,24 @@
+{
+    "translations": {
+        "Custom example component": "Komponent ta' eżempju personalizzat",
+        "Dashboard": "Dashboard",
+        "Documentation": "Dokumentazzjoni",
+        "Items": "Oġġetti",
+        "Item": "Oġġett",
+        "Open items": "Oġġetti miftuħa",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Ibdel il-korp ta' dan il-komponent b'kwalunkwe mġiba personalizzata li l-paġna tiegħek teħtieġ — UI f'ħin reali, integrazzjonijiet tal-bejjiegħ, kwalunkwe ħaġa li ma taqbilx mat-tipi ta' paġni integrati.",
+        "Settings": "Settings",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "Dan huwa l-eżempju kanoniku ta' paġna ta' tip personalizzat fil-mudell tar-renderer tal-manifest. Jiġi rrenderjat meta paġna tal-manifest tiddikjara `type: \"custom\"` u `component: \"CustomExample\"`.",
+        "Version Information": "Informazzjoni tal-Verżjoni",
+        "Information about the current installation.": "Informazzjoni dwar l-installazzjoni attwali.",
+        "items": "oġġetti",
+        "App Template": "Template tal-App",
+        "No data yet": "L-ebda data għalissa",
+        "Cancel": "Ikkanċella",
+        "Confirm": "Ikkonferma",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Konfigurazzjoni qabel il-bidu tal-app. Il-biċċa l-kbira tas-settings jgħixu ġewwa l-app f'/settings (immexxija mill-manifest).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Żid il-campi tas-settings tiegħek hawn. Ara src/views/AdminRoot.vue għall-pannell tal-amministratur qabel il-bidu.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "L-ebda settings qabel il-bidu għalissa. Editja `src/views/AdminRoot.vue` biex żżid campi hawn."
+    },
+    "plurals": null
+}
