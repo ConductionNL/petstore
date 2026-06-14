@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AppTemplate\Tests\Unit;
+namespace OCA\PetStore\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 

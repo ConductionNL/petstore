@@ -10,7 +10,7 @@
  *   - Malformed matrix JSON falls back to default-deny
  *
  * @category Test
- * @package  OCA\AppTemplate\Tests\Unit\Service
+ * @package  OCA\PetStore\Tests\Unit\Service
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,9 +23,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\AppTemplate\Tests\Unit\Service;
+namespace OCA\PetStore\Tests\Unit\Service;
 
-use OCA\AppTemplate\Service\ActionAuthService;
+use OCA\PetStore\Service\ActionAuthService;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\IAppConfig;
 use OCP\IGroupManager;

@@ -19,7 +19,7 @@ if (!defined('OC_CONSOLE')) {
     }
 
     \OC_App::loadApps();
-    \OC_App::loadApp('app-template');
+    \OC_App::loadApp('petstore');
     OC_Hook::clear();
 }
 

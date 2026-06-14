@@ -4,7 +4,7 @@
  * Unit tests for SettingsController.
  *
  * @category Test
- * @package  OCA\AppTemplate\Tests\Unit\Controller
+ * @package  OCA\PetStore\Tests\Unit\Controller
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,10 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AppTemplate\Tests\Unit\Controller;
+namespace OCA\PetStore\Tests\Unit\Controller;
 
-use OCA\AppTemplate\Controller\SettingsController;
-use OCA\AppTemplate\Service\SettingsService;
+use OCA\PetStore\Controller\SettingsController;
+use OCA\PetStore\Service\SettingsService;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use PHPUnit\Framework\MockObject\MockObject;
