@@ -292,10 +292,24 @@
 			"config": {
 				"register": "petstore",
 				"schema": "order",
+				"showTitle": true,
+				"icon": "Receipt",
+				"rowIcon": "Receipt",
 				"columns": [
 					"pet",
 					"quantity",
-					"status",
+					{
+						"key": "status",
+						"label": "status",
+						"widget": "badge",
+						"widgetProps": {
+							"colorMap": {
+								"placed": "primary",
+								"approved": "warning",
+								"delivered": "success"
+							}
+						}
+					},
 					"complete"
 				],
 				"sidebar": {
