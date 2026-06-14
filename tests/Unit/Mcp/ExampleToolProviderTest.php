@@ -8,7 +8,7 @@
  * for unknown tools). Rename / extend this alongside ExampleToolProvider.
  *
  * @category Test
- * @package  OCA\AppTemplate\Tests\Unit\Mcp
+ * @package  OCA\PetStore\Tests\Unit\Mcp
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AppTemplate\Tests\Unit\Mcp;
+namespace OCA\PetStore\Tests\Unit\Mcp;
 
-use OCA\AppTemplate\AppInfo\Application;
-use OCA\AppTemplate\Mcp\ExampleToolProvider;
+use OCA\PetStore\AppInfo\Application;
+use OCA\PetStore\Mcp\ExampleToolProvider;
 use OCP\App\IAppManager;
 use OCP\IGroupManager;
 use OCP\IUser;
