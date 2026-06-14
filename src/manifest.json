@@ -299,6 +299,8 @@
 				"filterMenu": true,
 				"cardsLabel": "Tiles",
 				"tableLabel": "List",
+				"cardsIcon": "TilesGrid",
+				"tableIcon": "ListRows",
 				"icon": "Receipt",
 				"rowIcon": "FileDocumentOutline",
 				"columns": [
