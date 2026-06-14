@@ -294,6 +294,7 @@
 				"schema": "order",
 				"showTitle": true,
 				"inlineSearch": true,
+				"filterMenu": true,
 				"icon": "Receipt",
 				"rowIcon": "Receipt",
 				"columns": [
