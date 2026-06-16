@@ -243,12 +243,16 @@
 			"config": {
 				"register": "petstore",
 				"schema": "category",
+				"inlineSearch": true,
+				"searchPlaceholder": "Search by name",
+				"filterMenu": true,
+				"columnMenu": true,
 				"columns": [
 					"name",
 					"description"
 				],
 				"sidebar": {
-					"enabled": true,
+					"enabled": false,
 					"showMetadata": true
 				}
 			}
@@ -297,6 +301,7 @@
 				"inlineSearch": true,
 				"searchPlaceholder": "Search by name",
 				"filterMenu": true,
+				"columnMenu": true,
 				"cardsLabel": "Tiles",
 				"tableLabel": "List",
 				"cardsIcon": "TilesGrid",
