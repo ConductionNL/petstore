@@ -243,16 +243,12 @@
 			"config": {
 				"register": "petstore",
 				"schema": "category",
-				"inlineSearch": true,
-				"searchPlaceholder": "Search by name",
-				"filterMenu": true,
-				"columnMenu": true,
 				"columns": [
 					"name",
 					"description"
 				],
 				"sidebar": {
-					"enabled": false,
+					"enabled": true,
 					"showMetadata": true
 				}
 			}
