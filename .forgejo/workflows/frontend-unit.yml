@@ -28,7 +28,7 @@ permissions:
 jobs:
   frontend-unit:
     name: Frontend unit (Vitest — petstore)
-    runs-on: codeberg-small
+    runs-on: docker
     container:
       image: code.forgejo.org/oci/ci-node:20
     steps:
