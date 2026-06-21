@@ -9,41 +9,39 @@
  `Util::addScript`). This is the panel users reach via Nextcloud's
  "Administration settings" → "App Template".
 
+ The shared `CnAdminSettingsShell` (from @conduction/nextcloud-vue)
+ renders the canonical header + version card (version via loadState,
+ up-to-date indicator, manifest re-import, support/SLA footer). New
+ apps copy this file as-is and add their own "before the app boots"
+ fields (e.g. choosing the OpenRegister register before the manifest
+ renders) into the default slot below.
+
  In a manifest-driven app this surface is mostly redundant — the
  SPA's `type: "settings"` page (declared in `src/manifest.json`)
- covers admin/user settings inside the app's own UI. The Nextcloud
- admin panel below stays as a placeholder for "before the app
- boots" wiring (e.g. choosing the OpenRegister register before the
- manifest renders).
+ covers admin/user settings inside the app's own UI.
 -->
 <template>
-	<div class="petstore-admin-settings">
-		<NcSettingsSection
-			:name="t('petstore', 'App Template')"
-			:description="t('petstore', 'Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).')">
-			<p class="petstore-admin-settings__hint">
-				{{ t('petstore', 'No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.') }}
-			</p>
-		</NcSettingsSection>
-	</div>
+	<CnAdminSettingsShell
+		app-id="petstore"
+		app-name="App Template">
+		<p class="petstore-admin-settings__hint">
+			{{ t('petstore', 'No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.') }}
+		</p>
+	</CnAdminSettingsShell>
 </template>
 
 <script>
-import { NcSettingsSection } from '@nextcloud/vue'
+import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'AdminRoot',
 	components: {
-		NcSettingsSection,
+		CnAdminSettingsShell,
 	},
 }
 </script>
 
 <style scoped>
-.petstore-admin-settings {
-	max-width: 720px;
-}
-
 .petstore-admin-settings__hint {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
