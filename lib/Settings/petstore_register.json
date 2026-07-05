@@ -33,6 +33,7 @@
         "description": "A category of pets (Dogs, Cats, Reptiles, Fish, ...).",
         "type": "object",
         "required": ["name"],
+        "x-schema-org": "schema:DefinedTerm",
         "x-openregister": { "publicRead": false, "publicWrite": false },
         "properties": {
           "name":        { "type": "string", "example": "Dogs" },
@@ -47,6 +48,7 @@
         "description": "A pet in the store.",
         "type": "object",
         "required": ["name", "category", "status"],
+        "x-schema-org": "schema:Product",
         "x-openregister": { "publicRead": false, "publicWrite": false },
         "properties": {
           "name":   { "type": "string", "example": "doggie" },
@@ -72,6 +74,7 @@
         "description": "A customer order for a pet.",
         "type": "object",
         "required": ["pet", "quantity", "status"],
+        "x-schema-org": "schema:Order",
         "x-openregister": { "publicRead": false, "publicWrite": false },
         "properties": {
           "pet": {
