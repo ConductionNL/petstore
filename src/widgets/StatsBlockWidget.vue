@@ -14,7 +14,8 @@ dashboard stats-block widget yet (consumer registry overrides built-ins).
 		:count="count"
 		:count-label="countLabel"
 		:variant="variant"
-		:loading="loading" />
+		:loading="loading"
+		:route="route" />
 </template>
 
 <script>
@@ -68,6 +69,15 @@ export default {
 		filters: {
 			type: Object,
 			default: () => ({}),
+		},
+		/**
+		 * Optional Vue-router location. When set, CnStatsBlock renders the card
+		 * as a <router-link> (and turns clickable on), so the KPI tile navigates
+		 * to the matching list page, e.g. { name: "Examples", query: { status: "available" } }.
+		 */
+		route: {
+			type: Object,
+			default: null,
 		},
 	},
 

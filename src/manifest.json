@@ -84,7 +84,8 @@
 						"schema": "pet",
 						"filters": { "status": "available" },
 						"countLabel": "pets",
-						"variant": "success"
+						"variant": "success",
+						"route": { "name": "Examples", "query": { "status": "available" } }
 					}
 				},
 				{
@@ -101,7 +102,8 @@
 						"schema": "pet",
 						"filters": { "status": "pending" },
 						"countLabel": "pets",
-						"variant": "warning"
+						"variant": "warning",
+						"route": { "name": "Examples", "query": { "status": "pending" } }
 					}
 				},
 				{
@@ -118,7 +120,8 @@
 						"schema": "order",
 						"filters": { "complete": "false" },
 						"countLabel": "orders",
-						"variant": "primary"
+						"variant": "primary",
+						"route": { "name": "Orders", "query": { "complete": "false" } }
 					}
 				},
 				{
@@ -134,7 +137,8 @@
 						"register": "petstore",
 						"schema": "category",
 						"countLabel": "categories",
-						"variant": "default"
+						"variant": "default",
+						"route": { "name": "Categories" }
 					}
 				},
 				{
@@ -212,28 +216,29 @@
 			"config": {
 				"register": "petstore",
 				"schema": "pet",
-				"sidebar": true
-			},
-			"widgets": [
-				{
-					"widgetKey": "object-data",
-					"slot": "sidebar",
-					"tabGroup": "data",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 1,
-					"gridHeight": 1
-				},
-				{
-					"widgetKey": "audit-trail",
-					"slot": "sidebar",
-					"tabGroup": "audit",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 1,
-					"gridHeight": 1
+				"documentationUrl": "https://petstore.conduction.nl",
+				"_note": "Product/catalog archetype for a single pet. A pet is a photographed, categorised item that gets sold, so the body leads with its fields (name, category, status, price, tags, notes) beside a Related panel (its category and the orders that reference it), then gives the pet's photos and documents a full-width Files leaf below — photoUrls is a URI array, so imagery is a primary content type here. The schema declares NO email/calendar/talk linkedType, so this record carries NO comms leaves (no vet-appointment calendar). The audit trail is a rarely-read history, so it stays a sidebar tab.",
+				"widgets": [
+					{ "id": "pet-data", "type": "data", "title": "Pet details", "content": { "columns": 2 } },
+					{ "id": "pet-related", "type": "related", "title": "Category & orders" },
+					{ "id": "pet-files", "type": "integration", "integrationId": "files", "title": "Photos & documents" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "pet-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 4 },
+					{ "id": "2", "widgetId": "pet-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 4 },
+					{ "id": "3", "widgetId": "pet-files", "gridX": 0, "gridY": 4, "gridWidth": 12, "gridHeight": 4 }
+				],
+				"summaryAggregates": [
+					{ "label": "Orders for this pet", "register": "petstore", "schema": "order", "metric": "count", "filter": { "pet": "@objectId" } }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "component": "CnAuditTrailTab" }
+					]
 				}
-			]
+			}
 		},
 		{
 			"id": "Categories",
@@ -261,28 +266,28 @@
 			"config": {
 				"register": "petstore",
 				"schema": "category",
-				"sidebar": true
-			},
-			"widgets": [
-				{
-					"widgetKey": "object-data",
-					"slot": "sidebar",
-					"tabGroup": "data",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 1,
-					"gridHeight": 1
-				},
-				{
-					"widgetKey": "audit-trail",
-					"slot": "sidebar",
-					"tabGroup": "audit",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 1,
-					"gridHeight": 1
+				"documentationUrl": "https://petstore.conduction.nl",
+				"_note": "Catalog archetype for a pet category (Dogs, Cats, ...). A category is a thin grouping (only name + description), so its purpose on the detail page is to answer 'which pets are in it?'. The body therefore keeps the two fields in a compact 4-wide data card and devotes the dominant 8-wide column to a live object-list of the pets whose 'category' FK points at this record, with a KPI chip counting them. Clean and simple: no comms leaves (the schema declares none), no Files (categories carry no attachments). Audit history stays a sidebar tab.",
+				"widgets": [
+					{ "id": "category-data", "type": "data", "title": "Category", "content": { "columns": 1 } },
+					{ "id": "category-pets", "type": "object-list", "title": "Pets in this category", "content": { "register": "petstore", "schema": "pet", "filter": { "category": "@objectId" }, "sort": { "field": "name", "dir": "asc" }, "columns": [{ "key": "name", "label": "Name" }, { "key": "status", "label": "Status" }, { "key": "price", "label": "Price" }], "limit": 100, "rowRoute": "ExampleDetail" } }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "category-data", "gridX": 0, "gridY": 0, "gridWidth": 4, "gridHeight": 4 },
+					{ "id": "2", "widgetId": "category-pets", "gridX": 4, "gridY": 0, "gridWidth": 8, "gridHeight": 6 }
+				],
+				"summaryAggregates": [
+					{ "label": "Pets in category", "register": "petstore", "schema": "pet", "metric": "count", "filter": { "category": "@objectId" } },
+					{ "label": "Available", "register": "petstore", "schema": "pet", "metric": "count", "filter": { "category": "@objectId", "status": "available" } }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "component": "CnAuditTrailTab" }
+					]
 				}
-			]
+			}
 		},
 		{
 			"id": "Orders",
@@ -334,28 +339,29 @@
 			"config": {
 				"register": "petstore",
 				"schema": "order",
-				"sidebar": true
-			},
-			"widgets": [
-				{
-					"widgetKey": "object-data",
-					"slot": "sidebar",
-					"tabGroup": "data",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 1,
-					"gridHeight": 1
-				},
-				{
-					"widgetKey": "audit-trail",
-					"slot": "sidebar",
-					"tabGroup": "audit",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 1,
-					"gridHeight": 1
+				"documentationUrl": "https://petstore.conduction.nl",
+				"_note": "Transaction archetype for a customer order. What matters when opening an order is 'what was ordered, in what state, and where are the papers': the body leads with the transaction fields (pet, quantity, status, shipDate, complete) in an 8-wide data card, a Related panel (4-wide) linking the ordered pet, a quantity KPI chip in the header, and a full-width Files leaf below for the invoice / shipping documents. The order schema is atomic (a single pet+quantity line, no child line-item schema) so there is NO object-list of sub-lines. The schema declares no email/calendar/talk linkedType, so this record carries NO comms leaves and NO meetings. Audit history stays a sidebar tab.",
+				"widgets": [
+					{ "id": "order-data", "type": "data", "title": "Order details", "content": { "columns": 2 } },
+					{ "id": "order-related", "type": "related", "title": "Ordered pet" },
+					{ "id": "order-files", "type": "integration", "integrationId": "files", "title": "Invoice & documents" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "order-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 4 },
+					{ "id": "2", "widgetId": "order-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 4 },
+					{ "id": "3", "widgetId": "order-files", "gridX": 0, "gridY": 4, "gridWidth": 12, "gridHeight": 4 }
+				],
+				"summaryAggregates": [
+					{ "label": "Items ordered", "register": "petstore", "schema": "order", "metric": "sum", "field": "quantity", "filter": { "id": "@objectId" } }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "component": "CnAuditTrailTab" }
+					]
 				}
-			]
+			}
 		},
 		{
 			"id": "Settings",
