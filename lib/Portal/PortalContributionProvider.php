@@ -30,6 +30,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/portal-contribution/tasks.md#task-2
+ * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-4
  */
 
 declare(strict_types=1);
@@ -40,8 +41,10 @@ namespace OCA\PetStore\Portal;
  * Declares what an external portal *client* may see and do in the Pet Store.
  *
  * The contribution is a declarative manifest (pure data — no I/O, no
- * callbacks): two collections scoped by the `owner` UUID property and one
- * whitelisted create-action. All subject identity (subjectRef, audience,
+ * callbacks): two collections scoped by the `owner` UUID property, one
+ * whitelisted create-action, and one endpoint action (contract v2, A6) that
+ * portaliq forwards server-to-server to this app's assertion-guarded
+ * receiver. All subject identity (subjectRef, audience,
  * organisation, trust) is derived server-side by portaliq's auth edge and
  * MUST never be trusted from the client (ADR-005). Scoping uses domain-object
  * UUID references (the owner *contact*), never Nextcloud user ids — externals
@@ -97,7 +100,9 @@ class PortalContributionProvider
      * Manifest vocabulary (amendment A2–A6): `collections` are read surfaces
      * portaliq serves from OpenRegister, scoped by `scopeField` == the
      * subject's owner-contact UUID; `actions` of type `create` expose a strict
-     * field whitelist (status/complete/price stay back-office-only);
+     * field whitelist (status/complete/price stay back-office-only); actions
+     * declaring an `endpoint` + `method` are forwarded server-to-server with
+     * a signed X-Portal-Subject assertion (A6 — see PortalAssertionVerifier);
      * `notifications` feed the shared inbox (none in this demo).
      *
      * @param array<string, mixed> $subject The resolved portal subject.
@@ -105,6 +110,7 @@ class PortalContributionProvider
      * @return array<string, mixed>|null The manifest, or null when not contributing.
      *
      * @spec openspec/changes/portal-contribution/tasks.md#task-3
+     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-4
      */
     public function getContribution(array $subject): ?array
     {
@@ -144,6 +150,18 @@ class PortalContributionProvider
                         'quantity',
                         'shipDate',
                     ],
+                ],
+                // Endpoint action (contract v2, A6): portaliq forwards this
+                // server-to-server to the declared instance-local endpoint
+                // with a signed X-Portal-Subject assertion; petstore verifies
+                // it in PortalActionController via PortalAssertionVerifier.
+                // Vocabulary is {id, label, endpoint, method, minTrust?} — no
+                // `type` key (only create-actions carry one).
+                [
+                    'id'       => 'renamePet',
+                    'label'    => 'Rename a pet',
+                    'endpoint' => '/apps/petstore/api/portal/pets/rename',
+                    'method'   => 'POST',
                 ],
             ],
             'notifications' => [],

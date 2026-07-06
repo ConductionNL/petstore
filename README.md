@@ -315,6 +315,56 @@ References: hydra
 and ADR-035; and decidesk's `OCA\Decidesk\Mcp\DecideskToolProvider` as the
 production example (five real tools, deep links, source descriptors).
 
+### Receiving portal actions (A6)
+
+Pet Store is the fleet's **reference receiver** for ADR-046 contract-v2
+endpoint actions. Portaliq (the shared external portal) forwards a declared
+action server-to-server to an instance-local endpoint in your app, attaching
+an `X-Portal-Subject` header: a short-lived (60s) HS256 JWT assertion carrying
+the resolved portal subject (`sub`, `audience`, `organisation`, `trust`, the
+session's `jti`, `use: "assertion"`, `iat`/`exp`, `iss: "portaliq"`). The
+client's own bearer is **never** forwarded — the assertion is the only
+credential your endpoint will ever see.
+
+The copy-me recipe (all four pieces live in this repo):
+
+1. **Copy the verifier** — `lib/Portal/PortalAssertionVerifier.php` (adjust
+   the namespace). It is self-contained by design: no portaliq import, no JWT
+   composer package — hand-rolled HS256 with `hash_equals`. `verify(string
+   $jwt): ?array` returns the claims or null, fail-closed on *everything*:
+   malformed structure, `alg` ≠ `HS256` (kills `none`), bad signature,
+   `use` ≠ `assertion` (a portal *session* token can never drive your
+   endpoint), `iss` ≠ `portaliq`, missing/expired `exp`, missing/future
+   `iat`, empty `sub`. **Do not edit the secret derivation** — it is copied
+   verbatim from portaliq (`portaliq`/`jwt_signing_secret` app config,
+   falling back to the instance secret) and both ends must stay identical.
+2. **Add a guarded endpoint** — see
+   `lib/Controller/PortalActionController.php` +
+   `appinfo/routes.php`. Mark it `#[PublicPage]` + `#[NoCSRFRequired]`
+   (server-to-server; portal subjects are not Nextcloud users, and the
+   assertion is the auth). Follow the fail-closed ordering exactly:
+   **verify (401) → derive scope from the verified claims → validate input
+   (400) → authorize against the domain row (403) → act**. All subject
+   identity comes from `verify()`'s claims — *never* from request
+   parameters, and no Nextcloud-session fallback. Return the same 403 for
+   "not found" and "not owned" (no existence oracle).
+3. **Declare the action** in your `PortalContributionProvider` manifest:
+   `{id, label, endpoint: '/apps/{yourapp}/api/portal/...', method: 'POST'}`
+   (+ optional `minTrust`). No `type` key — that vocabulary belongs to
+   create-actions. The endpoint must be an instance-local absolute path
+   (portaliq rejects full URLs — SSRF guard).
+4. **Copy the tests** — `tests/Unit/Portal/PortalAssertionVerifierTest.php`
+   (rejection matrix + secret branches) and
+   `tests/Unit/Controller/PortalActionControllerTest.php`. Keep the
+   **round-trip pin**: the suite mints assertions with portaliq's exact
+   procedure, so token-format drift fails CI instead of production forwards.
+
+References: hydra
+[ADR-046 (portaliq external portal)](https://codeberg.org/Conduction/hydra/src/branch/development/openspec/architecture/adr-046-portaliq-external-portal.md)
+(+ 2026-07-06 amendment, contract v2 A6), portaliq's
+`openspec/specs/portal-contribution-contract/spec.md` (the forward side), and
+this repo's `openspec/specs/portal-assertion-verifier/spec.md`.
+
 ### Code quality
 
 ```bash

@@ -10,6 +10,7 @@ built_by: openspec/changes/portal-contribution
 **Scope**: petstore
 **OpenSpec changes**:
 - [portal-contribution](../../changes/portal-contribution/) _(active)_ — reference ADR-046 provider class + `owner` scoping property + unit tests (kind: code)
+- [portal-assertion-verifier](../../changes/portal-assertion-verifier/) _(active)_ — MODIFIES the client manifest (REQ-PORT-003): declares the `renamePet` endpoint action (contract v2, A6) forwarded to the receiver owned by the `portal-assertion-verifier` capability (kind: code)
 
 ## Purpose
 
@@ -36,8 +37,11 @@ The app MUST serve its entire portal contribution through the two artefacts
 this capability owns: the plain, dependency-free
 `OCA\PetStore\Portal\PortalContributionProvider` class (duck-typed by FQCN,
 inert without portaliq) and the `owner` UUID scoping property on the `pet` and
-`order` schemas. No other portal logic, UI, or dependency may exist in
-petstore.
+`order` schemas. No other portal *contribution* logic, UI, or dependency may
+exist in petstore; the RECEIVING side of forwarded endpoint actions (the
+`X-Portal-Subject` verifier and the guarded `renamePet` endpoint) is owned by
+the separate `portal-assertion-verifier` capability and stays equally
+dependency-free.
 
 #### Scenario: Contribution surface is exactly the provider plus the scoping property
 

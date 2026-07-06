@@ -22,6 +22,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/changes/portal-contribution/tasks.md#task-4
+ * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-6
  */
 
 declare(strict_types=1);
@@ -170,7 +171,7 @@ class PortalContributionProviderTest extends TestCase
     }//end testCollectionsAreOwnerScoped()
 
     /**
-     * createOrder is the only action and whitelists exactly pet, quantity, shipDate.
+     * createOrder is the first action and whitelists exactly pet, quantity, shipDate.
      *
      * @return void
      */
@@ -179,7 +180,7 @@ class PortalContributionProviderTest extends TestCase
         $manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
         $actions  = $manifest['actions'];
 
-        $this->assertCount(1, $actions);
+        $this->assertCount(2, $actions);
 
         $action = $actions[0];
         $this->assertSame('createOrder', $action['id']);
@@ -190,4 +191,31 @@ class PortalContributionProviderTest extends TestCase
         $this->assertSame(['pet', 'quantity', 'shipDate'], $action['fields']);
 
     }//end testCreateOrderActionWhitelistsFields()
+
+    /**
+     * renamePet is declared as a contract-v2 A6 endpoint action: an
+     * instance-local absolute path + POST, no `type` key (only create-actions
+     * carry one), and an SSRF-safe endpoint declaration.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-6
+     */
+    public function testRenamePetEndpointActionIsDeclared(): void
+    {
+        $manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
+        $action   = $manifest['actions'][1];
+
+        $this->assertSame('renamePet', $action['id']);
+        $this->assertNotEmpty($action['label']);
+        $this->assertSame('/apps/petstore/api/portal/pets/rename', $action['endpoint']);
+        $this->assertSame('POST', $action['method']);
+        $this->assertArrayNotHasKey('type', $action);
+
+        // Portaliq's SSRF guard: instance-local absolute path only.
+        $this->assertStringStartsWith('/', $action['endpoint']);
+        $this->assertStringNotContainsString('://', $action['endpoint']);
+        $this->assertFalse(str_starts_with($action['endpoint'], '//'));
+
+    }//end testRenamePetEndpointActionIsDeclared()
 }//end class
