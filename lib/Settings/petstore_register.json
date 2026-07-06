@@ -3,7 +3,7 @@
   "info": {
     "title": "PetStore Register",
     "description": "Categories, pets, and orders for the PetStore app.",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "x-openregister": {
     "type": "application",
@@ -20,7 +20,7 @@
         "slug": "petstore",
         "title": "PetStore",
         "description": "Categories, pets, and orders for the PetStore app.",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "schemas": ["category", "pet", "order"]
       }
     },
@@ -43,7 +43,7 @@
       "pet": {
         "slug": "pet",
         "icon": "Paw",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "Pet",
         "description": "A pet in the store.",
         "type": "object",
@@ -63,13 +63,19 @@
           "tags":   { "type": "array", "items": { "type": "string" } },
           "photoUrls": { "type": "array", "items": { "type": "string", "format": "uri" } },
           "price":  { "type": "number",  "minimum": 0, "example": 49.95 },
-          "notes":  { "type": "string" }
+          "notes":  { "type": "string" },
+          "owner":  {
+            "type": "string",
+            "format": "uuid",
+            "title": "Owner",
+            "description": "Portal-subject/owner reference — the UUID of the owner contact (a domain object reference, never a Nextcloud user id). Portaliq scopes external portal reads to this field (hydra ADR-046 A4)."
+          }
         }
       },
       "order": {
         "slug": "order",
         "icon": "Receipt",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "Order",
         "description": "A customer order for a pet.",
         "type": "object",
@@ -87,7 +93,13 @@
           "quantity": { "type": "integer", "minimum": 1, "example": 1 },
           "shipDate": { "type": "string", "format": "date-time" },
           "status":   { "type": "string", "enum": ["placed", "approved", "delivered"] },
-          "complete": { "type": "boolean", "default": false }
+          "complete": { "type": "boolean", "default": false },
+          "owner":    {
+            "type": "string",
+            "format": "uuid",
+            "title": "Owner",
+            "description": "Portal-subject/owner reference — the UUID of the owner contact (a domain object reference, never a Nextcloud user id). Portaliq scopes external portal reads and creates to this field (hydra ADR-046 A4)."
+          }
         }
       }
     }
