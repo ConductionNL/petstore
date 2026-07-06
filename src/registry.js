@@ -22,12 +22,15 @@
 // How to add a new widget (built-in-first — hydra ADR-049):
 //   When a built-in widget can express your surface, you MUST use it —
 //   declare it directly in src/manifest.json (no registry entry, no Vue
-//   file). The enriched `object-table` built-in covers the whole
-//   dashboard-list surface (declarative token-resolved `source`, columns
-//   with formatters, compact hideHeader/borderless mode, rowRoute /
-//   viewAllRoute / emptyText, and declarative row `actions[]` including
-//   `object-op` mutations). See the "recent-pets" widget entry on the
-//   Dashboard page in src/manifest.json for a worked example.
+//   file). The built-in vocabulary covers the whole dashboard surface:
+//   `object-table` (declarative token-resolved `source`, columns with
+//   formatters/badge widgets, compact hideHeader/borderless mode,
+//   rowRoute / viewAllRoute / emptyText, and declarative row `actions[]`
+//   including `object-op` mutations — see the "recent-orders" entry),
+//   `stats-block` (self-fetching KPI `entries[]` with filter + route deep
+//   links — see the "kpi-available-pets" entry), and `header` / `text` /
+//   `divider` (content-only page chrome — see "dashboard-header"). All
+//   worked examples live on the Dashboard page in src/manifest.json.
 //
 //   Only for a genuine one-off no built-in can express:
 //   1. Create src/widgets/<YourWidget>.vue.
@@ -50,10 +53,7 @@
 //
 // See: https://codeberg.org/Conduction/hydra → openspec/architecture/adr-036-universal-widget-manifest.md
 
-import StatsBlockWidget from './widgets/StatsBlockWidget.vue'
-import PageHeaderWidget from './widgets/PageHeaderWidget.vue'
 import ChartByFieldWidget from './widgets/ChartByFieldWidget.vue'
-import RecentObjectsWidget from './widgets/RecentObjectsWidget.vue'
 import ExampleModal from './modals/ExampleModal.vue'
 import EmailField from './formFields/EmailField.vue'
 import StatusBadge from './cellRenderers/StatusBadge.vue'
@@ -62,59 +62,14 @@ import CustomExample from './views/CustomExample.vue'
 export default {
 	// -------------------------------------------------------------------------
 	// kind: "widget" — placeable in any allowed slot via grid coordinates
+	//
+	// ADR-049 Phase-4 dissolution (2026-07-06, @conduction/nextcloud-vue
+	// beta.156): the former stats-block bridge, page-header, and
+	// recent-objects custom widgets were deleted — their surfaces are now
+	// built-in manifest widgets (`stats-block` entries[], `header`,
+	// `object-table`). See the worked examples on the Dashboard page in
+	// src/manifest.json. One custom widget remains, below.
 	// -------------------------------------------------------------------------
-
-	/**
-	 * Dashboard stats card referenced by src/manifest.json (Dashboard page,
-	 * widgetKey "stats-block"). Overrides the built-in of the same key: the
-	 * manifest's stats-block entries use this component's props shape
-	 * (register/schema/filters/countLabel/variant/route), not the built-in's
-	 * `entries[]` API, so removing this entry would break the Dashboard.
-	 */
-	'stats-block': {
-		kind: 'widget',
-		component: StatsBlockWidget,
-		_note: 'Teaching demo kept deliberately: overrides the built-in stats-block because the manifest uses this component\'s register/schema/filters props shape, not the built-in entries[] API.',
-		defaultSize: { w: 3, h: 1 },
-		minSize: { w: 2, h: 1 },
-		maxSize: { w: 12, h: 2 },
-		allowedSlots: ['body'],
-		propsSchema: {
-			type: 'object',
-			properties: {
-				register: { type: 'string' },
-				schema: { type: 'string' },
-				title: { type: 'string' },
-				iconClass: { type: 'string' },
-				countLabel: { type: 'string' },
-				variant: { type: 'string' },
-				filters: { type: 'object' },
-			},
-		},
-	},
-
-	/**
-	 * Dashboard page header (title + description). Restores the page chrome
-	 * the v2 body-widgets render path does not provide; place it at gridY 0
-	 * spanning all 12 columns.
-	 */
-	'page-header': {
-		kind: 'widget',
-		component: PageHeaderWidget,
-		_note: 'No built-in expresses page chrome (title + description + icon) as a gridded body widget; restores the header the v2 body-widgets render path does not provide.',
-		defaultSize: { w: 12, h: 1 },
-		minSize: { w: 6, h: 1 },
-		maxSize: { w: 12, h: 1 },
-		allowedSlots: ['body'],
-		propsSchema: {
-			type: 'object',
-			properties: {
-				title: { type: 'string' },
-				description: { type: 'string' },
-				icon: { type: 'string' },
-			},
-		},
-	},
 
 	/**
 	 * Dashboard chart card: counts the objects of one register/schema
@@ -123,7 +78,7 @@ export default {
 	'chart-by-field': {
 		kind: 'widget',
 		component: ChartByFieldWidget,
-		_note: 'No built-in renders a grouped-count chart (donut/pie/bar) over one register/schema field; bespoke apexcharts canvas.',
+		_note: 'Tranche B (ADR-049 Phase 4): kept because no built-in can express a grouped-count chart over one register/schema FIELD yet — the built-in `chart` widget\'s dataSource only buckets by date interval, not by categorical field value. Dissolve this entry (and both chart-by-field placements in src/manifest.json) when the Wave-3 groupBy aggregation vocabulary lands (nc-vue #91 Wave 3).',
 		defaultSize: { w: 6, h: 3 },
 		minSize: { w: 3, h: 2 },
 		maxSize: { w: 12, h: 4 },
@@ -137,33 +92,6 @@ export default {
 				title: { type: 'string' },
 				chartType: { type: 'string' },
 				height: { type: 'number' },
-			},
-		},
-	},
-
-	/**
-	 * Dashboard table card: the newest N objects of one register/schema.
-	 * Bridges live OpenRegister data to CnDataTable. Kept as the registry
-	 * teaching demo of a self-fetching custom widget — the declarative
-	 * equivalent is the built-in object-table "recent-pets" entry in
-	 * src/manifest.json (compare the two to pick your approach).
-	 */
-	'recent-objects': {
-		kind: 'widget',
-		component: RecentObjectsWidget,
-		_note: 'Teaching demo kept deliberately alongside the built-in object-table example ("recent-pets" in src/manifest.json): shows the imperative CnDataTable bridge for cases the declarative source cannot express.',
-		defaultSize: { w: 12, h: 3 },
-		minSize: { w: 6, h: 2 },
-		maxSize: { w: 12, h: 6 },
-		allowedSlots: ['body'],
-		propsSchema: {
-			type: 'object',
-			properties: {
-				register: { type: 'string' },
-				schema: { type: 'string' },
-				columns: { type: 'array' },
-				title: { type: 'string' },
-				limit: { type: 'number' },
 			},
 		},
 	},

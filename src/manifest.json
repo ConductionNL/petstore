@@ -1,6 +1,6 @@
 {
 	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"dependencies": [
 		"openregister"
 	],
@@ -58,37 +58,47 @@
 			"title": "Dashboard",
 			"widgets": [
 				{
-					"widgetKey": "page-header",
+					"id": "dashboard-header",
+					"widgetKey": "header",
 					"slot": "body",
 					"gridX": 0,
 					"gridY": 0,
 					"gridWidth": 12,
 					"gridHeight": 1,
+					"_note": "Built-in `header` worked example (nc-vue #91 Wave 1): the dashboard catalog's content-only header widget reused on the v2 grid. Replaces the custom page-header registry widget (ADR-049 Phase 4) — page chrome is pure config via props.content ({ title, subtitle, height, and optionally backgroundImageUrl / overlayMode / cta }). Known gap, accepted: CnHeaderWidget has no MDI icon field, so the old icon: \"Paw\" is dropped.",
 					"props": {
-						"title": "Dashboard",
-						"description": "Daily overview of pets, orders and categories",
-						"icon": "Paw"
+						"content": {
+							"title": "Dashboard",
+							"subtitle": "Daily overview of pets, orders and categories",
+							"height": "small"
+						}
 					}
 				},
 				{
+					"id": "kpi-available-pets",
 					"widgetKey": "stats-block",
 					"slot": "body",
 					"gridX": 0,
 					"gridY": 1,
 					"gridWidth": 3,
 					"gridHeight": 1,
+					"_note": "Built-in `stats-block` worked example (ADR-049 / nc-vue #91 Wave 1): replaces the custom self-fetching bridge widget — zero Vue code. Each entries[] item is one KPI: register + schema + filter (shared @-token grammar: @today, @me, @workspace.*, trailing ? = optional clause) counted via the OpenRegister /value aggregation, plus per-entry title / countLabel / variant and a route deep link. One entry per card keeps these four KPIs side-by-side; several entries in one card stack vertically. The three sibling cards below follow this same pattern.",
 					"props": {
-						"title": "Available pets",
-						"iconClass": "icon-files",
-						"register": "petstore",
-						"schema": "pet",
-						"filters": { "status": "available" },
-						"countLabel": "pets",
-						"variant": "success",
-						"route": { "name": "Examples", "query": { "status": "available" } }
+						"entries": [
+							{
+								"title": "Available pets",
+								"register": "petstore",
+								"schema": "pet",
+								"filter": { "status": "available" },
+								"countLabel": "pets",
+								"variant": "success",
+								"route": { "name": "Examples", "query": { "status": "available" } }
+							}
+						]
 					}
 				},
 				{
+					"id": "kpi-pending-pets",
 					"widgetKey": "stats-block",
 					"slot": "body",
 					"gridX": 3,
@@ -96,17 +106,21 @@
 					"gridWidth": 3,
 					"gridHeight": 1,
 					"props": {
-						"title": "Pending reservations",
-						"iconClass": "icon-history",
-						"register": "petstore",
-						"schema": "pet",
-						"filters": { "status": "pending" },
-						"countLabel": "pets",
-						"variant": "warning",
-						"route": { "name": "Examples", "query": { "status": "pending" } }
+						"entries": [
+							{
+								"title": "Pending reservations",
+								"register": "petstore",
+								"schema": "pet",
+								"filter": { "status": "pending" },
+								"countLabel": "pets",
+								"variant": "warning",
+								"route": { "name": "Examples", "query": { "status": "pending" } }
+							}
+						]
 					}
 				},
 				{
+					"id": "kpi-open-orders",
 					"widgetKey": "stats-block",
 					"slot": "body",
 					"gridX": 6,
@@ -114,40 +128,50 @@
 					"gridWidth": 3,
 					"gridHeight": 1,
 					"props": {
-						"title": "Open orders",
-						"iconClass": "icon-category-workflow",
-						"register": "petstore",
-						"schema": "order",
-						"filters": { "complete": "false" },
-						"countLabel": "orders",
-						"variant": "primary",
-						"route": { "name": "Orders", "query": { "complete": "false" } }
+						"entries": [
+							{
+								"title": "Open orders",
+								"register": "petstore",
+								"schema": "order",
+								"filter": { "complete": "false" },
+								"countLabel": "orders",
+								"variant": "primary",
+								"route": { "name": "Orders", "query": { "complete": "false" } }
+							}
+						]
 					}
 				},
 				{
+					"id": "kpi-categories",
 					"widgetKey": "stats-block",
 					"slot": "body",
 					"gridX": 9,
 					"gridY": 1,
 					"gridWidth": 3,
 					"gridHeight": 1,
+					"_note": "Filterless entry: omitting `filter` counts every object of the schema.",
 					"props": {
-						"title": "Categories",
-						"iconClass": "icon-category-organization",
-						"register": "petstore",
-						"schema": "category",
-						"countLabel": "categories",
-						"variant": "default",
-						"route": { "name": "Categories" }
+						"entries": [
+							{
+								"title": "Categories",
+								"register": "petstore",
+								"schema": "category",
+								"countLabel": "categories",
+								"variant": "default",
+								"route": { "name": "Categories" }
+							}
+						]
 					}
 				},
 				{
+					"id": "chart-pets-per-category",
 					"widgetKey": "chart-by-field",
 					"slot": "body",
 					"gridX": 0,
 					"gridY": 2,
 					"gridWidth": 6,
 					"gridHeight": 3,
+					"_note": "Custom registry widget kept deliberately for tranche B (ADR-049): the built-in `chart` widget cannot yet express a grouped-count over one register/schema field (its dataSource only buckets by DATE interval) — this needs the Wave-3 groupBy aggregation vocabulary, nc-vue #91. Dissolve both chart-by-field placements when it lands; justification lives in src/registry.js.",
 					"props": {
 						"title": "Pets per category",
 						"register": "petstore",
@@ -157,6 +181,7 @@
 					}
 				},
 				{
+					"id": "chart-orders-by-status",
 					"widgetKey": "chart-by-field",
 					"slot": "body",
 					"gridX": 6,
@@ -172,53 +197,49 @@
 					}
 				},
 				{
-					"widgetKey": "recent-objects",
+					"id": "recent-orders",
+					"widgetKey": "object-table",
 					"slot": "body",
 					"gridX": 0,
 					"gridY": 5,
 					"gridWidth": 12,
 					"gridHeight": 3,
+					"_note": "Built-in `object-table` worked example (hydra ADR-049): ONE declarative table now replaces both the custom recent-objects bridge widget and the earlier compact recent-pets example. Vocabulary shown, all zero Vue code: token-resolved source with order/limit, mixed column forms (string shorthand; object form with formatter: \"date\"; widget: \"badge\" + widgetProps colorMap — same shape as the Orders index page columns), rowRoute/viewAllRoute navigation, emptyText, and a declarative object-op row action (patch with confirm). For the compact dashboard-list look instead, flip hideHeader + borderless and trim to two columns with cn-cell-- utility classes.",
 					"props": {
 						"title": "Recent orders",
-						"register": "petstore",
-						"schema": "order",
-						"columns": ["pet", "quantity", "shipDate", "status", "complete"],
-						"limit": 5
-					}
-				},
-				{
-					"id": "recent-pets",
-					"widgetKey": "object-table",
-					"slot": "body",
-					"gridX": 0,
-					"gridY": 8,
-					"gridWidth": 6,
-					"gridHeight": 4,
-					"_note": "Built-in object-table worked example (hydra ADR-049): the declarative twin of the custom recent-objects widget above — token-resolved source, compact hideHeader/borderless list, rowRoute/viewAllRoute navigation and a declarative object-op row action, all with zero Vue code.",
-					"props": {
-						"title": "Recent pets",
 						"source": {
 							"register": "petstore",
-							"schema": "pet",
+							"schema": "order",
 							"order": { "created": "desc" },
 							"limit": 5
 						},
 						"columns": [
-							{ "key": "name", "cellClass": "cn-cell--strong" },
-							{ "key": "status", "cellClass": "cn-cell--muted cn-cell--end" }
+							{ "key": "pet", "cellClass": "cn-cell--strong" },
+							"quantity",
+							{ "key": "shipDate", "formatter": "date" },
+							{
+								"key": "status",
+								"widget": "badge",
+								"widgetProps": {
+									"colorMap": {
+										"placed": "primary",
+										"approved": "warning",
+										"delivered": "success"
+									}
+								}
+							},
+							"complete"
 						],
-						"hideHeader": true,
-						"borderless": true,
-						"rowRoute": "ExampleDetail",
-						"viewAllRoute": { "name": "Examples" },
-						"emptyText": "No pets yet",
+						"rowRoute": "OrderDetail",
+						"viewAllRoute": { "name": "Orders" },
+						"emptyText": "No orders yet",
 						"actions": [
 							{
-								"id": "mark-sold",
-								"label": "Mark as sold",
+								"id": "mark-complete",
+								"label": "Mark complete",
 								"type": "object-op",
 								"op": "patch",
-								"values": { "status": "sold" },
+								"values": { "complete": true },
 								"confirm": true
 							}
 						]
