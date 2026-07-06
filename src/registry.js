@@ -19,9 +19,22 @@
 //   1. Built-in widgets    (object-table, form-renderer, wiki-renderer, …)
 //   2. This registry       ← consumer-injected components
 //
-// How to add a new widget:
+// How to add a new widget (built-in-first — hydra ADR-049):
+//   When a built-in widget can express your surface, you MUST use it —
+//   declare it directly in src/manifest.json (no registry entry, no Vue
+//   file). The enriched `object-table` built-in covers the whole
+//   dashboard-list surface (declarative token-resolved `source`, columns
+//   with formatters, compact hideHeader/borderless mode, rowRoute /
+//   viewAllRoute / emptyText, and declarative row `actions[]` including
+//   `object-op` mutations). See the "recent-pets" widget entry on the
+//   Dashboard page in src/manifest.json for a worked example.
+//
+//   Only for a genuine one-off no built-in can express:
 //   1. Create src/widgets/<YourWidget>.vue.
-//   2. Add an entry here with kind: "widget" + required metadata.
+//   2. Add an entry here with kind: "widget" + required metadata AND a
+//      `_note` field justifying why no built-in widget fits (required —
+//      hydra gate 29, hydra-gate-custom-widget-ratchet, fails the PR
+//      without it).
 //   3. Reference it in src/manifest.json via widgetKey: "<your-key>".
 //
 // How to add a new modal:
@@ -37,7 +50,6 @@
 //
 // See: https://codeberg.org/Conduction/hydra → openspec/architecture/adr-036-universal-widget-manifest.md
 
-import ExampleWidget from './widgets/ExampleWidget.vue'
 import StatsBlockWidget from './widgets/StatsBlockWidget.vue'
 import PageHeaderWidget from './widgets/PageHeaderWidget.vue'
 import ChartByFieldWidget from './widgets/ChartByFieldWidget.vue'
@@ -53,19 +65,16 @@ export default {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Example custom widget. Keep or delete when scaffolding a new app.
-	 * Not referenced by src/manifest.json by default — wire it up by
-	 * adding a widgets[] entry with widgetKey: "example-widget".
-	 */
-	/**
 	 * Dashboard stats card referenced by src/manifest.json (Dashboard page,
-	 * widgetKey "stats-block"). Overrides the (absent) built-in: nc-vue
-	 * beta.101 has no built-in dashboard stats-block, so without this entry
-	 * the Dashboard renders empty with an "Unknown widgetKey" warning.
+	 * widgetKey "stats-block"). Overrides the built-in of the same key: the
+	 * manifest's stats-block entries use this component's props shape
+	 * (register/schema/filters/countLabel/variant/route), not the built-in's
+	 * `entries[]` API, so removing this entry would break the Dashboard.
 	 */
 	'stats-block': {
 		kind: 'widget',
 		component: StatsBlockWidget,
+		_note: 'Teaching demo kept deliberately: overrides the built-in stats-block because the manifest uses this component\'s register/schema/filters props shape, not the built-in entries[] API.',
 		defaultSize: { w: 3, h: 1 },
 		minSize: { w: 2, h: 1 },
 		maxSize: { w: 12, h: 2 },
@@ -92,6 +101,7 @@ export default {
 	'page-header': {
 		kind: 'widget',
 		component: PageHeaderWidget,
+		_note: 'No built-in expresses page chrome (title + description + icon) as a gridded body widget; restores the header the v2 body-widgets render path does not provide.',
 		defaultSize: { w: 12, h: 1 },
 		minSize: { w: 6, h: 1 },
 		maxSize: { w: 12, h: 1 },
@@ -113,6 +123,7 @@ export default {
 	'chart-by-field': {
 		kind: 'widget',
 		component: ChartByFieldWidget,
+		_note: 'No built-in renders a grouped-count chart (donut/pie/bar) over one register/schema field; bespoke apexcharts canvas.',
 		defaultSize: { w: 6, h: 3 },
 		minSize: { w: 3, h: 2 },
 		maxSize: { w: 12, h: 4 },
@@ -132,12 +143,15 @@ export default {
 
 	/**
 	 * Dashboard table card: the newest N objects of one register/schema.
-	 * Bridges live OpenRegister data to CnDataTable (the built-in
-	 * object-table widget is presentational and does not self-fetch).
+	 * Bridges live OpenRegister data to CnDataTable. Kept as the registry
+	 * teaching demo of a self-fetching custom widget — the declarative
+	 * equivalent is the built-in object-table "recent-pets" entry in
+	 * src/manifest.json (compare the two to pick your approach).
 	 */
 	'recent-objects': {
 		kind: 'widget',
 		component: RecentObjectsWidget,
+		_note: 'Teaching demo kept deliberately alongside the built-in object-table example ("recent-pets" in src/manifest.json): shows the imperative CnDataTable bridge for cases the declarative source cannot express.',
 		defaultSize: { w: 12, h: 3 },
 		minSize: { w: 6, h: 2 },
 		maxSize: { w: 12, h: 6 },
@@ -150,21 +164,6 @@ export default {
 				columns: { type: 'array' },
 				title: { type: 'string' },
 				limit: { type: 'number' },
-			},
-		},
-	},
-
-	'example-widget': {
-		kind: 'widget',
-		component: ExampleWidget,
-		defaultSize: { w: 3, h: 1 },
-		minSize: { w: 2, h: 1 },
-		maxSize: { w: 12, h: 4 },
-		allowedSlots: ['body', 'sidebar'],
-		propsSchema: {
-			type: 'object',
-			properties: {
-				message: { type: 'string' },
 			},
 		},
 	},

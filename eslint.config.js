@@ -45,7 +45,13 @@ module.exports = defineConfig([{
 }, {
 	// Node-side CLI tools (build / validate scripts) legitimately use
 	// console + process.exit and ship as plain JS (no shebang).
-	files: ['tests/validate-manifest.js'],
+	files: [
+		'tests/validate-manifest.js',
+		'tests/validate-register.js',
+		'tests/validate-json-strict.js',
+		'tests/manifest-v2.spec.js',
+		'tests/registry.spec.js',
+	],
 	rules: {
 		'no-console': 'off',
 		'n/no-process-exit': 'off',

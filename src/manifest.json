@@ -185,6 +185,44 @@
 						"columns": ["pet", "quantity", "shipDate", "status", "complete"],
 						"limit": 5
 					}
+				},
+				{
+					"id": "recent-pets",
+					"widgetKey": "object-table",
+					"slot": "body",
+					"gridX": 0,
+					"gridY": 8,
+					"gridWidth": 6,
+					"gridHeight": 4,
+					"_note": "Built-in object-table worked example (hydra ADR-049): the declarative twin of the custom recent-objects widget above — token-resolved source, compact hideHeader/borderless list, rowRoute/viewAllRoute navigation and a declarative object-op row action, all with zero Vue code.",
+					"props": {
+						"title": "Recent pets",
+						"source": {
+							"register": "petstore",
+							"schema": "pet",
+							"order": { "created": "desc" },
+							"limit": 5
+						},
+						"columns": [
+							{ "key": "name", "cellClass": "cn-cell--strong" },
+							{ "key": "status", "cellClass": "cn-cell--muted cn-cell--end" }
+						],
+						"hideHeader": true,
+						"borderless": true,
+						"rowRoute": "ExampleDetail",
+						"viewAllRoute": { "name": "Examples" },
+						"emptyText": "No pets yet",
+						"actions": [
+							{
+								"id": "mark-sold",
+								"label": "Mark as sold",
+								"type": "object-op",
+								"op": "patch",
+								"values": { "status": "sold" },
+								"confirm": true
+							}
+						]
+					}
 				}
 			]
 		},
