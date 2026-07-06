@@ -5,7 +5,7 @@
   Minimal NATIVE Nextcloud Dashboard widget (the server-wide dashboard at
   /apps/dashboard — OCA.Dashboard). For widgets INSIDE the app, do NOT copy
   this file: declare a built-in widget (object-table / stats-block) in
-  src/manifest.json instead — see the "recent-pets" object-table entry on
+  src/manifest.json instead — see the "recent-orders" object-table entry on
   the Dashboard page for the worked example (hydra ADR-049).
 
   This renderer uses the universal CnDataTable compact-list pattern:
@@ -65,8 +65,8 @@ export default {
 		this.emptyMessage = t('petstore', 'No pets yet')
 		try {
 			// The newest pets from the petstore register's "pet" schema — the
-			// same OpenRegister objects API the in-app widgets read from
-			// (see src/widgets/RecentObjectsWidget.vue for the gridded twin).
+			// same OpenRegister objects API the in-app built-in object-table
+			// widget queries declaratively (the "recent-orders" manifest entry).
 			const url = generateUrl('/apps/openregister/api/objects/petstore/pet')
 			const { data } = await axios.get(url, {
 				params: { _limit: 7, _order: { '@self.created': 'DESC' } },
