@@ -9,7 +9,7 @@
     <description lang="en"><![CDATA[{APP_DESCRIPTION}]]></description>
     <description lang="nl"><![CDATA[{APP_DESCRIPTION}]]></description>
     <version>0.1.7</version>
-    <licence>eupl</licence>
+    <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>PetStore</namespace>
     <documentation>
