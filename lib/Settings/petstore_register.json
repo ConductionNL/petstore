@@ -52,10 +52,9 @@
           "name":   { "type": "string", "example": "doggie" },
           "category": {
             "type": "string",
-            "x-openregister-relations": {
-              "schema": "category",
-              "cardinality": "many-to-one"
-            }
+            "format": "uuid",
+            "$ref": "category",
+            "description": "Reference to the pet's category (uuid of the category object)."
           },
           "status": { "type": "string", "enum": ["available", "pending", "sold"] },
           "tags":   { "type": "array", "items": { "type": "string" } },
@@ -76,10 +75,9 @@
         "properties": {
           "pet": {
             "type": "string",
-            "x-openregister-relations": {
-              "schema": "pet",
-              "cardinality": "many-to-one"
-            }
+            "format": "uuid",
+            "$ref": "pet",
+            "description": "Reference to the ordered pet (uuid of the pet object)."
           },
           "quantity": { "type": "integer", "minimum": 1, "example": 1 },
           "shipDate": { "type": "string", "format": "date-time" },
