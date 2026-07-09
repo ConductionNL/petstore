@@ -34,6 +34,9 @@ module.exports = defineConfig([{
 		// Allow unused i18n functions (t, n) — imported for future translation wiring
 		'no-unused-vars': ['error', { varsIgnorePattern: '^(t|n)$', argsIgnorePattern: '^_' }],
 		'jsdoc/require-jsdoc': 'off',
+		// @spec (gate-16 spec-coverage) and @e2e (gate-19 e2e traceability)
+		// are the hydra traceability tags — valid on any method docblock.
+		'jsdoc/check-tag-names': ['warn', { definedTags: ['spec', 'e2e'] }],
 		'vue/first-attribute-linebreak': 'off',
 		'@typescript-eslint/no-explicit-any': 'off',
 		'n/no-missing-import': 'off',
@@ -45,7 +48,13 @@ module.exports = defineConfig([{
 }, {
 	// Node-side CLI tools (build / validate scripts) legitimately use
 	// console + process.exit and ship as plain JS (no shebang).
-	files: ['tests/validate-manifest.js'],
+	files: [
+		'tests/validate-manifest.js',
+		'tests/validate-register.js',
+		'tests/validate-json-strict.js',
+		'tests/manifest-v2.spec.js',
+		'tests/registry.spec.js',
+	],
 	rules: {
 		'no-console': 'off',
 		'n/no-process-exit': 'off',

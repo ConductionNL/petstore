@@ -74,7 +74,6 @@ class Application extends App implements IBootstrap
             listener: DeepLinkRegistrationListener::class
         );
 
-
         // Sample dashboard widget — see lib/Dashboard/ExampleWidget.php.
         // Delete this line and the ExampleWidget files if your app has no
         // dashboard widgets.

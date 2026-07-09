@@ -11,7 +11,7 @@
 >
     <projectFiles>
         <directory name="lib" />
-        <ignoreFiles>
+        <ignoreFiles allowMissingFiles="true">
             <directory name="vendor" />
             <!-- Apps that ship a verbatim template snapshot under lib/Resources/template/ (e.g. openbuild)
                  keep it out of psalm scope. No-op for apps without the directory. -->

@@ -19,9 +19,25 @@
 //   1. Built-in widgets    (object-table, form-renderer, wiki-renderer, …)
 //   2. This registry       ← consumer-injected components
 //
-// How to add a new widget:
+// How to add a new widget (built-in-first — hydra ADR-049):
+//   When a built-in widget can express your surface, you MUST use it —
+//   declare it directly in src/manifest.json (no registry entry, no Vue
+//   file). The built-in vocabulary covers the whole dashboard surface:
+//   `object-table` (declarative token-resolved `source`, columns with
+//   formatters/badge widgets, compact hideHeader/borderless mode,
+//   rowRoute / viewAllRoute / emptyText, and declarative row `actions[]`
+//   including `object-op` mutations — see the "recent-orders" entry),
+//   `stats-block` (self-fetching KPI `entries[]` with filter + route deep
+//   links — see the "kpi-available-pets" entry), and `header` / `text` /
+//   `divider` (content-only page chrome — see "dashboard-header"). All
+//   worked examples live on the Dashboard page in src/manifest.json.
+//
+//   Only for a genuine one-off no built-in can express:
 //   1. Create src/widgets/<YourWidget>.vue.
-//   2. Add an entry here with kind: "widget" + required metadata.
+//   2. Add an entry here with kind: "widget" + required metadata AND a
+//      `_note` field justifying why no built-in widget fits (required —
+//      hydra gate 29, hydra-gate-custom-widget-ratchet, fails the PR
+//      without it).
 //   3. Reference it in src/manifest.json via widgetKey: "<your-key>".
 //
 // How to add a new modal:
@@ -37,11 +53,7 @@
 //
 // See: https://codeberg.org/Conduction/hydra → openspec/architecture/adr-036-universal-widget-manifest.md
 
-import ExampleWidget from './widgets/ExampleWidget.vue'
-import StatsBlockWidget from './widgets/StatsBlockWidget.vue'
-import PageHeaderWidget from './widgets/PageHeaderWidget.vue'
 import ChartByFieldWidget from './widgets/ChartByFieldWidget.vue'
-import RecentObjectsWidget from './widgets/RecentObjectsWidget.vue'
 import ExampleModal from './modals/ExampleModal.vue'
 import EmailField from './formFields/EmailField.vue'
 import StatusBadge from './cellRenderers/StatusBadge.vue'
@@ -50,61 +62,14 @@ import CustomExample from './views/CustomExample.vue'
 export default {
 	// -------------------------------------------------------------------------
 	// kind: "widget" — placeable in any allowed slot via grid coordinates
+	//
+	// ADR-049 Phase-4 dissolution (2026-07-06, @conduction/nextcloud-vue
+	// beta.156): the former stats-block bridge, page-header, and
+	// recent-objects custom widgets were deleted — their surfaces are now
+	// built-in manifest widgets (`stats-block` entries[], `header`,
+	// `object-table`). See the worked examples on the Dashboard page in
+	// src/manifest.json. One custom widget remains, below.
 	// -------------------------------------------------------------------------
-
-	/**
-	 * Example custom widget. Keep or delete when scaffolding a new app.
-	 * Not referenced by src/manifest.json by default — wire it up by
-	 * adding a widgets[] entry with widgetKey: "example-widget".
-	 */
-	/**
-	 * Dashboard stats card referenced by src/manifest.json (Dashboard page,
-	 * widgetKey "stats-block"). Overrides the (absent) built-in: nc-vue
-	 * beta.101 has no built-in dashboard stats-block, so without this entry
-	 * the Dashboard renders empty with an "Unknown widgetKey" warning.
-	 */
-	'stats-block': {
-		kind: 'widget',
-		component: StatsBlockWidget,
-		defaultSize: { w: 3, h: 1 },
-		minSize: { w: 2, h: 1 },
-		maxSize: { w: 12, h: 2 },
-		allowedSlots: ['body'],
-		propsSchema: {
-			type: 'object',
-			properties: {
-				register: { type: 'string' },
-				schema: { type: 'string' },
-				title: { type: 'string' },
-				iconClass: { type: 'string' },
-				countLabel: { type: 'string' },
-				variant: { type: 'string' },
-				filters: { type: 'object' },
-			},
-		},
-	},
-
-	/**
-	 * Dashboard page header (title + description). Restores the page chrome
-	 * the v2 body-widgets render path does not provide; place it at gridY 0
-	 * spanning all 12 columns.
-	 */
-	'page-header': {
-		kind: 'widget',
-		component: PageHeaderWidget,
-		defaultSize: { w: 12, h: 1 },
-		minSize: { w: 6, h: 1 },
-		maxSize: { w: 12, h: 1 },
-		allowedSlots: ['body'],
-		propsSchema: {
-			type: 'object',
-			properties: {
-				title: { type: 'string' },
-				description: { type: 'string' },
-				icon: { type: 'string' },
-			},
-		},
-	},
 
 	/**
 	 * Dashboard chart card: counts the objects of one register/schema
@@ -113,6 +78,7 @@ export default {
 	'chart-by-field': {
 		kind: 'widget',
 		component: ChartByFieldWidget,
+		_note: 'Tranche B (ADR-049 Phase 4): kept because no built-in can express a grouped-count chart over one register/schema FIELD yet — the built-in `chart` widget\'s dataSource only buckets by date interval, not by categorical field value. Dissolve this entry (and both chart-by-field placements in src/manifest.json) when the Wave-3 groupBy aggregation vocabulary lands (nc-vue #91 Wave 3).',
 		defaultSize: { w: 6, h: 3 },
 		minSize: { w: 3, h: 2 },
 		maxSize: { w: 12, h: 4 },
@@ -126,45 +92,6 @@ export default {
 				title: { type: 'string' },
 				chartType: { type: 'string' },
 				height: { type: 'number' },
-			},
-		},
-	},
-
-	/**
-	 * Dashboard table card: the newest N objects of one register/schema.
-	 * Bridges live OpenRegister data to CnDataTable (the built-in
-	 * object-table widget is presentational and does not self-fetch).
-	 */
-	'recent-objects': {
-		kind: 'widget',
-		component: RecentObjectsWidget,
-		defaultSize: { w: 12, h: 3 },
-		minSize: { w: 6, h: 2 },
-		maxSize: { w: 12, h: 6 },
-		allowedSlots: ['body'],
-		propsSchema: {
-			type: 'object',
-			properties: {
-				register: { type: 'string' },
-				schema: { type: 'string' },
-				columns: { type: 'array' },
-				title: { type: 'string' },
-				limit: { type: 'number' },
-			},
-		},
-	},
-
-	'example-widget': {
-		kind: 'widget',
-		component: ExampleWidget,
-		defaultSize: { w: 3, h: 1 },
-		minSize: { w: 2, h: 1 },
-		maxSize: { w: 12, h: 4 },
-		allowedSlots: ['body', 'sidebar'],
-		propsSchema: {
-			type: 'object',
-			properties: {
-				message: { type: 'string' },
 			},
 		},
 	},
