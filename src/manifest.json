@@ -87,6 +87,7 @@
 						"entries": [
 							{
 								"title": "Available pets",
+								"iconClass": "icon-files",
 								"register": "petstore",
 								"schema": "pet",
 								"filter": { "status": "available" },
@@ -109,6 +110,7 @@
 						"entries": [
 							{
 								"title": "Pending reservations",
+								"iconClass": "icon-history",
 								"register": "petstore",
 								"schema": "pet",
 								"filter": { "status": "pending" },
@@ -131,6 +133,7 @@
 						"entries": [
 							{
 								"title": "Open orders",
+								"iconClass": "icon-category-workflow",
 								"register": "petstore",
 								"schema": "order",
 								"filter": { "complete": "false" },
@@ -154,6 +157,7 @@
 						"entries": [
 							{
 								"title": "Categories",
+								"iconClass": "icon-category-organization",
 								"register": "petstore",
 								"schema": "category",
 								"countLabel": "categories",
