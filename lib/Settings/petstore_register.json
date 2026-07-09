@@ -3,7 +3,7 @@
   "info": {
     "title": "PetStore Register",
     "description": "Categories, pets, and orders for the PetStore app.",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "x-openregister": {
     "type": "application",
@@ -20,7 +20,7 @@
         "slug": "petstore",
         "title": "PetStore",
         "description": "Categories, pets, and orders for the PetStore app.",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "schemas": ["category", "pet", "order"]
       }
     },
@@ -43,7 +43,7 @@
       "pet": {
         "slug": "pet",
         "icon": "Paw",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "title": "Pet",
         "description": "A pet in the store.",
         "type": "object",
@@ -51,19 +51,19 @@
         "x-schema-org": "schema:Product",
         "x-openregister": { "publicRead": false, "publicWrite": false },
         "properties": {
-          "name":   { "type": "string", "example": "doggie" },
+          "name":   { "type": "string", "title": "Name", "example": "doggie" },
           "category": {
             "type": "string",
-            "x-openregister-relations": {
-              "schema": "category",
-              "cardinality": "many-to-one"
-            }
+            "format": "uuid",
+            "$ref": "category",
+            "title": "Category",
+            "description": "Reference to the pet's category (uuid of the category object)."
           },
-          "status": { "type": "string", "enum": ["available", "pending", "sold"] },
-          "tags":   { "type": "array", "items": { "type": "string" } },
-          "photoUrls": { "type": "array", "items": { "type": "string", "format": "uri" } },
-          "price":  { "type": "number",  "minimum": 0, "example": 49.95 },
-          "notes":  { "type": "string" },
+          "status": { "type": "string", "title": "Status", "enum": ["available", "pending", "sold"] },
+          "tags":   { "type": "array", "title": "Tags", "items": { "type": "string" } },
+          "photoUrls": { "type": "array", "title": "Photo URLs", "items": { "type": "string", "format": "uri" } },
+          "price":  { "type": "number",  "title": "Price", "minimum": 0, "example": 49.95 },
+          "notes":  { "type": "string", "title": "Notes" },
           "owner":  {
             "type": "string",
             "format": "uuid",
@@ -75,25 +75,50 @@
       "order": {
         "slug": "order",
         "icon": "Receipt",
-        "version": "0.3.0",
+        "version": "0.5.0",
         "title": "Order",
-        "description": "A customer order for a pet.",
+        "description": "A customer order for a pet — the base order/agreement primitive shared with other Conduction order-bearing apps (concrete kinds discriminate via orderType). PetStore populates it as a `sales` order per pet purchase.",
         "type": "object",
-        "required": ["pet", "quantity", "status"],
+        "required": ["administrationId"],
         "x-schema-org": "schema:Order",
         "x-openregister": { "publicRead": false, "publicWrite": false },
         "properties": {
           "pet": {
             "type": "string",
-            "x-openregister-relations": {
-              "schema": "pet",
-              "cardinality": "many-to-one"
-            }
+            "format": "uuid",
+            "$ref": "pet",
+            "title": "Pet",
+            "description": "Reference to the ordered pet (uuid of the pet object). This is the canonical order→pet relation (ADR-062 rule 7: relations are typed $ref+format:uuid fields, never free-text) — it replaces `projectReference` as a human-readable label for the exemplar's own KPI/relation teaching. Without it, 'Orders for this pet' cannot be computed."
           },
-          "quantity": { "type": "integer", "minimum": 1, "example": 1 },
-          "shipDate": { "type": "string", "format": "date-time" },
-          "status":   { "type": "string", "enum": ["placed", "approved", "delivered"] },
-          "complete": { "type": "boolean", "default": false },
+          "orderType":         { "type": "string", "title": "Order Type", "nullable": true, "enum": ["booking", "sales", "purchase", "grant", "engagement", "quote", "blanket"], "description": "Discriminator selecting the order kind; PetStore orders are 'sales'." },
+          "direction":         { "type": "string", "title": "Direction", "nullable": true, "enum": ["incoming", "outgoing"], "description": "incoming (we receive) vs outgoing (we issue) — PetStore sales are outgoing." },
+          "orderNumber":       { "type": "string", "title": "Order Number", "nullable": true, "description": "Human reference (e.g. ORD-2026-0007)." },
+          "counterpartyId":    { "type": "string", "title": "Counterparty ID", "nullable": true, "description": "Customer party id." },
+          "counterpartyName":  { "type": "string", "title": "Counterparty Name", "nullable": true, "description": "Customer display name (snapshot)." },
+          "paymentTerms":      { "type": "string", "title": "Payment Terms", "nullable": true, "description": "Payment terms (e.g. '30 dagen')." },
+          "totalAmount":       { "type": "number", "title": "Total Amount", "nullable": true, "description": "Headline order total." },
+          "orderDate":         { "type": "string", "title": "Order Date", "format": "date", "nullable": true },
+          "currency":          { "type": "string", "title": "Currency", "nullable": true, "example": "EUR" },
+          "basePrice":         { "type": "number", "title": "Base Price", "nullable": true },
+          "taxRate":           { "type": "number", "title": "Tax Rate", "nullable": true, "example": 21 },
+          "estimatedTotal":    { "type": "number", "title": "Estimated Total", "nullable": true },
+          "projectReference":  { "type": "string", "title": "Project Reference", "nullable": true, "description": "Optional free-text project label — superseded by the typed `pet` relation above for anything the app needs to query or KPI on." },
+          "administrationId":  { "type": "string", "title": "Administration ID", "example": "petstore-hq", "description": "FK to the administration owning this order for tenant isolation." },
+          "orderId":           { "type": "string", "title": "Order ID", "nullable": true },
+          "bookingTypeId":     { "type": "string", "title": "Booking Type ID", "nullable": true },
+          "customerId":        { "type": "string", "title": "Customer ID", "nullable": true },
+          "description":       { "type": "string", "title": "Description", "nullable": true },
+          "quantity":          { "type": "integer", "title": "Quantity", "minimum": 1, "example": 1 },
+          "shipDate":          { "type": "string", "title": "Ship Date", "format": "date-time", "nullable": true },
+          "status":            { "type": "string", "title": "Status", "enum": ["placed", "approved", "delivered"] },
+          "complete":          { "type": "boolean", "title": "Complete", "default": false },
+          "depositRequired":   { "type": "boolean", "title": "Deposit Required", "nullable": true },
+          "depositAmount":     { "type": "number", "title": "Deposit Amount", "nullable": true },
+          "depositPaymentId":  { "type": "string", "title": "Deposit Payment ID", "nullable": true },
+          "paymentTermsDays":  { "type": "integer", "title": "Payment Terms Days", "nullable": true },
+          "invoiceId":         { "type": "string", "title": "Invoice ID", "nullable": true },
+          "completedAt":       { "type": "string", "title": "Completed At", "format": "date-time", "nullable": true },
+          "state":             { "type": "string", "title": "State", "nullable": true, "example": "draft" },
           "owner":    {
             "type": "string",
             "format": "uuid",
