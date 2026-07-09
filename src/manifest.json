@@ -328,12 +328,14 @@
 				"_note": "Catalog archetype for a pet category (Dogs, Cats, ...) — ADR-062 rev3. A category is a thin grouping (only name + description), so its purpose on the detail page is still to answer 'which pets are in it?': the dominant 8-wide column is a live object-list of the pets whose 'category' FK points at this record (viewAllRoute → Examples, filtered by category), and the narrow 4-wide column stacks the compact data card ABOVE the former summaryAggregates chips (now an in-grid stats-block with the same two KPIs: pet count + available count) — an intentional inversion of the CaseDetail 8/4 data-left pattern, kept from round 1, because here the LIST is the primary content, not the data card (rule 2's canonical layout describes a reference shape, not a mandate; content drives placement). No comms leaves (the schema declares none), no Files (categories carry no attachments). Audit history stays a sidebar tab.",
 				"widgets": [
 					{ "id": "category-data", "type": "data", "title": "Category", "icon": "TagOutline", "content": { "columns": 1 } },
-					{ "id": "category-stats", "type": "stats-block", "title": "Pets", "icon": "Package", "content": { "entries": [ { "title": "Pets in category", "register": "petstore", "schema": "pet", "metric": "count", "filter": { "category": "@objectId" } }, { "title": "Available", "register": "petstore", "schema": "pet", "metric": "count", "filter": { "category": "@objectId", "status": "available" } } ] } },
+					{ "id": "category-stats-pets-in-category", "type": "stats-block", "title": "Pets in category", "icon": "Package", "content": { "entries": [ { "title": "Pets in category", "register": "petstore", "schema": "pet", "metric": "count", "filter": { "category": "@objectId" } } ] } },
+					{ "id": "category-stats-available", "type": "stats-block", "title": "Available", "icon": "Package", "content": { "entries": [ { "title": "Available", "register": "petstore", "schema": "pet", "metric": "count", "filter": { "category": "@objectId", "status": "available" } } ] } },
 					{ "id": "category-pets", "type": "object-list", "title": "Pets in this category", "icon": "TableColumn", "content": { "register": "petstore", "schema": "pet", "filter": { "category": "@objectId" }, "sort": { "field": "name", "dir": "asc" }, "columns": [{ "key": "name", "label": "Name" }, { "key": "status", "label": "Status" }, { "key": "price", "label": "Price" }], "limit": 25, "rowRoute": "ExampleDetail", "viewAllRoute": "Examples", "viewAllQuery": { "category": "@objectId" }, "emptyText": "No pets in this category yet.", "allowCreate": true } }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "category-data", "gridX": 0, "gridY": 0, "gridWidth": 4, "gridHeight": 3 },
-					{ "id": "2", "widgetId": "category-stats", "gridX": 0, "gridY": 3, "gridWidth": 4, "gridHeight": 3 },
+					{ "id": "2-1", "widgetId": "category-stats-pets-in-category", "gridX": 0, "gridY": 3, "gridWidth": 4, "gridHeight": 2 },
+					{ "id": "2-2", "widgetId": "category-stats-available", "gridX": 0, "gridY": 5, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "3", "widgetId": "category-pets", "gridX": 4, "gridY": 0, "gridWidth": 8, "gridHeight": 6 }
 				],
 				"sidebar": {
