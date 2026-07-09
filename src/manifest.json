@@ -396,16 +396,18 @@
 				"register": "petstore",
 				"schema": "order",
 				"documentationUrl": "https://petstore.conduction.nl",
-				"_note": "Transaction archetype for a customer order — ADR-062 rev3. What matters when opening an order is 'what was ordered, in what state, and where are the papers': the body leads with the transaction fields (pet, quantity, status, shipDate, complete) in an 8-wide data card and a Related panel (4-wide) linking the ordered pet, with a full-width Files leaf below for the invoice / shipping documents. DELIBERATE EXCEPTION to rule 2's KPI placement: round 1's summaryAggregates ('Items ordered', sum of quantity filtered to this order's own id) was dropped rather than converted to a stats-block — it was a thin, self-referential aggregate that only restated the order's own 'quantity' field (already visible in the data card) via a filter matching the object's own id; an order is atomic (no child line-items, no collection to summarize), so there is no real KPI to show here. Manufacturing an empty-content 4-wide card would be worse than no KPI at all. The order schema is atomic so there is NO object-list of sub-lines. The schema declares no email/calendar/talk linkedType, so this record carries NO comms leaves and NO meetings. Audit history stays a sidebar tab.",
+				"_note": "Transaction archetype for a customer order — ADR-062 rev3. The order schema is the shared cross-app Order primitive (26 fields incl. the new `pet` relation), so a single data card was the worst clip in the fleet (26 fields into a 6-field-height cell). Fixed by splitting field-scoped per rule 3: 'Order' (12 commercial fields — orderNumber/orderType/direction/counterparty/totals/dates) and 'Fulfilment & finance' (14 fields — pet, quantity, status, shipDate, complete, deposits, invoicing, state) via CnObjectDataWidget's include prop, laid out 1:1 (6/6) with an explicit fixed columns:2 (not left to the 3-col default). Related panel (pet) and the invoice/shipping Files leaf stack full-width below. DELIBERATE EXCEPTION to rule 2's KPI placement: round 1's summaryAggregates ('Items ordered', sum of quantity filtered to this order's own id) was dropped rather than converted to a stats-block — it was a thin, self-referential aggregate that only restated the order's own 'quantity' field (already visible in the data card) via a filter matching the object's own id; an order is atomic (no child line-items, no collection to summarize), so there is no real KPI to show here. Manufacturing an empty-content 4-wide card would be worse than no KPI at all. The order schema is atomic so there is NO object-list of sub-lines. The schema declares no email/calendar/talk linkedType, so this record carries NO comms leaves and NO meetings. Audit history stays a sidebar tab.",
 				"widgets": [
-					{ "id": "order-data", "type": "data", "title": "Order details", "icon": "Cash", "content": { "columns": 2 } },
+					{ "id": "order-data", "type": "data", "title": "Order", "icon": "Cash", "content": { "columns": 2, "include": ["orderNumber", "orderType", "direction", "counterpartyId", "counterpartyName", "paymentTerms", "totalAmount", "orderDate", "currency", "basePrice", "taxRate", "estimatedTotal"] } },
+					{ "id": "order-fulfilment", "type": "data", "title": "Fulfilment & finance", "icon": "TableColumn", "content": { "columns": 2, "include": ["pet", "quantity", "status", "shipDate", "complete", "projectReference", "administrationId", "orderId", "bookingTypeId", "customerId", "description", "depositRequired", "depositAmount", "depositPaymentId", "paymentTermsDays", "invoiceId", "completedAt", "state"] } },
 					{ "id": "order-related", "type": "related", "title": "Ordered pet", "icon": "LinkVariant" },
 					{ "id": "order-files", "type": "integration", "integrationId": "files", "title": "Invoice & documents", "icon": "FolderOutline" }
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "order-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 4 },
-					{ "id": "2", "widgetId": "order-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 4 },
-					{ "id": "3", "widgetId": "order-files", "gridX": 0, "gridY": 4, "gridWidth": 12, "gridHeight": 3 }
+					{ "id": "1", "widgetId": "order-data", "gridX": 0, "gridY": 0, "gridWidth": 6, "gridHeight": 8 },
+					{ "id": "2", "widgetId": "order-fulfilment", "gridX": 6, "gridY": 0, "gridWidth": 6, "gridHeight": 8 },
+					{ "id": "3", "widgetId": "order-related", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 3 },
+					{ "id": "4", "widgetId": "order-files", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,
