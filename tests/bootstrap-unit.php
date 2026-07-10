@@ -44,3 +44,15 @@ if (class_exists(\OCA\OpenRegister\Mcp\AbstractToolHandler::class) === false) {
 if (interface_exists(\OCA\OpenRegister\Mcp\IMcpToolProvider::class) === false) {
     require_once __DIR__ . '/Stubs/Mcp/IMcpToolProvider.php';
 }
+
+// Load ObjectEntity / ObjectService stubs when the openregister runtime is
+// absent, so OrderController's container-resolved OpenRegister calls can be
+// mocked in standalone unit tests. Also registered via autoload-dev PSR-4
+// in composer.json (OCA\OpenRegister\ -> tests/Stubs/).
+if (class_exists(\OCA\OpenRegister\Db\ObjectEntity::class) === false) {
+    require_once __DIR__ . '/Stubs/Db/ObjectEntity.php';
+}
+
+if (class_exists(\OCA\OpenRegister\Service\ObjectService::class) === false) {
+    require_once __DIR__ . '/Stubs/Service/ObjectService.php';
+}

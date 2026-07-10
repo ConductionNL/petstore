@@ -30,6 +30,7 @@ namespace OCA\PetStore\Controller;
 
 use OCA\PetStore\AppInfo\Application;
 use OCA\PetStore\Service\SettingsService;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataDisplayResponse;
@@ -42,6 +43,8 @@ use Psr\Log\LoggerInterface;
  * Returns `text/plain; version=0.0.4` with `{app}_` prefixed metrics.
  * MUST include `{app}_health_status` and `{app}_info` per ADR-006.
  * Admin-only (no `@NoAdminRequired`) — ADR-006 mandates admin auth.
+ *
+ * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.2
  */
 class MetricsController extends Controller
 {
@@ -57,15 +60,17 @@ class MetricsController extends Controller
      *
      * @param IRequest        $request         The request object
      * @param SettingsService $settingsService For OpenRegister availability check
+     * @param IAppManager     $appManager      For reading the deployed app version
      * @param LoggerInterface $logger          The logger
      *
      * @return void
      *
-     * @spec openspec/changes/example-change/tasks.md#task-8
+     * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.2
      */
     public function __construct(
         IRequest $request,
         private SettingsService $settingsService,
+        private IAppManager $appManager,
         private LoggerInterface $logger,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
@@ -76,18 +81,19 @@ class MetricsController extends Controller
      *
      * @return DataDisplayResponse
      *
-     * @spec openspec/changes/example-change/tasks.md#task-8
+     * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.2
      */
     public function index(): DataDisplayResponse
     {
         try {
             $prefix  = self::METRIC_PREFIX;
             $healthy = (int) $this->settingsService->isOpenRegisterAvailable();
+            $version = $this->appManager->getAppVersion(appId: Application::APP_ID);
 
             $lines = [
                 '# HELP '.$prefix.'_info Static app information',
                 '# TYPE '.$prefix.'_info gauge',
-                $prefix.'_info{app="'.Application::APP_ID.'",version="0.1.0"} 1',
+                $prefix.'_info{app="'.Application::APP_ID.'",version="'.$version.'"} 1',
                 '# HELP '.$prefix.'_health_status 1 when OpenRegister reachable, 0 otherwise',
                 '# TYPE '.$prefix.'_health_status gauge',
                 $prefix.'_health_status '.$healthy,

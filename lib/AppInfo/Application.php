@@ -31,9 +31,11 @@ namespace OCA\PetStore\AppInfo;
 
 use OCA\PetStore\Dashboard\ExampleWidget;
 use OCA\PetStore\Listener\DeepLinkRegistrationListener;
+use OCA\PetStore\Listener\OrderCustomerListener;
 use OCA\PetStore\Mcp\ExampleToolProvider;
 use OCA\PetStore\Repair\InitializeSettings;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
+use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -41,6 +43,8 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 /**
  * Main application class for the PetStore Nextcloud app.
+ *
+ * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md
  */
 class Application extends App implements IBootstrap
 {
@@ -64,6 +68,8 @@ class Application extends App implements IBootstrap
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
+     * @spec openspec/changes/add-order-customer-reference/specs/pet-catalog-domain/spec.md
      */
     public function register(IRegistrationContext $context): void
     {
@@ -72,6 +78,15 @@ class Application extends App implements IBootstrap
         $context->registerEventListener(
             event: DeepLinkRegistrationEvent::class,
             listener: DeepLinkRegistrationListener::class
+        );
+
+        // Stamp `order.customer` from the session on create (petstore/order
+        // scoped). OpenRegister dispatches ObjectCreatingEvent from its central
+        // write path; the listener no-ops for every other schema. Registering
+        // by ::class name is safe even when OpenRegister is absent (no autoload).
+        $context->registerEventListener(
+            event: ObjectCreatingEvent::class,
+            listener: OrderCustomerListener::class
         );
 
         // Sample dashboard widget — see lib/Dashboard/ExampleWidget.php.
@@ -97,6 +112,8 @@ class Application extends App implements IBootstrap
      * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
+     * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-1.1
      */
     public function boot(IBootContext $context): void
     {

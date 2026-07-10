@@ -14,10 +14,13 @@ built_by: openspec/changes/example-change
 > longer ships a standalone `ItemController`/`ItemService` (removed in the
 > manifest-renderer refactor, hydra ADR-024); the per-object-auth mechanism it
 > describes is now demonstrated concretely by `ActionAuthService`
-> (ADR-023, `openspec/architecture/adr-023-action-authorization.md`). Apps built
-> from this template will typically extend this capability with `create`,
-> `read`, `update`, and `list` REQs on real mutation endpoints; the pattern
-> stays the same.
+> (ADR-023, `openspec/architecture/adr-023-action-authorization.md`), wired
+> end-to-end by the `order.cancel` action — see the concrete worked example in
+> `openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md`
+> (route `order#cancel` → `OrderController::cancel()` → `requireAction()` →
+> seeded matrix). Apps built from this template will typically extend this
+> capability with `create`, `read`, `update`, and `list` REQs on real mutation
+> endpoints; the pattern stays the same.
 
 ## Purpose
 
