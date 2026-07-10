@@ -90,10 +90,17 @@
 								"iconClass": "icon-files",
 								"register": "petstore",
 								"schema": "pet",
-								"filter": { "status": "available" },
+								"filter": {
+									"status": "available"
+								},
 								"countLabel": "pets",
 								"variant": "success",
-								"route": { "name": "Examples", "query": { "status": "available" } }
+								"route": {
+									"name": "Examples",
+									"query": {
+										"status": "available"
+									}
+								}
 							}
 						]
 					}
@@ -113,10 +120,17 @@
 								"iconClass": "icon-history",
 								"register": "petstore",
 								"schema": "pet",
-								"filter": { "status": "pending" },
+								"filter": {
+									"status": "pending"
+								},
 								"countLabel": "pets",
 								"variant": "warning",
-								"route": { "name": "Examples", "query": { "status": "pending" } }
+								"route": {
+									"name": "Examples",
+									"query": {
+										"status": "pending"
+									}
+								}
 							}
 						]
 					}
@@ -136,10 +150,17 @@
 								"iconClass": "icon-category-workflow",
 								"register": "petstore",
 								"schema": "order",
-								"filter": { "complete": "false" },
+								"filter": {
+									"complete": "false"
+								},
 								"countLabel": "orders",
 								"variant": "primary",
-								"route": { "name": "Orders", "query": { "complete": "false" } }
+								"route": {
+									"name": "Orders",
+									"query": {
+										"complete": "false"
+									}
+								}
 							}
 						]
 					}
@@ -162,7 +183,9 @@
 								"schema": "category",
 								"countLabel": "categories",
 								"variant": "default",
-								"route": { "name": "Categories" }
+								"route": {
+									"name": "Categories"
+								}
 							}
 						]
 					}
@@ -214,13 +237,21 @@
 						"source": {
 							"register": "petstore",
 							"schema": "order",
-							"order": { "created": "desc" },
+							"order": {
+								"created": "desc"
+							},
 							"limit": 5
 						},
 						"columns": [
-							{ "key": "pet", "cellClass": "cn-cell--strong" },
+							{
+								"key": "pet",
+								"cellClass": "cn-cell--strong"
+							},
 							"quantity",
-							{ "key": "shipDate", "formatter": "date" },
+							{
+								"key": "shipDate",
+								"formatter": "date"
+							},
 							{
 								"key": "status",
 								"widget": "badge",
@@ -235,7 +266,9 @@
 							"complete"
 						],
 						"rowRoute": "OrderDetail",
-						"viewAllRoute": { "name": "Orders" },
+						"viewAllRoute": {
+							"name": "Orders"
+						},
 						"emptyText": "No orders yet",
 						"actions": [
 							{
@@ -243,7 +276,9 @@
 								"label": "Mark complete",
 								"type": "object-op",
 								"op": "patch",
-								"values": { "complete": true },
+								"values": {
+									"complete": true
+								},
 								"confirm": true
 							}
 						]
