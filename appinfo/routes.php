@@ -19,6 +19,9 @@ return [
         // Health check endpoint.
         ['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
 
+        // Order lifecycle actions — ADR-023 action-authorization demo call site.
+        ['name' => 'order#cancel', 'url' => '/api/orders/{id}/cancel', 'verb' => 'POST'],
+
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).
         ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],

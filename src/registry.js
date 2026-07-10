@@ -45,6 +45,7 @@ import RecentObjectsWidget from './widgets/RecentObjectsWidget.vue'
 import ExampleModal from './modals/ExampleModal.vue'
 import EmailField from './formFields/EmailField.vue'
 import StatusBadge from './cellRenderers/StatusBadge.vue'
+import UserDisplay from './cellRenderers/UserDisplay.vue'
 import CustomExample from './views/CustomExample.vue'
 
 export default {
@@ -237,6 +238,22 @@ export default {
 		appliesTo: {
 			schema: 'example',
 			property: 'status',
+		},
+	},
+
+	/**
+	 * Customer display renderer. Auto-bound to the "customer" column on
+	 * "order" rows — resolves the stored Nextcloud UID to a display name
+	 * (add-order-customer-reference). Demonstrates the OR-object →
+	 * NC-native-entity relation shape; the value is display data only,
+	 * never an authorization boundary.
+	 */
+	'user-display': {
+		kind: 'cell-renderer',
+		component: UserDisplay,
+		appliesTo: {
+			schema: 'order',
+			property: 'customer',
 		},
 	},
 }

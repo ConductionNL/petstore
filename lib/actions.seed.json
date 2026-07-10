@@ -1,4 +1,6 @@
 {
-  "$comment": "ADR-023 action-authorization matrix seed. Each entry maps a dot-separated action name to an array of group IDs allowed to invoke it. The special 'admin' group means Nextcloud admins; admins always pass regardless. Empty array or ['admin'] means admin-only. Admins customize via Admin Settings > App Template > Actions. Add entries below as the app grows — one per ActionAuthService::requireAction() call site. Template ships with an example commented pattern; remove the $comment field and add real actions when implementing your app.",
-  "actions": {}
+  "$comment": "ADR-023 action-authorization matrix seed. Each entry maps a dot-separated action name to an array of group IDs allowed to invoke it. The special 'admin' group means Nextcloud admins; admins always pass regardless. Empty array or ['admin'] means admin-only. Admins broaden access via Admin Settings > PetStore > Actions without a code change. The single 'order.cancel' entry below is the worked example wired end-to-end (route order#cancel -> OrderController::cancel -> ActionAuthService::requireAction) for apps copying this template; add one entry per requireAction() call site as the app grows.",
+  "actions": {
+    "order.cancel": ["admin"]
+  }
 }

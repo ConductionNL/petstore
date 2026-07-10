@@ -1,6 +1,6 @@
 # Roadmap
 
-This document tracks the planned development of Nextcloud App Template.
+This document tracks the planned development of PetStore.
 
 Features are defined in [`appspec/features/`](../appspec/features/). When a feature reaches `planned` status during an `/app-explore` session, it is listed here and an OpenSpec change is created with `/opsx:ff`.
 
@@ -8,7 +8,9 @@ Features are defined in [`appspec/features/`](../appspec/features/). When a feat
 
 | Feature | Status | Priority | OpenSpec Change |
 |---------|--------|----------|----------------|
-| _(no features defined yet — use `/app-explore` to start)_ | — | — | — |
+| Pet catalog domain (categories, pets, orders — schemas + manifest pages) | done | high | [`document-petstore-domain-capabilities`](changes/document-petstore-domain-capabilities/) |
+| Order lifecycle action authorization demo | in progress | medium | [`wire-action-authorization-demo`](changes/wire-action-authorization-demo/) |
+| Order customer reference (link order to NC user/contact) | in progress | medium | [`add-order-customer-reference`](changes/add-order-customer-reference/) |
 
 ## Phases
 

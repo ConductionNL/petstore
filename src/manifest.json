@@ -1,6 +1,6 @@
 {
 	"$schema": "https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest-v2.schema.json",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"dependencies": [
 		"openregister"
 	],
@@ -320,11 +320,13 @@
 							"colorMap": {
 								"placed": "primary",
 								"approved": "warning",
-								"delivered": "success"
+								"delivered": "success",
+								"cancelled": "error"
 							}
 						}
 					},
-					"complete"
+					"complete",
+					"customer"
 				],
 				"sidebar": {
 					"enabled": false
@@ -336,6 +338,15 @@
 			"route": "/orders/:id",
 			"type": "detail",
 			"title": "Order",
+			"actions": [
+				{
+					"id": "cancel-order",
+					"label": "Cancel order",
+					"type": "handler",
+					"handler": "orderCancelAction",
+					"icon": "Cancel"
+				}
+			],
 			"config": {
 				"register": "petstore",
 				"schema": "order",
