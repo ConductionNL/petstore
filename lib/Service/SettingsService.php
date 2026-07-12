@@ -148,15 +148,50 @@ class SettingsService
         }
 
         try {
+            // Load the register configuration shipped with the app.
+            // OpenRegister's importFromApp() requires the parsed configuration
+            // data and its version; calling it with only appId/force throws an
+            // ArgumentCountError on every invocation ("configuration import failed").
+            $configPath = __DIR__.'/../Settings/petstore_register.json';
+            if (file_exists($configPath) === false) {
+                return [
+                    'success' => false,
+                    'message' => 'Register configuration file not found: petstore_register.json',
+                ];
+            }
+
+            $configContent = file_get_contents($configPath);
+            if ($configContent === false) {
+                return [
+                    'success' => false,
+                    'message' => 'Failed to read register configuration file.',
+                ];
+            }
+
+            $configData = json_decode($configContent, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return [
+                    'success' => false,
+                    'message' => 'Invalid JSON in register configuration file: '.json_last_error_msg(),
+                ];
+            }
+
+            $configVersion = $configData['info']['version'] ?? '0.0.0';
+
             $configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
-            $result = $configurationService->importFromApp(appId: Application::APP_ID, force: $force);
+            $result = $configurationService->importFromApp(
+                appId: Application::APP_ID,
+                data: $configData,
+                version: $configVersion,
+                force: $force
+            );
 
             if (empty($result) === false) {
                 $this->logger->info('PetStore: register configuration imported successfully');
                 return [
                     'success' => true,
                     'message' => 'Configuration imported successfully.',
-                    'version' => ($result['version'] ?? 'unknown'),
+                    'version' => $configVersion,
                 ];
             }
 
