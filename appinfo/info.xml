@@ -8,8 +8,8 @@
     <summary lang="nl">Voorbeeld-demo-app om op OpenRegister te bouwen — dieren, categorieën en bestellingen.</summary>
     <description lang="en"><![CDATA[Pet Store is the canonical example app for the Conduction / OpenRegister platform. It ships three OpenRegister schemas (pet, category, order) with a manifest-driven UI, a worked action-authorization demo, dashboard widgets, and health/metrics endpoints — a runnable reference for developers learning to build Nextcloud apps on shared registers.]]></description>
     <description lang="nl"><![CDATA[Pet Store is de referentie-voorbeeldapp voor het Conduction / OpenRegister-platform. De app levert drie OpenRegister-schema's (dier, categorie, bestelling) met een manifest-gestuurde interface, een uitgewerkte actie-autorisatiedemo, dashboardwidgets en health/metrics-endpoints — een werkend voorbeeld voor ontwikkelaars die leren Nextcloud-apps op gedeelde registers te bouwen.]]></description>
-    <version>0.1.8</version>
-    <licence>eupl</licence>
+    <version>0.1.10</version>
+    <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>PetStore</namespace>
     <documentation>

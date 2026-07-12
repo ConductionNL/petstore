@@ -25,6 +25,7 @@
 // See hydra ADR-036 for the v2 registry design.
 
 import CustomExample from './views/CustomExample.vue'
+import { orderCancelAction } from './actions/orderActions.js'
 // Features & Roadmap page — thin wrapper around the lib's
 // CnFeaturesAndRoadmapView (in-product roadmap surface powered by
 // OpenRegister's github-issue-proxy). Shipped wired-up so apps scaffolded
@@ -42,4 +43,10 @@ export default {
 	// Features & Roadmap page (lib's CnFeaturesAndRoadmapView) — wired up
 	// in src/manifest.json (the `FeaturesRoadmap` custom page + the
 	// `FeaturesRoadmapMenu` settings entry).
+
+	// Manifest action handler (kind: "handler"). Resolved by name from a
+	// manifest `type: "handler"` action (see the OrderDetail page's
+	// `actions[]`). This is the frontend half of the ADR-023 demo; the
+	// server (OrderController::cancel) is the authorization boundary.
+	orderCancelAction,
 }

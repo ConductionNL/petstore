@@ -19,6 +19,14 @@ return [
         // Health check endpoint.
         ['name' => 'health#index', 'url' => '/api/health', 'verb' => 'GET'],
 
+        // Portal endpoint action receiver (ADR-046 contract v2, A6) — called
+        // server-to-server by portaliq with a signed X-Portal-Subject
+        // assertion; the assertion is the auth (see PortalActionController).
+        ['name' => 'portal_action#renameOwnedPet', 'url' => '/api/portal/pets/rename', 'verb' => 'POST'],
+
+        // Order lifecycle actions — ADR-023 action-authorization demo call site.
+        ['name' => 'order#cancel', 'url' => '/api/orders/{id}/cancel', 'verb' => 'POST'],
+
         // SPA catch-all — same controller as the index route; must use a distinct route name
         // (duplicate names replace the earlier route in Symfony, which breaks GET /).
         ['name' => 'dashboard#catchAll', 'url' => '/{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], 'defaults' => ['path' => '']],

@@ -6,7 +6,9 @@
  *
  * Covers UI-observable scenarios from openspec/specs/dashboard-page/spec.md.
  * The manifest (src/manifest.json) declares a `Dashboard` page of type
- * `dashboard` at route `/` carrying a `stats-block` "Open examples" widget.
+ * `dashboard` at route `/` carrying built-in `stats-block` KPI widgets
+ * (entries[] sources), a built-in `header`, an `object-table`, and the
+ * custom chart-by-field widget.
  *
  * The historical `@nextcloud/l10n` detectLanguage version-skew bootstrap crash
  * (which kept the Vue app from mounting on any route) is fixed: petstore now
@@ -49,9 +51,9 @@ test.describe('dashboard — in-app content', () => {
 
 	test('mounts the dashboard surface with the in-app content region', async ({ page }) => {
 		// @e2e openspec/specs/dashboard-page/spec.md
-		// The manifest declares a `stats-block` "Open examples" widget on the
-		// dashboard. On this deployment the widget body is data-driven (OR
-		// register `app-template`/`example`) and renders empty when unseeded,
+		// The manifest declares built-in `stats-block` KPI widgets on the
+		// dashboard. On this deployment the widget bodies are data-driven (OR
+		// register `petstore`) and render empty when unseeded,
 		// so we assert the dashboard page mounts its app-content region rather
 		// than asserting seed-dependent widget copy. The nav-render assertion
 		// above already proves the manifest shell booted.
