@@ -8,35 +8,35 @@
 		{
 			"id": "Dashboard",
 			"label": "Dashboard",
-			"icon": "icon-category-dashboard",
+			"icon": "ViewDashboardOutline",
 			"route": "Dashboard",
 			"order": 10
 		},
 		{
 			"id": "Examples",
 			"label": "Examples",
-			"icon": "icon-files",
+			"icon": "ClipboardTextOutline",
 			"route": "Examples",
 			"order": 20
 		},
 		{
 			"id": "Categories",
 			"label": "Categories",
-			"icon": "icon-category-organization",
+			"icon": "Domain",
 			"route": "Categories",
 			"order": 30
 		},
 		{
 			"id": "Orders",
 			"label": "Orders",
-			"icon": "icon-category-workflow",
+			"icon": "ClipboardListOutline",
 			"route": "Orders",
 			"order": 40
 		},
 		{
 			"id": "Documentation",
 			"label": "Documentation",
-			"icon": "icon-info",
+			"icon": "BookOpenVariantOutline",
 			"href": "https://petstore.conduction.nl",
 			"section": "footer",
 			"order": 90
@@ -44,7 +44,7 @@
 		{
 			"id": "FeaturesRoadmapMenu",
 			"label": "Features & roadmap",
-			"icon": "icon-toggle",
+			"icon": "MapMarkerPath",
 			"route": "FeaturesRoadmap",
 			"section": "footer",
 			"order": 100
