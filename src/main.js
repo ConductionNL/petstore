@@ -20,13 +20,11 @@ import customComponents from './customComponents.js'
 // Both props coexist during the v1 → v2 transition.
 // Once fully migrated to v2, remove the customComponents import and prop.
 import registry from './registry.js'
-import Paw from 'vue-material-design-icons/Paw.vue'
-import Receipt from 'vue-material-design-icons/Receipt.vue'
-import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
 // Bespoke view-toggle icons that mirror the docudesk reference exactly
 // (MDI has no pixel-identical equivalent for the rounded grid / stacked rows).
 import TilesGrid from './icons/TilesGrid.vue'
 import ListRows from './icons/ListRows.vue'
+import appIcons from './icons.js'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
@@ -39,7 +37,9 @@ Vue.use(PiniaVuePlugin)
 Vue.use(VueRouter)
 
 // Register library-side icon set + lib translations once at bootstrap.
-registerIcons({ Paw, Receipt, FileDocumentOutline, TilesGrid, ListRows })
+// TilesGrid / ListRows are LOCAL components, not MDI names, so they stay
+// listed explicitly; everything else comes from the generated registry.
+registerIcons({ ...appIcons, TilesGrid, ListRows })
 try {
 	registerTranslations()
 } catch (e) {
