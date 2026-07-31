@@ -33,7 +33,7 @@
 import { test, expect, request as pwRequest, type APIRequestContext } from '@playwright/test'
 import * as path from 'path'
 import {
-	REGISTER, SCHEMA_PET, makeRunId, createPet, getPet, searchPets, updatePet, deletePet, cleanupRun,
+	makeRunId, createPet, getPet, searchPets, updatePet, deletePet, cleanupRun,
 	createCategory, deleteCategory, makeShortLabel,
 } from './_fixtures'
 import {
