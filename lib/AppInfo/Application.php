@@ -84,9 +84,18 @@ class Application extends App implements IBootstrap
         // scoped). OpenRegister dispatches ObjectCreatingEvent from its central
         // write path; the listener no-ops for every other schema. Registering
         // by ::class name is safe even when OpenRegister is absent (no autoload).
-        $context->registerEventListener(
+        //
+        // That petstore/order scope (OrderCustomerListener::REGISTER_SLUG +
+        // ::SCHEMA_SLUG) is now also declared at REGISTRATION time, so an
+        // unrelated app's object create no longer constructs the listener — nor
+        // performs the two mapper lookups isPetstoreOrder() needs to reject it.
+        // The in-listener guard stays in place as defence in depth.
+        $this->registerFilteredObjectListener(
+            context: $context,
             event: ObjectCreatingEvent::class,
-            listener: OrderCustomerListener::class
+            listener: OrderCustomerListener::class,
+            registers: ['petstore'],
+            schemas: ['order']
         );
 
         // Sample dashboard widget — see lib/Dashboard/ExampleWidget.php.
@@ -103,6 +112,49 @@ class Application extends App implements IBootstrap
         );
 
     }//end register()
+
+    /**
+     * Register an object-lifecycle listener that declares its interest up front.
+     *
+     * OpenRegister's `ObjectEventSubscription` records the register/schema slugs
+     * a listener reacts to and routes dispatches through a single shared proxy,
+     * so an uninterested listener is neither constructed nor invoked. When
+     * OpenRegister is absent — petstore carries no hard dependency on it — this
+     * degrades to the plain global registration it replaced, which is exactly
+     * the behaviour every listener had before.
+     *
+     * @param IRegistrationContext $context   Registration context.
+     * @param string               $event     OpenRegister event class name.
+     * @param string               $listener  Listener class name.
+     * @param array<int,string>    $registers Register slugs the listener reacts to.
+     * @param array<int,string>    $schemas   Schema slugs the listener reacts to.
+     *
+     * @return void
+     *
+     * @spec openspec/changes/add-order-customer-reference/specs/pet-catalog-domain/spec.md
+     */
+    private function registerFilteredObjectListener(
+        IRegistrationContext $context,
+        string $event,
+        string $listener,
+        array $registers,
+        array $schemas
+    ): void {
+        $subscription = '\\OCA\\OpenRegister\\Event\\ObjectEventSubscription';
+        if (class_exists($subscription) === true) {
+            $subscription::register(
+                context: $context,
+                event: $event,
+                listener: $listener,
+                registers: $registers,
+                schemas: $schemas
+            );
+            return;
+        }
+
+        $context->registerEventListener(event: $event, listener: $listener);
+
+    }//end registerFilteredObjectListener()
 
     /**
      * Boot the application.
