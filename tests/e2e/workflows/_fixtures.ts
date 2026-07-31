@@ -58,6 +58,23 @@ export function makeRunId(): string {
 	return `e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
 }
 
+/**
+ * A SHORT, hyphen-free, collision-resistant label for fixtures whose name has
+ * to be matched through the UI.
+ *
+ * A `makeRunId()`-derived name (~23 chars, hyphenated) WRAPS inside the
+ * relation-picker dropdown, and `innerText` — which is what Playwright's
+ * accessible-name computation reads — renders that line break as a SPACE:
+ * `e2e-ms9fv4nl-vr569-dogs` came back as `"e2e-ms9fv4nl- vr569-dogs"`, so an
+ * exact-name option lookup silently matched nothing and the spec died on a 30 s
+ * timeout that looked like a missing option. Eight characters do not wrap.
+ *
+ * @return An 8-character label, e.g. `Cat3f9k1`.
+ */
+export function makeShortLabel(prefix = 'Cat'): string {
+	return `${prefix}${Math.random().toString(36).slice(2, 7)}`
+}
+
 export interface PetInput {
 	name: string
 	/** UUID of a `category` object — NOT a display name. See SCHEMA_CATEGORY. */

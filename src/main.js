@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 
+// MUST be first: sets __webpack_public_path__ before any async chunk loads.
+import './publicPath.js'
 import { createApp, h } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'

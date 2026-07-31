@@ -79,6 +79,29 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 		)
 	}
 
+	// Turn off Nextcloud's first-run wizard for this user, once, before any spec
+	// runs.
+	//
+	// The wizard is an OPAQUE modal mask (`.modal-mask--opaque`) that swallows
+	// every pointer event on the page. It appears on the first authenticated
+	// page load of a fresh instance, i.e. inside whichever spec happens to run
+	// first, and made unrelated specs fail with 30 s timeouts and
+	// "subtree intercepts pointer events". Dismissing it from `dismissOverlays`
+	// is a race: the wizard mounts asynchronously and can arrive after the
+	// helper has already looked.
+	//
+	// `DELETE /apps/firstrunwizard/wizard` is the wizard's own "do not show
+	// again" endpoint (Wizard#disable), so this is the supported way to opt out
+	// rather than a UI trick. It is Nextcloud onboarding chrome with no
+	// relation to petstore; nothing under test is affected.
+	await page.evaluate(async () => {
+		const token = (window as unknown as { OC?: { requestToken?: string } }).OC?.requestToken
+		await fetch('/apps/firstrunwizard/wizard', {
+			method: 'DELETE',
+			headers: { requesttoken: token ?? '', 'OCS-APIRequest': 'true' },
+		}).catch(() => {})
+	})
+
 	await context.storageState({ path: STORAGE_STATE })
 	await browser.close()
 }

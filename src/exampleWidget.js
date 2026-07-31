@@ -13,6 +13,8 @@
  * @see lib/Dashboard/ExampleWidget.php
  */
 
+// MUST be first: sets __webpack_public_path__ before any async chunk loads.
+import './publicPath.js'
 import { createApp } from 'vue'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 

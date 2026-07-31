@@ -34,7 +34,7 @@ import { test, expect, request as pwRequest, type APIRequestContext } from '@pla
 import * as path from 'path'
 import {
 	REGISTER, SCHEMA_PET, makeRunId, createPet, getPet, searchPets, updatePet, deletePet, cleanupRun,
-	createCategory, deleteCategory,
+	createCategory, deleteCategory, makeShortLabel,
 } from './_fixtures'
 import {
 	go, attachConsoleGuard, dismissOverlays, appMounted, APP_ROOT,
@@ -194,46 +194,51 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 		// is a relation combobox that can only offer categories that exist. The
 		// old spec typed 'Dogs' into a textbox that has never been rendered for
 		// this property, and failed on every instance.
-		const categoryName = `${runId}-dogs`
+		//
+		// The label must be SHORT — see makeShortLabel() for the wrapped-option
+		// trap that a runId-derived name walks straight into.
+		const categoryName = makeShortLabel()
 		const category = await createCategory(api, categoryName)
 
-		await go(page, 'examples')
-		await dismissOverlays(page)
-		const root = page.locator(APP_ROOT)
-
-		const addBtn = root.locator(
-			'button:has-text("Add"), button:has-text("Create"), '
-			+ '[aria-label*="Add" i], [aria-label*="Create" i], [aria-label*="New" i]',
-		).first()
-		await expect(addBtn, 'no create affordance on the Examples index').toBeVisible()
-		await addBtn.click()
-
-		// CnFormDialog renders schema fields via NcTextField / NcSelect, so
-		// the controls are accessible textboxes/comboboxes labelled by the
-		// schema property (required ones carry a trailing " *"). Fill the
-		// three required pet fields (name, category, status) so the Create
-		// button enables, then submit.
-		const name = `${runId}-form-pet`
-		const dialog = page.getByRole('dialog', { name: /create pet/i })
-		await dialog.getByRole('textbox', { name: /^name/i }).fill(name)
-
-		// category is a RELATION combobox listing existing `category` objects.
-		await dialog.getByRole('combobox', { name: /^category/i }).click()
-		await page.getByRole('option', { name: categoryName, exact: true }).first().click()
-
-		// status is an NcSelect (enum available/pending/sold) — open and pick.
-		await dialog.getByRole('combobox', { name: /^status/i }).click()
-		await page.getByRole('option', { name: 'available', exact: true }).first().click()
-
-		const createBtn = dialog.getByRole('button', { name: /^create$/i })
-		await expect(createBtn).toBeEnabled()
-		await createBtn.click()
-
 		try {
+			await go(page, 'examples')
+			await dismissOverlays(page)
+			const root = page.locator(APP_ROOT)
+
+			const addBtn = root.locator(
+				'button:has-text("Add"), button:has-text("Create"), '
+				+ '[aria-label*="Add" i], [aria-label*="Create" i], [aria-label*="New" i]',
+			).first()
+			await expect(addBtn, 'no create affordance on the Examples index').toBeVisible()
+			await addBtn.click()
+
+			// CnFormDialog renders schema fields via NcTextField / NcSelect, so
+			// the controls are accessible textboxes/comboboxes labelled by the
+			// schema property (required ones carry a trailing " *"). Fill the
+			// three required pet fields (name, category, status) so the Create
+			// button enables, then submit.
+			const name = `${runId}-form-pet`
+			const dialog = page.getByRole('dialog', { name: /create pet/i })
+			await dialog.getByRole('textbox', { name: /^name/i }).fill(name)
+
+			// category is a RELATION combobox listing existing `category` objects.
+			await dialog.getByRole('combobox', { name: /^category/i }).click()
+			await page.getByRole('option', { name: categoryName, exact: true }).first().click()
+
+			// status is an NcSelect (enum available/pending/sold) — open and pick.
+			await dialog.getByRole('combobox', { name: /^status/i }).click()
+			await page.getByRole('option', { name: 'available', exact: true }).first().click()
+
+			const createBtn = dialog.getByRole('button', { name: /^create$/i })
+			await expect(createBtn).toBeEnabled()
+			await createBtn.click()
+
 			// The committed pet must show up as a real persisted row.
 			await expect(root.locator(`table tbody tr:has-text("${name}")`)).toBeVisible()
 		} finally {
-			// cleanup whatever the form created
+			// cleanup whatever the form created — must run even when the test
+			// fails before the form is submitted, or every failed run leaks a
+			// category into the register.
 			const hits = await searchPets(api, runId)
 			for (const p of hits) await deletePet(api, p.id)
 			await deleteCategory(api, category.id)
