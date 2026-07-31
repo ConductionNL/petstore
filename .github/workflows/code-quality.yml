@@ -25,6 +25,12 @@ jobs:
       enable-phpmetrics: true
       enable-frontend: true
       enable-eslint: true
+      # `frontend-checks` defaults to [], so petstore's Vitest suite (15 tests
+      # across the settings store and two mounted SFCs) and its manifest /
+      # register / registry validators had NEVER run on a pull request — only
+      # eslint and stylelint did. Both scripts are self-contained (each leg is a
+      # fresh checkout + `npm ci`).
+      frontend-checks: '["test:unit", "check:specs"]'
       enable-phpunit: true
       enable-newman: true
       # additional-apps: '[]'  # Add app dependencies here if needed, e.g.:
