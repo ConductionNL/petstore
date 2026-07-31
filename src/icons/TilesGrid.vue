@@ -23,7 +23,6 @@
 // petstore view toggle is pixel-identical to the docudesk reference.
 export default {
 	name: 'TilesGrid',
-	emits: ['click'],
 	props: {
 		title: {
 			type: String,
@@ -38,5 +37,8 @@ export default {
 			default: 24,
 		},
 	},
+	// Declared AFTER props: `vue/order-in-components` requires props to precede
+	// emits, and the original order tripped it on every lint run.
+	emits: ['click'],
 }
 </script>

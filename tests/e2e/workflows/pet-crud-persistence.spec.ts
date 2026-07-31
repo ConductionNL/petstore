@@ -38,6 +38,7 @@ import {
 import {
 	go, attachConsoleGuard, dismissOverlays, appMounted, APP_ROOT,
 } from '../spec-coverage/_helpers'
+import { BASE_URL } from '../_base-url'
 
 const STORAGE_STATE = path.resolve(__dirname, '../.auth/admin.json')
 
@@ -51,7 +52,7 @@ test.describe('petstore pet — CRUD persistence (data layer)', () => {
 
 	test.beforeAll(async () => {
 		api = await pwRequest.newContext({
-			baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+			baseURL: BASE_URL,
 			storageState: STORAGE_STATE,
 		})
 	})
@@ -137,7 +138,7 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 	test('seeded pet appears as a row in the Examples object-table', async ({ page }) => {
 		const runId = makeRunId()
 		const api = await pwRequest.newContext({
-			baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+			baseURL: BASE_URL,
 			storageState: STORAGE_STATE,
 		})
 		const created = await createPet(api, { name: `${runId}-table-rex`, category: 'Dogs', status: 'available' })
@@ -198,7 +199,7 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 
 		// cleanup whatever the form created
 		const api = await pwRequest.newContext({
-			baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+			baseURL: BASE_URL,
 			storageState: STORAGE_STATE,
 		})
 		const hits = await searchPets(api, runId)

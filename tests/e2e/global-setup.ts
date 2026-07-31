@@ -19,6 +19,7 @@
 import { chromium, request, type FullConfig } from '@playwright/test'
 import * as path from 'path'
 import * as fs from 'fs'
+import { BASE_URL } from './_base-url'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
@@ -45,10 +46,11 @@ async function ensureNextcloudReachable(baseURL: string): Promise<void> {
 }
 
 export default async function globalSetup(config: FullConfig): Promise<void> {
-	const baseURL = (config.projects[0]?.use?.baseURL as string | undefined)
-		?? process.env.NEXTCLOUD_URL
-		?? process.env.NC_BASE_URL
-		?? 'http://localhost:8080'
+	// `config` is unused for the target on purpose: every project's baseURL is
+	// already BASE_URL, and reading projects[0] made the login target diverge
+	// from the specs' target whenever a per-project `use.baseURL` was added.
+	void config
+	const baseURL = BASE_URL
 	const username = process.env.NC_ADMIN_USER ?? 'admin'
 	const password = process.env.NC_ADMIN_PASS ?? 'admin'
 

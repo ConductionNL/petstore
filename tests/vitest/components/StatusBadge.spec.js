@@ -22,25 +22,25 @@ import StatusBadge from '../../../src/cellRenderers/StatusBadge.vue'
 
 describe('StatusBadge.vue (component mount)', () => {
 	it('renders the raw value as the badge text', () => {
-		const wrapper = mount(StatusBadge, { propsData: { value: 'Open' } })
+		const wrapper = mount(StatusBadge, { props: { value: 'Open' } })
 		expect(wrapper.text()).toBe('Open')
 		expect(wrapper.classes()).toContain('status-badge')
 	})
 
 	it('derives a CSS-safe modifier class from the value', () => {
-		const wrapper = mount(StatusBadge, { propsData: { value: 'In Progress' } })
+		const wrapper = mount(StatusBadge, { props: { value: 'In Progress' } })
 		// lower-cased, non-alphanumerics collapsed to a single hyphen
 		expect(wrapper.classes()).toContain('status-badge--in-progress')
 	})
 
 	it('falls back to the "unknown" modifier when the value is empty', () => {
-		const wrapper = mount(StatusBadge, { propsData: { value: '' } })
+		const wrapper = mount(StatusBadge, { props: { value: '' } })
 		expect(wrapper.classes()).toContain('status-badge--unknown')
 		expect(wrapper.text()).toBe('')
 	})
 
 	it('reacts to a prop change', async () => {
-		const wrapper = mount(StatusBadge, { propsData: { value: 'open' } })
+		const wrapper = mount(StatusBadge, { props: { value: 'open' } })
 		expect(wrapper.classes()).toContain('status-badge--open')
 		await wrapper.setProps({ value: 'Closed' })
 		expect(wrapper.classes()).toContain('status-badge--closed')

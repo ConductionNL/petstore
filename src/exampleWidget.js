@@ -13,19 +13,22 @@
  * @see lib/Dashboard/ExampleWidget.php
  */
 
-import Vue from 'vue'
-import { PiniaVuePlugin } from 'pinia'
+import { createApp } from 'vue'
+import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 
 import pinia from './pinia.js'
 import ExampleWidget from './views/widgets/ExampleWidget.vue'
 
-Vue.use(PiniaVuePlugin)
-
 OCA.Dashboard.register('petstore_example_widget', (el, { widget }) => {
-	Vue.mixin({ methods: { t, n } })
-	const View = Vue.extend(ExampleWidget)
-	new View({
-		pinia,
-		propsData: { title: widget.title },
-	}).$mount(el)
+	// Vue 3: `createApp(Component, props)` replaces `Vue.extend()` + `propsData`,
+	// and mixins/plugins are per-app-instance — a module-level `Vue.mixin` /
+	// `Vue.use(PiniaVuePlugin)` has no Vue 3 equivalent.
+	//
+	// `mount(el)` renders INSIDE `el` instead of replacing it (Vue 2's
+	// `$mount(el)` swapped the node out), which is the shape Nextcloud's
+	// dashboard registry expects for the container it hands us.
+	const app = createApp(ExampleWidget, { title: widget.title })
+	app.mixin({ methods: { t, n } })
+	app.use(pinia)
+	app.mount(el)
 })

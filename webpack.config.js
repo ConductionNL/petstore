@@ -48,6 +48,15 @@ webpackConfig.resolve.alias = {
 	'@': path.resolve(__dirname, 'src'),
 	...(useLocalLib ? { '@conduction/nextcloud-vue': localLib } : {}),
 	vue$: path.resolve(__dirname, 'node_modules/vue'),
+	// MANDATORY, not cosmetic. `@nextcloud/vue@9` declares a hard dependency on
+	// `vue-router@^5.1.0` while this app is on `vue-router@4`, so npm installs a
+	// SECOND copy under `node_modules/@nextcloud/vue/node_modules/vue-router`.
+	// Two router instances means the app's `useRouter()` and the ones inside
+	// @nextcloud/vue components resolve different singletons: navigation from a
+	// library component becomes a no-op with no error at all. Alias to the
+	// absolute FILE (a directory alias would let the nested copy win again for
+	// requests originating inside @nextcloud/vue).
+	'vue-router$': path.resolve(__dirname, 'node_modules/vue-router/dist/vue-router.esm-bundler.js'),
 	pinia$: path.resolve(__dirname, 'node_modules/pinia'),
 	'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue'),
 	'@nextcloud/dialogs': path.resolve(__dirname, 'node_modules/@nextcloud/dialogs'),
@@ -113,7 +122,7 @@ webpackConfig.optimization = {
 			},
 			vendor: {
 				name: appId + '-shared-vendor',
-				test: /[\\/]node_modules[\\/](vue|pinia|vue-material-design-icons|@vueuse|core-js)[\\/]/,
+				test: /[\\/]node_modules[\\/](vue|vue-router|pinia|vue-material-design-icons|@vueuse|core-js)[\\/]/,
 				priority: 20,
 				reuseExistingChunk: true,
 				enforce: true,

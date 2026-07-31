@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import { PiniaVuePlugin } from 'pinia'
+import { createApp, h } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
 import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import {
@@ -29,12 +28,15 @@ import appIcons from './icons.js'
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
 
+// gridstack is a PEER dependency of @conduction/nextcloud-vue that no consumer
+// declares, and CnDashboardPage (the manifest's `type: "dashboard"` page) needs
+// BOTH halves. Omitting the stylesheet is the silent case: gridstack v12 sizes
+// items with `width: var(--gs-column-width)`, so without it every dashboard item
+// renders 0 px wide with no console error at all.
+import 'gridstack/dist/gridstack.min.css'
+
 // Global (unscoped) app styles
 import './assets/app.css'
-
-Vue.mixin({ methods: { t, n } })
-Vue.use(PiniaVuePlugin)
-Vue.use(VueRouter)
 
 // Register library-side icon set + lib translations once at bootstrap.
 // TilesGrid / ListRows are LOCAL components, not MDI names, so they stay
@@ -68,11 +70,10 @@ function tryLoadTranslations() {
 }
 
 // Shallow-clone CnPageRenderer because the lib's barrel exports are
-// non-extensible (webpack ESM module records). Vue 2's `Vue.extend()`
-// adds an internal `_Ctor` cache to the component definition; mutating
-// a non-extensible export throws "Cannot add property _Ctor, object is
-// not extensible". Cloning gives Vue Router an extensible
-// component-options object without altering the lib's internals.
+// non-extensible / frozen module records. Vue 3 no longer attaches a `_Ctor`
+// cache the way `Vue.extend()` did, but the library still exports these maps
+// frozen and the renderer resolves them at render time — cloning keeps the
+// consumer side mutable without reaching into the lib's internals.
 const RoutePageRenderer = { ...CnPageRenderer }
 
 /**
@@ -83,7 +84,7 @@ const RoutePageRenderer = { ...CnPageRenderer }
  * consumer wiring it manually.
  *
  * @param {object} manifest The bundled manifest (with `pages[]`).
- * @return {Array<object>} vue-router 3 routes config.
+ * @return {Array<object>} vue-router 4 routes config.
  */
 function routesFromManifest(manifest) {
 	const routes = manifest.pages.map((page) => ({
@@ -93,24 +94,24 @@ function routesFromManifest(manifest) {
 		props: page.route.includes(':'),
 	}))
 	// Catch-all: redirect unknown paths to the first page (the dashboard).
-	routes.push({ path: '*', redirect: '/' })
+	// vue-router 4 REMOVED the bare `path: '*'` wildcard — it matches nothing
+	// and throws no error, so the shell renders with an empty <main> on every
+	// unknown path. The v4 spelling is an explicitly named param matcher.
+	routes.push({ path: '/:pathMatch(.*)*', redirect: '/' })
 	return routes
 }
 
-const router = new VueRouter({
-	mode: 'history',
-	base: generateUrl('/apps/petstore'),
+const router = createRouter({
+	history: createWebHistory(generateUrl('/apps/petstore')),
 	routes: routesFromManifest(bundledManifest),
 })
 
 tryLoadTranslations()
 
 // Pass shallow copies of the registry maps to App.vue. The lib exports
-// `defaultPageTypes` (and consumers' `customComponents`) as frozen
-// module objects in some bundle shapes — Vue 2's `Vue.extend()` mutates
-// component definitions to attach an internal `_Ctor` cache, which
-// throws "Cannot add property _Ctor, object is not extensible" against
-// a frozen source map. Cloning here yields extensible objects without
+// `defaultPageTypes` (and consumers' `customComponents`) as FROZEN module
+// objects in some bundle shapes; anything downstream that writes to them
+// throws in strict mode. Cloning here yields extensible objects without
 // changing the values the lib resolves at render time.
 const pageTypesProp = { ...defaultPageTypes }
 const customComponentsProp = { ...customComponents }
@@ -119,16 +120,26 @@ const customComponentsProp = { ...customComponents }
 // customComponents prop can be removed.
 const registryProp = { ...registry }
 
-// eslint-disable-next-line no-new
-new Vue({
-	pinia,
-	router,
-	render: (h) => h(App, {
-		props: {
-			manifest: bundledManifest,
-			customComponents: customComponentsProp,
-			pageTypes: pageTypesProp,
-			registry: registryProp,
-		},
+const app = createApp({
+	render: () => h(App, {
+		manifest: bundledManifest,
+		customComponents: customComponentsProp,
+		pageTypes: pageTypesProp,
+		registry: registryProp,
 	}),
-}).$mount('#content')
+})
+
+// Vue 3: plugins and global mixins are applied to the APP INSTANCE, never to a
+// global `Vue`. `PiniaVuePlugin` does not exist in pinia for Vue 3 — the store
+// instance itself is the plugin.
+app.mixin({ methods: { t, n } })
+app.use(pinia)
+app.use(router)
+
+// Vue 2's `$mount(selector)` REPLACED the placeholder element; Vue 3's
+// `mount(selector)` renders INSIDE it and leaves it in the DOM. Mounting into
+// `#content` would therefore have left a live Nextcloud-core `#content` wrapper
+// around the app root and pulled core layout rules onto it. The template now
+// exposes a dedicated `#petstore-app` host, neutralised with
+// `display: contents` in assets/app.css so the layout matches the Vue 2 DOM.
+app.mount('#petstore-app')
