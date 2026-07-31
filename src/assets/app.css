@@ -1,17 +1,6 @@
 /* Global app styles for petstore */
 /* Use CSS variables from NL Design System — no hardcoded colors */
 
-/*
- * Vue 3 mount host (templates/index.php). Vue 2's `$mount()` replaced the
- * placeholder element outright, so the app root was a DIRECT child of
- * Nextcloud's `#content-vue` flex container. Vue 3's `mount()` keeps the host,
- * which would insert an extra flex item and collapse the app shell. Removing
- * the host from the layout tree restores the Vue 2 box model exactly.
- */
-#petstore-app {
-	display: contents;
-}
-
 #content {
 	height: 100%;
 }

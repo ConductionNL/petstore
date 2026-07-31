@@ -101,10 +101,22 @@ export function attachConsoleGuard(page: Page): ConsoleGuard {
 }
 
 export async function dismissOverlays(page: Page): Promise<void> {
+	// Nextcloud's first-run wizard is an OPAQUE modal mask
+	// (`.modal-mask--opaque`) that intercepts every pointer event on the page.
+	// Escape alone did not close it on NC 34 — every in-app nav click then
+	// retried for the full 30 s test budget and the failure looked like a
+	// petstore routing bug ("subtree intercepts pointer events"). Click its own
+	// close control first and only fall back to Escape.
 	const wizard = page.locator('#firstrunwizard')
 	if (await wizard.isVisible().catch(() => false)) {
-		await page.keyboard.press('Escape').catch(() => {})
-		await wizard.waitFor({ state: 'hidden', timeout: 4000 }).catch(() => {})
+		const close = wizard.getByRole('button', { name: /close/i }).first()
+		if (await close.isVisible().catch(() => false)) {
+			await close.click({ timeout: 4000 }).catch(() => {})
+		}
+		if (await wizard.isVisible().catch(() => false)) {
+			await page.keyboard.press('Escape').catch(() => {})
+		}
+		await wizard.waitFor({ state: 'hidden', timeout: 6000 }).catch(() => {})
 	}
 	// The petstore "Support Petstore" promo dialog opens over the app content
 	// and intercepts pointer/innerText calls. Close it if present so content

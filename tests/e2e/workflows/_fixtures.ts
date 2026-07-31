@@ -35,6 +35,20 @@ import { type APIRequestContext, expect } from '@playwright/test'
 /** Real OpenRegister register slug + schema slug for the primary entity. */
 export const REGISTER = 'petstore'
 export const SCHEMA_PET = 'pet'
+/**
+ * `pet.category` is a TYPED RELATION, not free text.
+ *
+ * lib/Settings/petstore_register.json declares it
+ * `{ type: 'string', format: 'uuid', $ref: 'category' }` — ADR-062 rule 7
+ * ("relations are typed $ref + format:uuid fields, never free-text"). Every
+ * fixture in this file used to post the literal string `'Dogs'`, which
+ * OpenRegister rejects with
+ *   400 Property 'category' should match format 'uuid' but 'Dogs' does not
+ * so the entire data-layer suite failed on any instance whose register matched
+ * the shipped schema. Fixtures now create a real `category` object and pass its
+ * uuid.
+ */
+export const SCHEMA_CATEGORY = 'category'
 
 const BASE = (register: string, schema: string) =>
 	`/index.php/apps/openregister/api/objects/${register}/${schema}`
@@ -46,10 +60,17 @@ export function makeRunId(): string {
 
 export interface PetInput {
 	name: string
+	/** UUID of a `category` object — NOT a display name. See SCHEMA_CATEGORY. */
 	category?: string
 	status?: string
 	price?: number
 	notes?: string
+}
+
+export interface CategoryObject {
+	id: string
+	name: string
+	[k: string]: unknown
 }
 
 export interface PetObject {
@@ -63,6 +84,32 @@ export interface PetObject {
 }
 
 const headers = { 'OCS-APIRequest': 'true', 'Content-Type': 'application/json' }
+
+/**
+ * CREATE a `category` object and return it (its `id` is the uuid every
+ * `pet.category` must carry).
+ *
+ * @param api  Authenticated request context.
+ * @param name Display name for the category.
+ * @return The persisted category, including its uuid in `id`.
+ */
+export async function createCategory(api: APIRequestContext, name: string): Promise<CategoryObject> {
+	const res = await api.post(BASE(REGISTER, SCHEMA_CATEGORY), {
+		headers,
+		data: { name, description: 'e2e fixture category' },
+	})
+	expect(res.ok(), `createCategory failed: ${res.status()} ${await res.text()}`).toBeTruthy()
+	const body = await res.json()
+	const id = body.id ?? body['@self']?.id
+	expect(id, 'created category has no id').toBeTruthy()
+	return { ...body, id } as CategoryObject
+}
+
+/** DELETE a `category` object. Tolerates an already-gone (404) row. */
+export async function deleteCategory(api: APIRequestContext, id: string): Promise<void> {
+	const res = await api.delete(`${BASE(REGISTER, SCHEMA_CATEGORY)}/${id}`, { headers })
+	expect([204, 200, 404]).toContain(res.status())
+}
 
 /** CREATE — POST a pet, return the persisted object (incl. its OpenRegister id). */
 export async function createPet(api: APIRequestContext, input: PetInput): Promise<PetObject> {

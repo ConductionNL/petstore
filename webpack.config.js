@@ -56,10 +56,19 @@ webpackConfig.resolve.alias = {
 	// library component becomes a no-op with no error at all. Alias to the
 	// absolute FILE (a directory alias would let the nested copy win again for
 	// requests originating inside @nextcloud/vue).
-	'vue-router$': path.resolve(__dirname, 'node_modules/vue-router/dist/vue-router.esm-bundler.js'),
+	'vue-router$': path.resolve(__dirname, 'node_modules/vue-router/dist/vue-router.mjs'),
 	pinia$: path.resolve(__dirname, 'node_modules/pinia'),
-	'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue'),
-	'@nextcloud/dialogs': path.resolve(__dirname, 'node_modules/@nextcloud/dialogs'),
+	// ⚠️ These MUST be absolute FILE aliases, not directory aliases.
+	// `@nextcloud/vue@9` and `@nextcloud/dialogs@7` are exports-map-ONLY
+	// packages: their package.json has no `main` and no `module`, only
+	// `exports`. Webpack applies the exports map to PACKAGE requests, never to
+	// a request it has already rewritten into an absolute path — so a directory
+	// alias leaves it with nothing to resolve and the build dies with
+	// "Can't resolve '@nextcloud/vue'" from every single importer (234 errors
+	// on the first Vue 3 build here). The Vue-2 spelling worked only because
+	// `@nextcloud/vue@8` still shipped a `main`.
+	'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue/dist/index.mjs'),
+	'@nextcloud/dialogs$': path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/index.mjs'),
 	// Force the lib's transitive @nextcloud/axios import to resolve to
 	// the app's installed copy. Without the `$` exact-match suffix,
 	// webpack would walk up to the lib's own node_modules and load a

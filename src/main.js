@@ -136,10 +136,10 @@ app.mixin({ methods: { t, n } })
 app.use(pinia)
 app.use(router)
 
-// Vue 2's `$mount(selector)` REPLACED the placeholder element; Vue 3's
-// `mount(selector)` renders INSIDE it and leaves it in the DOM. Mounting into
-// `#content` would therefore have left a live Nextcloud-core `#content` wrapper
-// around the app root and pulled core layout rules onto it. The template now
-// exposes a dedicated `#petstore-app` host, neutralised with
-// `display: contents` in assets/app.css so the layout matches the Vue 2 DOM.
+// The host id changed from `#content` to `#petstore-app`. Nextcloud's
+// `layout.user.php` already wraps this app's template output in its OWN
+// `<div id="content">`, so the old selector was ambiguous — it matched
+// Nextcloud's outer wrapper first. Vue 2's `$mount()` replaced whatever it
+// matched and got away with it; Vue 3's `mount()` renders INSIDE the match, so
+// the ambiguity would have mattered. See templates/index.php.
 app.mount('#petstore-app')

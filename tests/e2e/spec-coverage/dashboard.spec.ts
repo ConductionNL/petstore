@@ -32,10 +32,18 @@ test.describe('dashboard — reachable & clean', () => {
 
 	test('app menu marks PetStore as the active app on its own route', async ({ page }) => {
 		await go(page)
-		// The global NC app-menu link to petstore is present (app is installed
-		// and routable). This is chrome-level and independent of Vue mount.
-		const petstoreAppLink = page.locator('header a[href*="/apps/petstore"], #appmenu a[href*="/apps/petstore"]').first()
-		await expect(petstoreAppLink).toBeAttached()
+		// Nextcloud 34 replaced the flat `#appmenu` list of `<a href="/apps/…">`
+		// links with a waffle POPOVER plus a single "current app" button; there
+		// is no petstore anchor in the header at all any more, so the old
+		// locator (`header a[href*="/apps/petstore"]`) could never match and
+		// this test failed on NC 34 for a DOM reason, not a petstore one.
+		//
+		// The current-app button is also a strictly stronger assertion for what
+		// this test is named after: the old locator only proved a link existed,
+		// never that PetStore was the ACTIVE app.
+		const currentApp = page.locator('header .app-menu__current-app')
+		await expect(currentApp).toBeVisible()
+		await expect(currentApp).toHaveAttribute('aria-label', /currently in PetStore/i)
 	})
 })
 
