@@ -40,6 +40,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\EventDispatcher\IEventDispatcher;
 
 /**
  * Main application class for the PetStore Nextcloud app.
@@ -80,24 +81,6 @@ class Application extends App implements IBootstrap
             listener: DeepLinkRegistrationListener::class
         );
 
-        // Stamp `order.customer` from the session on create (petstore/order
-        // scoped). OpenRegister dispatches ObjectCreatingEvent from its central
-        // write path; the listener no-ops for every other schema. Registering
-        // by ::class name is safe even when OpenRegister is absent (no autoload).
-        //
-        // That petstore/order scope (OrderCustomerListener::REGISTER_SLUG +
-        // ::SCHEMA_SLUG) is now also declared at REGISTRATION time, so an
-        // unrelated app's object create no longer constructs the listener — nor
-        // performs the two mapper lookups isPetstoreOrder() needs to reject it.
-        // The in-listener guard stays in place as defence in depth.
-        $this->registerFilteredObjectListener(
-            context: $context,
-            event: ObjectCreatingEvent::class,
-            listener: OrderCustomerListener::class,
-            registers: ['petstore'],
-            schemas: ['order']
-        );
-
         // Sample dashboard widget — see lib/Dashboard/ExampleWidget.php.
         // Delete this line and the ExampleWidget files if your app has no
         // dashboard widgets.
@@ -123,18 +106,27 @@ class Application extends App implements IBootstrap
      * degrades to the plain global registration it replaced, which is exactly
      * the behaviour every listener had before.
      *
-     * @param IRegistrationContext $context   Registration context.
-     * @param string               $event     OpenRegister event class name.
-     * @param string               $listener  Listener class name.
-     * @param array<int,string>    $registers Register slugs the listener reacts to.
-     * @param array<int,string>    $schemas   Schema slugs the listener reacts to.
+     * This MUST be called from boot(), never from register(). Nextcloud enables
+     * each app's autoloader immediately before calling that app's own
+     * register(), so during register() OpenRegister's classes are only
+     * autoloadable to apps that register after it — the class_exists() guard
+     * below would silently resolve to false purely because of this app's
+     * position in the enabled-app list, and the unfiltered fallback would look
+     * identical to a working narrowing. boot() runs only after every app's
+     * register() has completed, so the guard resolves regardless of ordering.
+     *
+     * @param IEventDispatcher  $dispatcher The live event dispatcher.
+     * @param string            $event      OpenRegister event class name.
+     * @param string            $listener   Listener class name.
+     * @param array<int,string> $registers  Register slugs the listener reacts to.
+     * @param array<int,string> $schemas    Schema slugs the listener reacts to.
      *
      * @return void
      *
      * @spec openspec/changes/add-order-customer-reference/specs/pet-catalog-domain/spec.md
      */
     private function registerFilteredObjectListener(
-        IRegistrationContext $context,
+        IEventDispatcher $dispatcher,
         string $event,
         string $listener,
         array $registers,
@@ -142,8 +134,8 @@ class Application extends App implements IBootstrap
     ): void {
         $subscription = '\\OCA\\OpenRegister\\Event\\ObjectEventSubscription';
         if (class_exists($subscription) === true) {
-            $subscription::register(
-                context: $context,
+            $subscription::subscribe(
+                dispatcher: $dispatcher,
                 event: $event,
                 listener: $listener,
                 registers: $registers,
@@ -152,7 +144,16 @@ class Application extends App implements IBootstrap
             return;
         }
 
-        $context->registerEventListener(event: $event, listener: $listener);
+        // Loud on purpose. This fallback is correct but UNFILTERED, and while it
+        // was silent it was indistinguishable from a working narrowing.
+        \OCP\Server::get(\Psr\Log\LoggerInterface::class)->warning(
+            'OpenRegister ObjectEventSubscription unavailable: '.$listener
+            .' fell back to an UNFILTERED registration for '.$event
+            .' and will be invoked on every object write instance-wide.',
+            ['app' => self::APP_ID]
+        );
+
+        $dispatcher->addServiceListener($event, $listener);
 
     }//end registerFilteredObjectListener()
 
@@ -163,11 +164,29 @@ class Application extends App implements IBootstrap
      *
      * @return void
      *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-1.1
      */
     public function boot(IBootContext $context): void
     {
+        $dispatcher = $context->getServerContainer()->get(IEventDispatcher::class);
+
+        // Stamp `order.customer` from the session on create (petstore/order
+        // scoped). OpenRegister dispatches ObjectCreatingEvent from its central
+        // write path; the listener no-ops for every other schema. Registering
+        // by ::class name is safe even when OpenRegister is absent (no autoload).
+        //
+        // That petstore/order scope (OrderCustomerListener::REGISTER_SLUG +
+        // ::SCHEMA_SLUG) is now also declared at REGISTRATION time, so an
+        // unrelated app's object create no longer constructs the listener — nor
+        // performs the two mapper lookups isPetstoreOrder() needs to reject it.
+        // The in-listener guard stays in place as defence in depth.
+        $this->registerFilteredObjectListener(
+            dispatcher: $dispatcher,
+            event: ObjectCreatingEvent::class,
+            listener: OrderCustomerListener::class,
+            registers: ['petstore'],
+            schemas: ['order']
+        );
+
     }//end boot()
 }//end class
