@@ -19,6 +19,7 @@
 import { chromium, request, type FullConfig } from '@playwright/test'
 import * as path from 'path'
 import * as fs from 'fs'
+import { BASE_URL } from './_base-url'
 
 const AUTH_DIR = path.resolve(__dirname, '.auth')
 const STORAGE_STATE = path.join(AUTH_DIR, 'admin.json')
@@ -45,10 +46,11 @@ async function ensureNextcloudReachable(baseURL: string): Promise<void> {
 }
 
 export default async function globalSetup(config: FullConfig): Promise<void> {
-	const baseURL = (config.projects[0]?.use?.baseURL as string | undefined)
-		?? process.env.NEXTCLOUD_URL
-		?? process.env.NC_BASE_URL
-		?? 'http://localhost:8080'
+	// `config` is unused for the target on purpose: every project's baseURL is
+	// already BASE_URL, and reading projects[0] made the login target diverge
+	// from the specs' target whenever a per-project `use.baseURL` was added.
+	void config
+	const baseURL = BASE_URL
 	const username = process.env.NC_ADMIN_USER ?? 'admin'
 	const password = process.env.NC_ADMIN_PASS ?? 'admin'
 
@@ -76,6 +78,29 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 			+ 'Check NC_ADMIN_USER / NC_ADMIN_PASS (defaults admin/admin).',
 		)
 	}
+
+	// Turn off Nextcloud's first-run wizard for this user, once, before any spec
+	// runs.
+	//
+	// The wizard is an OPAQUE modal mask (`.modal-mask--opaque`) that swallows
+	// every pointer event on the page. It appears on the first authenticated
+	// page load of a fresh instance, i.e. inside whichever spec happens to run
+	// first, and made unrelated specs fail with 30 s timeouts and
+	// "subtree intercepts pointer events". Dismissing it from `dismissOverlays`
+	// is a race: the wizard mounts asynchronously and can arrive after the
+	// helper has already looked.
+	//
+	// `DELETE /apps/firstrunwizard/wizard` is the wizard's own "do not show
+	// again" endpoint (Wizard#disable), so this is the supported way to opt out
+	// rather than a UI trick. It is Nextcloud onboarding chrome with no
+	// relation to petstore; nothing under test is affected.
+	await page.evaluate(async () => {
+		const token = (window as unknown as { OC?: { requestToken?: string } }).OC?.requestToken
+		await fetch('/apps/firstrunwizard/wizard', {
+			method: 'DELETE',
+			headers: { requesttoken: token ?? '', 'OCS-APIRequest': 'true' },
+		}).catch(() => {})
+	})
 
 	await context.storageState({ path: STORAGE_STATE })
 	await browser.close()

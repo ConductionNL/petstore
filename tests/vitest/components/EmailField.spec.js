@@ -19,7 +19,7 @@ import EmailField from '../../../src/formFields/EmailField.vue'
 describe('EmailField.vue (component mount)', () => {
 	it('renders the label and value props', () => {
 		const wrapper = mount(EmailField, {
-			propsData: { label: 'Owner email', value: 'a@b.com' },
+			props: { label: 'Owner email', value: 'a@b.com' },
 		})
 		expect(wrapper.find('.email-field__label').text()).toBe('Owner email')
 		expect(wrapper.find('input').element.value).toBe('a@b.com')
@@ -40,7 +40,7 @@ describe('EmailField.vue (component mount)', () => {
 	})
 
 	it('emits `input` with the new value when the user types', async () => {
-		const wrapper = mount(EmailField, { propsData: { value: '' } })
+		const wrapper = mount(EmailField, { props: { value: '' } })
 		const input = wrapper.find('input')
 		input.element.value = 'owner@petstore.test'
 		await input.trigger('input')

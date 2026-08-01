@@ -5,7 +5,7 @@
  * Vitest configuration for PetStore frontend unit tests.
  *
  * PetStore is the canonical scaffold app, so its Vitest suite doubles as the
- * fleet's reference COMPONENT-TEST harness — it proves a real Vue 2 single-
+ * fleet's reference COMPONENT-TEST harness — it proves a real Vue 3 single-
  * file component can be mounted, rendered and interacted with offline:
  *   • tests/vitest/settingsStore.spec.js — the settings Pinia store
  *     (fetch envelope-unwrap, openregisters/isAdmin flag derivation, the
@@ -16,7 +16,7 @@
  *     leaf and asserts render + the `input` emit on a DOM input event.
  *
  * The environment is `jsdom` so @vue/test-utils `mount()` + DOM assertions
- * work without a browser. `@vitejs/plugin-vue2` compiles the SFCs (the
+ * work without a browser. `@vitejs/plugin-vue` compiles the SFCs (the
  * webpack `vue-loader` pipeline is separate). The two demo components depend
  * on no @nextcloud/vue runtime, so no CSS-noop / inline-deps gymnastics are
  * needed — see tests/vitest/README.md for how to extend the harness to
@@ -24,11 +24,11 @@
  */
 
 const path = require('path')
-const vue2 = require('@vitejs/plugin-vue2')
+const vue = require('@vitejs/plugin-vue')
 
 module.exports = {
 	plugins: [
-		vue2.default ? vue2.default() : vue2(),
+		vue.default ? vue.default() : vue(),
 	],
 	test: {
 		environment: 'jsdom',

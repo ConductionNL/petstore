@@ -14,19 +14,44 @@
 // because the Nextcloud admin section is the canonical place for
 // "before the app boots" config (e.g. an app's OR register binding).
 
-import Vue from 'vue'
-import { PiniaVuePlugin } from 'pinia'
+// MUST be first: sets __webpack_public_path__ before any async chunk loads.
+import './publicPath.js'
+import { createApp, h } from 'vue'
 import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
 import pinia from './pinia.js'
 import AdminRoot from './views/AdminRoot.vue'
 
-Vue.mixin({ methods: { t, n } })
-Vue.use(PiniaVuePlugin)
+let mounted = false
 
-loadTranslations('petstore', () => {
-	// eslint-disable-next-line no-new
-	new Vue({
-		pinia,
-		render: (h) => h(AdminRoot),
-	}).$mount('#petstore-settings')
-})
+/**
+ * Mount the admin panel exactly once. Vue 3 applies mixins and plugins per app
+ * INSTANCE, so both must happen after `createApp` — a module-level `Vue.mixin`
+ * / `Vue.use` has no Vue 3 equivalent and would silently affect nothing.
+ */
+function mountAdminRoot() {
+	if (mounted === true) {
+		return
+	}
+	mounted = true
+	const app = createApp({ render: () => h(AdminRoot) })
+	app.mixin({ methods: { t, n } })
+	app.use(pinia)
+	app.mount('#petstore-settings')
+}
+
+// The mount used to sit INSIDE the `loadTranslations` callback. That callback
+// never fires when the l10n JSON 404s — which it does on every install that
+// only allowlists JS/CSS through Apache and rewrites everything else to
+// index.php (main.js documents the same hazard for the SPA entry). The admin
+// panel then rendered as an empty div with no error. Mount unconditionally;
+// untranslated strings fall back to their English source.
+try {
+	const result = loadTranslations('petstore', mountAdminRoot)
+	if (result && typeof result.then === 'function') {
+		result.then(mountAdminRoot, mountAdminRoot)
+	} else {
+		mountAdminRoot()
+	}
+} catch {
+	mountAdminRoot()
+}

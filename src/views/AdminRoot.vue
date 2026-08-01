@@ -7,7 +7,7 @@
  Mounted into `#petstore-settings` by `src/settings.js` (which
  itself is loaded from `templates/settings/admin.php` via
  `Util::addScript`). This is the panel users reach via Nextcloud's
- "Administration settings" → "App Template".
+ "Administration settings" → "PetStore".
 
  The shared `CnAdminSettingsShell` (from @conduction/nextcloud-vue)
  renders the canonical header + version card (version via loadState,
@@ -23,7 +23,7 @@
 <template>
 	<CnAdminSettingsShell
 		app-id="petstore"
-		app-name="App Template">
+		app-name="PetStore">
 		<p class="petstore-admin-settings__hint">
 			{{ t('petstore', 'No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.') }}
 		</p>

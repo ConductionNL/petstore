@@ -16,10 +16,17 @@
 
 // @e2e openspec/specs/item-management/spec.md
 
-import { test, expect } from '@playwright/test'
+import { test, expect, request as pwRequest } from '@playwright/test'
+import * as path from 'path'
 import {
 	go, attachConsoleGuard, assertCleanChrome, appMounted, navClick, APP_ROOT,
 } from './_helpers'
+import { BASE_URL } from '../_base-url'
+import {
+	makeRunId, createCategory, deleteCategory, createPet, deletePet,
+} from '../workflows/_fixtures'
+
+const STORAGE_STATE = path.resolve(__dirname, '../.auth/admin.json')
 
 test.describe('examples — reachable & clean', () => {
 	test('examples index route loads cleanly (history-mode deep link)', async ({ page }) => {
@@ -52,11 +59,31 @@ test.describe('examples — in-app content', () => {
 
 	test('renders the object-table rows for the example schema', async ({ page }) => {
 		// @e2e openspec/specs/item-management/spec.md
-		await go(page, 'examples')
-		expect(await appMounted(page)).toBe(true)
-		// The object-table widget renders a header row plus the example items.
-		await expect(page.locator(`${APP_ROOT} table`).first()).toBeVisible()
-		expect(await page.locator(`${APP_ROOT} table tr`).count()).toBeGreaterThan(0)
+		//
+		// This assertion is inherently DATA-DEPENDENT: the object-table renders
+		// an empty-state rather than an empty `<table>` when the register holds
+		// no pets, so on a clean instance the test failed with
+		// "locator('#content-vue table') not found" and looked like an app bug.
+		// Seed one pet of our own so the assertion has something to be true of.
+		const runId = makeRunId()
+		const api = await pwRequest.newContext({ baseURL: BASE_URL, storageState: STORAGE_STATE })
+		const category = await createCategory(api, `${runId}-cats`)
+		const pet = await createPet(api, {
+			name: `${runId}-row`, category: category.id, status: 'available',
+		})
+		try {
+			await go(page, 'examples')
+			expect(await appMounted(page)).toBe(true)
+			// The object-table widget renders a header row plus the example items.
+			await expect(page.locator(`${APP_ROOT} table`).first()).toBeVisible()
+			await expect(
+				page.locator(`${APP_ROOT} table tbody tr:has-text("${pet.name}")`),
+			).toBeVisible()
+		} finally {
+			await deletePet(api, pet.id)
+			await deleteCategory(api, category.id)
+			await api.dispose()
+		}
 	})
 
 	test('reaches Examples via the in-app left navigation', async ({ page }) => {

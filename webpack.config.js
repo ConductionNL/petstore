@@ -48,9 +48,27 @@ webpackConfig.resolve.alias = {
 	'@': path.resolve(__dirname, 'src'),
 	...(useLocalLib ? { '@conduction/nextcloud-vue': localLib } : {}),
 	vue$: path.resolve(__dirname, 'node_modules/vue'),
+	// MANDATORY, not cosmetic. `@nextcloud/vue@9` declares a hard dependency on
+	// `vue-router@^5.1.0` while this app is on `vue-router@4`, so npm installs a
+	// SECOND copy under `node_modules/@nextcloud/vue/node_modules/vue-router`.
+	// Two router instances means the app's `useRouter()` and the ones inside
+	// @nextcloud/vue components resolve different singletons: navigation from a
+	// library component becomes a no-op with no error at all. Alias to the
+	// absolute FILE (a directory alias would let the nested copy win again for
+	// requests originating inside @nextcloud/vue).
+	'vue-router$': path.resolve(__dirname, 'node_modules/vue-router/dist/vue-router.mjs'),
 	pinia$: path.resolve(__dirname, 'node_modules/pinia'),
-	'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue'),
-	'@nextcloud/dialogs': path.resolve(__dirname, 'node_modules/@nextcloud/dialogs'),
+	// ⚠️ These MUST be absolute FILE aliases, not directory aliases.
+	// `@nextcloud/vue@9` and `@nextcloud/dialogs@7` are exports-map-ONLY
+	// packages: their package.json has no `main` and no `module`, only
+	// `exports`. Webpack applies the exports map to PACKAGE requests, never to
+	// a request it has already rewritten into an absolute path — so a directory
+	// alias leaves it with nothing to resolve and the build dies with
+	// "Can't resolve '@nextcloud/vue'" from every single importer (234 errors
+	// on the first Vue 3 build here). The Vue-2 spelling worked only because
+	// `@nextcloud/vue@8` still shipped a `main`.
+	'@nextcloud/vue$': path.resolve(__dirname, 'node_modules/@nextcloud/vue/dist/index.mjs'),
+	'@nextcloud/dialogs$': path.resolve(__dirname, 'node_modules/@nextcloud/dialogs/dist/index.mjs'),
 	// Force the lib's transitive @nextcloud/axios import to resolve to
 	// the app's installed copy. Without the `$` exact-match suffix,
 	// webpack would walk up to the lib's own node_modules and load a
@@ -113,7 +131,7 @@ webpackConfig.optimization = {
 			},
 			vendor: {
 				name: appId + '-shared-vendor',
-				test: /[\\/]node_modules[\\/](vue|pinia|vue-material-design-icons|@vueuse|core-js)[\\/]/,
+				test: /[\\/]node_modules[\\/](vue|vue-router|pinia|vue-material-design-icons|@vueuse|core-js)[\\/]/,
 				priority: 20,
 				reuseExistingChunk: true,
 				enforce: true,

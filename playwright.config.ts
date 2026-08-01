@@ -15,13 +15,14 @@
  *                      Output lands in
  *                      `docs/static/screenshots/tutorials/{user,admin}/`.
  *
- * Point at a running Nextcloud with NEXTCLOUD_URL (default
- * http://localhost:8080). Authentication / storage-state wiring is
- * left for the team to add when the first real e2e spec lands.
+ * Point at a running Nextcloud with PLAYWRIGHT_BASE_URL (or NEXTCLOUD_URL /
+ * NC_BASE_URL / BASE_URL). There is NO default — see tests/e2e/_base-url.ts
+ * for why a silent `http://localhost:8080` fallback was removed.
  */
 
 import { defineConfig, devices } from '@playwright/test'
 import * as path from 'path'
+import { BASE_URL } from './tests/e2e/_base-url'
 
 export default defineConfig({
 	testDir: './tests/e2e',
@@ -38,7 +39,7 @@ export default defineConfig({
 	outputDir: 'tests/e2e/test-results',
 
 	use: {
-		baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+		baseURL: BASE_URL,
 		storageState: path.resolve(__dirname, 'tests/e2e/.auth/admin.json'),
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',

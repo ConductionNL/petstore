@@ -11,7 +11,12 @@ jobs:
   quality:
     uses: ConductionNL/.github/.github/workflows/quality.yml@main
     with:
-      app-name: app-template
+      # Was `app-template`, a leftover from the scaffold this repo was cloned
+      # from. The shared workflow checks the repo out at
+      # `server/apps/${{ inputs.app-name }}` and resolves every artifact path
+      # (e.g. the Playwright report upload) from it, so the whole pipeline ran
+      # against a directory that is not this app's id.
+      app-name: petstore
       php-version: "8.3"
       php-test-versions: '["8.3", "8.4"]'
       nextcloud-test-refs: '["stable31", "stable32", "stable33"]'
@@ -20,6 +25,12 @@ jobs:
       enable-phpmetrics: true
       enable-frontend: true
       enable-eslint: true
+      # `frontend-checks` defaults to [], so petstore's Vitest suite (15 tests
+      # across the settings store and two mounted SFCs) and its manifest /
+      # register / registry validators had NEVER run on a pull request — only
+      # eslint and stylelint did. Both scripts are self-contained (each leg is a
+      # fresh checkout + `npm ci`).
+      frontend-checks: '["test:unit", "check:specs"]'
       enable-phpunit: true
       enable-newman: true
       # additional-apps: '[]'  # Add app dependencies here if needed, e.g.:

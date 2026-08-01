@@ -8,6 +8,21 @@ const {
 	FlatCompat,
 } = require('@eslint/eslintrc')
 
+// The shared Vue 3 fix layer, shipped INSIDE @conduction/nextcloud-vue so every
+// app arms the same rules. It must be spread LAST (see the bottom of this
+// file): it arms the whole `vue/no-deprecated-*` family at `error`, raises
+// `ecmaVersion` to `latest` so eslint-plugin-import can parse `?.` / `??` /
+// spread, installs vue-eslint-parser's OBJECT-form `parserOptions.parser`, and
+// turns OFF the two INVERTED Vue-2 rules (`vue/no-v-model-argument`,
+// `vue/no-v-for-template-key`) that forbid syntax Vue 3 requires. Do NOT add
+// local copies of those two disables — the preset owns them now.
+//
+// It registers no plugins, so it layers cleanly on top of the `@nextcloud`
+// base without a duplicate-plugin error.
+const {
+	conductionVue3Fixes,
+} = require('@conduction/nextcloud-vue/eslint')
+
 const compat = new FlatCompat({
 	baseDirectory: __dirname,
 	recommendedConfig: js.configs.recommended,
@@ -60,4 +75,4 @@ module.exports = defineConfig([{
 		'n/no-process-exit': 'off',
 		'n/shebang': 'off',
 	},
-}])
+}, ...conductionVue3Fixes])

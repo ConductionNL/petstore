@@ -33,11 +33,13 @@
 import { test, expect, request as pwRequest, type APIRequestContext } from '@playwright/test'
 import * as path from 'path'
 import {
-	REGISTER, SCHEMA_PET, makeRunId, createPet, getPet, searchPets, updatePet, deletePet, cleanupRun,
+	makeRunId, createPet, getPet, searchPets, updatePet, deletePet, cleanupRun,
+	createCategory, deleteCategory, makeShortLabel,
 } from './_fixtures'
 import {
 	go, attachConsoleGuard, dismissOverlays, appMounted, APP_ROOT,
 } from '../spec-coverage/_helpers'
+import { BASE_URL } from '../_base-url'
 
 const STORAGE_STATE = path.resolve(__dirname, '../.auth/admin.json')
 
@@ -48,25 +50,30 @@ const STORAGE_STATE = path.resolve(__dirname, '../.auth/admin.json')
 test.describe('petstore pet — CRUD persistence (data layer)', () => {
 	const runId = makeRunId()
 	let api: APIRequestContext
+	/** UUID of this run's own `category` object — `pet.category` is a typed relation. */
+	let categoryId: string
 
 	test.beforeAll(async () => {
 		api = await pwRequest.newContext({
-			baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+			baseURL: BASE_URL,
 			storageState: STORAGE_STATE,
 		})
+		const category = await createCategory(api, `${runId}-dogs`)
+		categoryId = category.id
 	})
 
 	test.afterAll(async () => {
 		const removed = await cleanupRun(api, runId)
 		// best-effort log; not an assertion (the per-test deletes already ran)
 		console.log(`[cleanup] removed ${removed} leftover ${runId}* pet(s)`) // eslint-disable-line no-console
+		if (categoryId) await deleteCategory(api, categoryId)
 		await api.dispose()
 	})
 
 	test('create persists and is readable back by id and by search', async () => {
 		const name = `${runId}-rex`
 		const created = await createPet(api, {
-			name, category: 'Dogs', status: 'available', price: 42, notes: 'good boy',
+			name, category: categoryId, status: 'available', price: 42, notes: 'good boy',
 		})
 		expect(created.id).toBeTruthy()
 		expect(created.name).toBe(name)
@@ -76,7 +83,8 @@ test.describe('petstore pet — CRUD persistence (data layer)', () => {
 		const fetched = await getPet(api, created.id)
 		expect(fetched, 'created pet not found by id after create').not.toBeNull()
 		expect(fetched!.name).toBe(name)
-		expect(fetched!.category).toBe('Dogs')
+		// the RELATION persisted as the category uuid, not as a display string
+		expect(fetched!.category).toBe(categoryId)
 		expect(fetched!.price).toBe(42)
 
 		// findable via search (the index/object-table query path)
@@ -87,10 +95,10 @@ test.describe('petstore pet — CRUD persistence (data layer)', () => {
 	})
 
 	test('update persists the changed fields', async () => {
-		const created = await createPet(api, { name: `${runId}-milo`, category: 'Cats', status: 'available' })
+		const created = await createPet(api, { name: `${runId}-milo`, category: categoryId, status: 'available' })
 
 		const editedName = `${runId}-milo-edited`
-		await updatePet(api, created.id, { name: editedName, category: 'Cats', status: 'sold' })
+		await updatePet(api, created.id, { name: editedName, category: categoryId, status: 'sold' })
 
 		// re-fetch from the store: the edit must have PERSISTED, not just echoed
 		const after = await getPet(api, created.id)
@@ -102,7 +110,7 @@ test.describe('petstore pet — CRUD persistence (data layer)', () => {
 	})
 
 	test('delete removes the object (gone on read-back)', async () => {
-		const created = await createPet(api, { name: `${runId}-buddy`, category: 'Fish', status: 'pending' })
+		const created = await createPet(api, { name: `${runId}-buddy`, category: categoryId, status: 'pending' })
 		expect(await getPet(api, created.id)).not.toBeNull()
 
 		await deletePet(api, created.id)
@@ -119,15 +127,29 @@ test.describe('petstore pet — CRUD persistence (data layer)', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('petstore Examples — UI manifest-shell surface', () => {
+	// The object-table renders an EMPTY-STATE, not an empty <table>, when the
+	// register holds no pets — so asserting `table` is visible is a
+	// data-dependent assertion and it failed on every clean instance. Seed a
+	// pet first, then assert the table really is the surface being rendered.
 	test('Examples index mounts and renders an object-table surface', async ({ page }) => {
-		// This much is true today: the manifest shell mounts and the index
-		// page renders a table (currently the "No items found" empty-state).
 		const guard = attachConsoleGuard(page)
-		await go(page, 'examples')
-		await dismissOverlays(page)
-		expect(await appMounted(page)).toBe(true)
-		await expect(page.locator(`${APP_ROOT} table`).first()).toBeVisible()
-		expect(guard.bootstrapCrash, 'bootstrap crash regressed').toEqual([])
+		const runId = makeRunId()
+		const api = await pwRequest.newContext({ baseURL: BASE_URL, storageState: STORAGE_STATE })
+		const category = await createCategory(api, `${runId}-cats`)
+		const created = await createPet(api, {
+			name: `${runId}-surface`, category: category.id, status: 'available',
+		})
+		try {
+			await go(page, 'examples')
+			await dismissOverlays(page)
+			expect(await appMounted(page)).toBe(true)
+			await expect(page.locator(`${APP_ROOT} table`).first()).toBeVisible()
+			expect(guard.bootstrapCrash, 'bootstrap crash regressed').toEqual([])
+		} finally {
+			await deletePet(api, created.id)
+			await deleteCategory(api, category.id)
+			await api.dispose()
+		}
 	})
 
 	// FIXED (2026-06-10, wave-3): the manifest Examples/detail pages now target
@@ -137,10 +159,13 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 	test('seeded pet appears as a row in the Examples object-table', async ({ page }) => {
 		const runId = makeRunId()
 		const api = await pwRequest.newContext({
-			baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
+			baseURL: BASE_URL,
 			storageState: STORAGE_STATE,
 		})
-		const created = await createPet(api, { name: `${runId}-table-rex`, category: 'Dogs', status: 'available' })
+		const category = await createCategory(api, `${runId}-dogs`)
+		const created = await createPet(api, {
+			name: `${runId}-table-rex`, category: category.id, status: 'available',
+		})
 		try {
 			await go(page, 'examples')
 			await dismissOverlays(page)
@@ -151,6 +176,7 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 			await expect(root.locator(`table tbody tr:has-text("${created.name}")`)).toBeVisible()
 		} finally {
 			await deletePet(api, created.id)
+			await deleteCategory(api, category.id)
 			await api.dispose()
 		}
 	})
@@ -163,46 +189,60 @@ test.describe('petstore Examples — UI manifest-shell surface', () => {
 	// form now commits a new pet that shows up as a real persisted row.
 	test('create FORM in the UI submits and persists a new pet', async ({ page }) => {
 		const runId = makeRunId()
-		await go(page, 'examples')
-		await dismissOverlays(page)
-		const root = page.locator(APP_ROOT)
+		const api = await pwRequest.newContext({ baseURL: BASE_URL, storageState: STORAGE_STATE })
+		// `category` is a REQUIRED typed relation, so the form's Category control
+		// is a relation combobox that can only offer categories that exist. The
+		// old spec typed 'Dogs' into a textbox that has never been rendered for
+		// this property, and failed on every instance.
+		//
+		// The label must be SHORT — see makeShortLabel() for the wrapped-option
+		// trap that a runId-derived name walks straight into.
+		const categoryName = makeShortLabel()
+		const category = await createCategory(api, categoryName)
 
-		// EXPECTED once a create affordance exists: open it, fill, submit.
-		const addBtn = root.locator(
-			'button:has-text("Add"), button:has-text("Create"), '
-			+ '[aria-label*="Add" i], [aria-label*="Create" i], [aria-label*="New" i]',
-		).first()
-		await expect(addBtn, 'no create affordance on the Examples index').toBeVisible()
-		await addBtn.click()
+		try {
+			await go(page, 'examples')
+			await dismissOverlays(page)
+			const root = page.locator(APP_ROOT)
 
-		// CnFormDialog renders schema fields via NcTextField / NcSelect, so
-		// the controls are accessible textboxes/comboboxes labelled by the
-		// schema property (required ones carry a trailing " *"). Fill the
-		// three required pet fields (name, category, status) so the Create
-		// button enables, then submit.
-		const name = `${runId}-form-pet`
-		const dialog = page.getByRole('dialog', { name: /create pet/i })
-		await dialog.getByRole('textbox', { name: /^name/i }).fill(name)
-		await dialog.getByRole('textbox', { name: /^category/i }).fill('Dogs')
+			const addBtn = root.locator(
+				'button:has-text("Add"), button:has-text("Create"), '
+				+ '[aria-label*="Add" i], [aria-label*="Create" i], [aria-label*="New" i]',
+			).first()
+			await expect(addBtn, 'no create affordance on the Examples index').toBeVisible()
+			await addBtn.click()
 
-		// status is an NcSelect (enum available/pending/sold) — open and pick.
-		await dialog.getByRole('combobox', { name: /^status/i }).click()
-		await page.getByRole('option', { name: 'available', exact: true }).first().click()
+			// CnFormDialog renders schema fields via NcTextField / NcSelect, so
+			// the controls are accessible textboxes/comboboxes labelled by the
+			// schema property (required ones carry a trailing " *"). Fill the
+			// three required pet fields (name, category, status) so the Create
+			// button enables, then submit.
+			const name = `${runId}-form-pet`
+			const dialog = page.getByRole('dialog', { name: /create pet/i })
+			await dialog.getByRole('textbox', { name: /^name/i }).fill(name)
 
-		const createBtn = dialog.getByRole('button', { name: /^create$/i })
-		await expect(createBtn).toBeEnabled()
-		await createBtn.click()
+			// category is a RELATION combobox listing existing `category` objects.
+			await dialog.getByRole('combobox', { name: /^category/i }).click()
+			await page.getByRole('option', { name: categoryName, exact: true }).first().click()
 
-		// The committed pet must show up as a real persisted row.
-		await expect(root.locator(`table tbody tr:has-text("${name}")`)).toBeVisible()
+			// status is an NcSelect (enum available/pending/sold) — open and pick.
+			await dialog.getByRole('combobox', { name: /^status/i }).click()
+			await page.getByRole('option', { name: 'available', exact: true }).first().click()
 
-		// cleanup whatever the form created
-		const api = await pwRequest.newContext({
-			baseURL: process.env.NEXTCLOUD_URL || 'http://localhost:8080',
-			storageState: STORAGE_STATE,
-		})
-		const hits = await searchPets(api, runId)
-		for (const p of hits) await deletePet(api, p.id)
-		await api.dispose()
+			const createBtn = dialog.getByRole('button', { name: /^create$/i })
+			await expect(createBtn).toBeEnabled()
+			await createBtn.click()
+
+			// The committed pet must show up as a real persisted row.
+			await expect(root.locator(`table tbody tr:has-text("${name}")`)).toBeVisible()
+		} finally {
+			// cleanup whatever the form created — must run even when the test
+			// fails before the form is submitted, or every failed run leaks a
+			// category into the register.
+			const hits = await searchPets(api, runId)
+			for (const p of hits) await deletePet(api, p.id)
+			await deleteCategory(api, category.id)
+			await api.dispose()
+		}
 	})
 })
