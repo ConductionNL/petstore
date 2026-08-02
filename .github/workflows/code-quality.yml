@@ -1,5 +1,10 @@
 name: Code Quality
 
+# THROWAWAY BRANCH — proof harness for ConductionNL/.github#121.
+# Points at the fix branch of the reusable workflow and strips every leg that
+# is not the PHP quality matrix, so the run is cheap and the phpcs leg is the
+# only thing under test. DO NOT MERGE.
+
 on:
   push:
     branches: [main, development, feature/**, bugfix/**, hotfix/**]
@@ -9,30 +14,19 @@ on:
 
 jobs:
   quality:
-    uses: ConductionNL/.github/.github/workflows/quality.yml@main
+    uses: ConductionNL/.github/.github/workflows/quality.yml@fix/121-missing-composer-script-must-fail
     with:
-      # Was `app-template`, a leftover from the scaffold this repo was cloned
-      # from. The shared workflow checks the repo out at
-      # `server/apps/${{ inputs.app-name }}` and resolves every artifact path
-      # (e.g. the Playwright report upload) from it, so the whole pipeline ran
-      # against a directory that is not this app's id.
       app-name: petstore
       php-version: "8.3"
-      php-test-versions: '["8.3", "8.4"]'
-      nextcloud-test-refs: '["stable31", "stable32", "stable33"]'
-      enable-psalm: true
-      enable-phpstan: true
-      enable-phpmetrics: true
-      enable-frontend: true
-      enable-eslint: true
-      # `frontend-checks` defaults to [], so petstore's Vitest suite (15 tests
-      # across the settings store and two mounted SFCs) and its manifest /
-      # register / registry validators had NEVER run on a pull request — only
-      # eslint and stylelint did. Both scripts are self-contained (each leg is a
-      # fresh checkout + `npm ci`).
-      frontend-checks: '["test:unit", "check:specs"]'
-      enable-phpunit: true
-      enable-newman: true
-      # additional-apps: '[]'  # Add app dependencies here if needed, e.g.:
-      # additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"main"}]'
-      enable-sbom: true
+      enable-psalm: false
+      enable-phpstan: false
+      enable-phpmetrics: false
+      enable-phpmd: false
+      enable-phpcs: true
+      enable-frontend: false
+      enable-eslint: false
+      frontend-checks: '[]'
+      enable-phpunit: false
+      enable-newman: false
+      enable-license-check: false
+      enable-sbom: false
