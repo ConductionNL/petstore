@@ -14,7 +14,7 @@ on:
 
 jobs:
   quality:
-    uses: ConductionNL/.github/.github/workflows/quality.yml@fix/121-missing-composer-script-must-fail
+    uses: ConductionNL/.github/.github/workflows/quality.yml@main
     with:
       app-name: petstore
       php-version: "8.3"
