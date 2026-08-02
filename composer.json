@@ -40,7 +40,7 @@
 		"lint": "find . -name \\*.php -not -path './vendor/*' -not -path './build/*' -print0 | xargs -0 -n1 php -l",
 		"cs:check": "./vendor/bin/phpcs --standard=phpcs.xml",
 		"cs:fix": "./vendor/bin/phpcbf --standard=phpcs.xml",
-		"phpcs": "./vendor/bin/phpcs --standard=phpcs.xml",
+		"phpcs-DELIBERATELY-RENAMED-FOR-ISSUE-121-PROOF": "./vendor/bin/phpcs --standard=phpcs.xml",
 		"phpcs:fix": "./vendor/bin/phpcbf --standard=phpcs.xml",
 		"phpcs:output": "./vendor/bin/phpcs --standard=phpcs.xml --report=json lib/ 2>/dev/null | tail -1 > phpcs-output.json",
 		"phpmd": "./vendor/bin/phpmd lib text phpmd.xml",
