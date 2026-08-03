@@ -42,7 +42,7 @@ appears in Nextcloud's occ repair output.
 
 ### REQ-INIT-002: Import configuration on install / upgrade
 
-The system MUST, when the repair step runs, invoke `SettingsService::loadConfiguration(force: true)`. If OpenRegister is not available, the step MUST log a warning and return without throwing. If the service call throws, the step MUST catch the exception, log the error with context, and continue — it MUST NOT let the failure abort the rest of the Nextcloud repair pass.
+The system MUST, when the repair step runs, invoke `SettingsService::initializeConfiguration()`. If OpenRegister is not available, the step MUST log a warning and return without throwing. If the service call throws, the step MUST catch the exception, log the error with context, and continue — it MUST NOT let the failure abort the rest of the Nextcloud repair pass.
 
 #### Scenario: Happy-path first install
 
@@ -50,7 +50,7 @@ The system MUST, when the repair step runs, invoke `SettingsService::loadConfigu
 - AND the app's bundled `app_template_register.json` is present
 - WHEN `InitializeSettings::run()` executes
 - THEN the system MUST write a progress message to the repair `IOutput`
-- AND the system MUST call `SettingsService::loadConfiguration(force: true)`
+- AND the system MUST call `SettingsService::initializeConfiguration()`
 - AND on success, it MUST record the result (including schema/register IDs) in the server-side log at info level
 
 #### Scenario: OpenRegister is missing
@@ -64,7 +64,7 @@ The system MUST, when the repair step runs, invoke `SettingsService::loadConfigu
 #### Scenario: ConfigurationService throws
 
 - GIVEN OpenRegister is installed but the bundled JSON is malformed (or any other `ConfigurationService` failure)
-- WHEN `loadConfiguration()` throws
+- WHEN `initializeConfiguration()` throws
 - THEN the repair step MUST catch the exception
 - AND it MUST log the exception with full context (`$logger->error(message, ['exception' => $e])`)
 - AND it MUST write a user-visible warning to `IOutput`

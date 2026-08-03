@@ -106,7 +106,7 @@ class SettingsController extends Controller
      */
     public function load(): JSONResponse
     {
-        $result = $this->settingsService->loadConfiguration(force: true);
+        $result = $this->settingsService->reloadConfiguration();
 
         return new JSONResponse($result);
     }//end load()

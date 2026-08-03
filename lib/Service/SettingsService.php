@@ -129,15 +129,47 @@ class SettingsService
     }//end updateSettings()
 
     /**
-     * Load configuration from app_template_register.json via OpenRegister.
+     * Import the shipped register configuration, skipping it when OpenRegister
+     * already holds this version.
      *
-     * @param bool $force Force re-import even if already configured.
+     * This is the first-install path, driven by the repair step.
      *
      * @return array<string,mixed> Result with success flag, message, and version.
      *
      * @spec openspec/specs/settings-management/spec.md#REQ-CFG-003
      */
-    public function loadConfiguration(bool $force=false): array
+    public function initializeConfiguration(): array
+    {
+        return $this->importConfiguration(force: false);
+
+    }//end initializeConfiguration()
+
+    /**
+     * Re-import the shipped register configuration, overwriting whatever
+     * OpenRegister already holds.
+     *
+     * This is the admin "reload configuration" path.
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     *
+     * @spec openspec/specs/settings-management/spec.md#REQ-CFG-003
+     */
+    public function reloadConfiguration(): array
+    {
+        return $this->importConfiguration(force: true);
+
+    }//end reloadConfiguration()
+
+    /**
+     * Read petstore_register.json and hand it to OpenRegister's importer.
+     *
+     * @param bool $force Whether OpenRegister should overwrite an existing import.
+     *
+     * @return array<string,mixed> Result with success flag, message, and version.
+     *
+     * @spec openspec/specs/settings-management/spec.md#REQ-CFG-003
+     */
+    private function importConfiguration(bool $force): array
     {
         if ($this->isOpenRegisterAvailable() === false) {
             $this->logger->warning('PetStore: OpenRegister not available, skipping register initialization');
@@ -209,5 +241,5 @@ class SettingsService
                 'message' => $e->getMessage(),
             ];
         }//end try
-    }//end loadConfiguration()
+    }//end importConfiguration()
 }//end class

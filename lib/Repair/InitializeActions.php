@@ -76,17 +76,12 @@ class InitializeActions implements IRepairStep
         $existing = $this->actionAuth->getMatrix();
         if (count($existing) > 0) {
             $count = count($existing);
-            if ($count === 1) {
-                $plural = 'y';
-            } else {
-                $plural = 'ies';
-            }
 
             $output->info(
                 sprintf(
                     'Action matrix already has %d entr%s — preserving.',
                     $count,
-                    $plural
+                    $this->inflect(count: $count, singular: 'y', plural: 'ies')
                 )
             );
             return;
@@ -126,18 +121,32 @@ class InitializeActions implements IRepairStep
         }
 
         $count = count($actions);
-        if ($count === 1) {
-            $plural = '';
-        } else {
-            $plural = 's';
-        }
 
         $output->info(
             sprintf(
                 'Seeded action matrix with %d action%s (default: admin-only).',
                 $count,
-                $plural
+                $this->inflect(count: $count, singular: '', plural: 's')
             )
         );
     }//end run()
+
+    /**
+     * Pick the singular or plural word ending that matches a count.
+     *
+     * @param int    $count    The number the word has to agree with.
+     * @param string $singular Ending used when $count is exactly one.
+     * @param string $plural   Ending used for every other count.
+     *
+     * @return string The ending to interpolate into the message.
+     */
+    private function inflect(int $count, string $singular, string $plural): string
+    {
+        if ($count === 1) {
+            return $singular;
+        }
+
+        return $plural;
+
+    }//end inflect()
 }//end class

@@ -90,13 +90,13 @@ admin-only and MUST be callable at any time (not only on install).
 
 - GIVEN OpenRegister is installed and enabled
 - WHEN an admin sends `POST /api/settings/load`
-- THEN the system MUST invoke `SettingsService::loadConfiguration(force: true)`
+- THEN the system MUST invoke `SettingsService::reloadConfiguration()`
 - AND the response MUST be HTTP 200 with the ConfigurationService result (an array including `success: true` and the configured schema/register IDs)
 
 #### Scenario: Admin triggers re-import but OpenRegister is missing
 
 - GIVEN OpenRegister is not installed or disabled
-- WHEN `loadConfiguration()` is invoked
+- WHEN `reloadConfiguration()` is invoked
 - THEN the system MUST emit a server-side warning via `LoggerInterface::warning()`
 - AND the system MUST return `{ "success": false, "message": "OpenRegister is not installed or enabled." }`
 - AND the HTTP response MUST NOT leak implementation detail beyond that generic message (per ADR-005)
