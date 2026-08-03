@@ -1,0 +1,16 @@
+[
+  {
+    "slug": "portal-assertion-verifier",
+    "title": "Portal Assertion Verifier",
+    "summary": "Pet Store receives portal-subject endpoint actions forwarded server-to-server by portaliq (hydra ADR-046 contract v2, A6).",
+    "status": "beta",
+    "docsUrl": "openspec/specs/portal-assertion-verifier/spec.md"
+  },
+  {
+    "slug": "portal-contribution",
+    "title": "Portal Contribution",
+    "summary": "Pet Store contributes a client section to portaliq, the shared external portal for people without Nextcloud accounts (hydra ADR-046 + 2026-07-06 amendment, contribution contract v2).",
+    "status": "beta",
+    "docsUrl": "openspec/specs/portal-contribution/spec.md"
+  }
+]
