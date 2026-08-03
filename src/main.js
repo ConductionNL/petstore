@@ -145,3 +145,9 @@ app.use(router)
 // matched and got away with it; Vue 3's `mount()` renders INSIDE the match, so
 // the ambiguity would have mattered. See templates/index.php.
 app.mount('#petstore-app')
+
+// ── DELIBERATE BUILD BREAK — NEGATIVE CONTROL, DO NOT MERGE ─────────────────
+// Proves the new shared `Frontend Build` job actually fails on a broken build,
+// rather than passing because it never really ran webpack. Reverted after the
+// run is observed.
+import './this-module-does-not-exist.js'
