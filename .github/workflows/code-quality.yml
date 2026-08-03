@@ -9,7 +9,7 @@ on:
 
 jobs:
   quality:
-    uses: ConductionNL/.github/.github/workflows/quality.yml@main
+    uses: ConductionNL/.github/.github/workflows/quality.yml@ci/frontend-build-gate
     with:
       # Was `app-template`, a leftover from the scaffold this repo was cloned
       # from. The shared workflow checks the repo out at
