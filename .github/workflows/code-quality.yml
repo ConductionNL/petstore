@@ -9,7 +9,10 @@ on:
 
 jobs:
   quality:
-    uses: ConductionNL/.github/.github/workflows/quality.yml@main
+    # TEMPORARY — pinned to a branch, not @main, to verify the cancelled-job
+    # gate fix on ONE repo before it can propagate to all ~13 callers.
+    # Revert to @main before merging.
+    uses: ConductionNL/.github/.github/workflows/quality.yml@fix/quality-cancelled-dep-fails-gate
     with:
       # Was `app-template`, a leftover from the scaffold this repo was cloned
       # from. The shared workflow checks the repo out at
