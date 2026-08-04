@@ -25,7 +25,7 @@ jobs:
       cancel-in-progress: true
     timeout-minutes: 10
     steps:
-      - run: sleep 120
+      - run: sleep 240
 
   sibling:
     runs-on: ubuntu-latest
@@ -62,4 +62,5 @@ jobs:
 
       - name: Reached the end
         if: always()
-        run: echo "PROBE VERDICT: report reached the end without firing a gate"
+        run: |
+          echo "PROBE VERDICT: report reached the end without firing a gate"
