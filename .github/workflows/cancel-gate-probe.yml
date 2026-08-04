@@ -39,10 +39,23 @@ jobs:
     if: always()
     timeout-minutes: 5
     steps:
-      - name: Dump expression context
+      # `cancelled()` may only appear in an `if:` — actionlint:
+      # 'calling function "cancelled" is not allowed here'. So its value is
+      # read out through two mutually exclusive guarded steps rather than
+      # interpolated into a run block.
+      - name: cancelled() is TRUE
+        if: ${{ cancelled() }}
         run: |
-          echo "PROBE cancelled()      = ${{ cancelled() }}"
-          echo "PROBE always()         = ${{ always() }}"
+          echo "PROBE cancelled() = TRUE"
+
+      - name: cancelled() is FALSE
+        if: ${{ !cancelled() }}
+        run: |
+          echo "PROBE cancelled() = FALSE"
+
+      - name: Dump expression context
+        if: always()
+        run: |
           echo "PROBE needs.dep.result = ${{ needs.dep.result }}"
           echo "PROBE contains-failure = ${{ contains(needs.*.result, 'failure') }}"
           echo "PROBE contains-cancel  = ${{ contains(needs.*.result, 'cancelled') }}"
