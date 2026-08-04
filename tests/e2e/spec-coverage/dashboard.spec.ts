@@ -32,18 +32,30 @@ test.describe('dashboard — reachable & clean', () => {
 
 	test('app menu marks PetStore as the active app on its own route', async ({ page }) => {
 		await go(page)
-		// Nextcloud 34 replaced the flat `#appmenu` list of `<a href="/apps/…">`
-		// links with a waffle POPOVER plus a single "current app" button; there
-		// is no petstore anchor in the header at all any more, so the old
-		// locator (`header a[href*="/apps/petstore"]`) could never match and
-		// this test failed on NC 34 for a DOM reason, not a petstore one.
+		// The Nextcloud header app menu has TWO DOM dialects across the core
+		// versions this suite runs against, and pinning the assertion to either
+		// one alone makes it fail for a CORE-VERSION reason rather than a
+		// petstore one:
 		//
-		// The current-app button is also a strictly stronger assertion for what
-		// this test is named after: the old locator only proved a link existed,
-		// never that PetStore was the ACTIVE app.
-		const currentApp = page.locator('header .app-menu__current-app')
-		await expect(currentApp).toBeVisible()
-		await expect(currentApp).toHaveAttribute('aria-label', /currently in PetStore/i)
+		//   - NC <= 33 — which is what CI actually runs (nextcloud-test-refs is
+		//     stable31/32/33) — renders a flat `.app-menu__list` of
+		//     `.app-menu-entry` items, the current app carrying
+		//     `.app-menu-entry--active`. Confirmed against the DOM snapshot of
+		//     a real stable31 CI run.
+		//   - NC 34 — the docker dev container — replaced that with a waffle
+		//     POPOVER plus a single `.app-menu__current-app` button.
+		//
+		// The previous locator was the NC 34 form only, so this test could
+		// never pass on CI. Both dialects are accepted below and BOTH still
+		// assert the property this test is named after — that PetStore is the
+		// ACTIVE app, not merely that a petstore link exists in the header.
+		const legacyActive = page.locator(
+			'header .app-menu-entry--active:has(a[href*="/apps/petstore/"])',
+		)
+		const currentApp = page.locator(
+			'header .app-menu__current-app[aria-label*="PetStore" i]',
+		)
+		await expect(legacyActive.or(currentApp).first()).toBeVisible()
 	})
 })
 
