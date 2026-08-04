@@ -30,7 +30,12 @@ jobs:
       # register / registry validators had NEVER run on a pull request — only
       # eslint and stylelint did. Both scripts are self-contained (each leg is a
       # fresh checkout + `npm ci`).
-      frontend-checks: '["test:unit", "check:specs"]'
+      # `check:manifest` is added here: it is NOT part of `check:specs` in this
+      # repo (that aggregate is json-strict + manifest-v2 + register + registry),
+      # so the v1 manifest validator ran nowhere. Measured on this tree before
+      # enabling: it FAILS — `pages[8].type: "roadmap" not in v1.1 enum`, the
+      # same defect that reproduces in 10 other fleet repos.
+      frontend-checks: '["test:unit", "check:specs", "check:manifest"]'
       enable-phpunit: true
       enable-newman: true
       # petstore stores every pet, category and order as an OpenRegister object
@@ -62,3 +67,23 @@ jobs:
       # imports over the admin HTTP API and then verifies the register and the
       # `pet` / `category` / `order` schemas actually exist.
       playwright-seed-command: 'bash apps/petstore/tests/e2e/ci-seed.sh'
+
+      # ── Coverage ratchet ─────────────────────────────────────────────────
+      # `enable-coverage-guard` defaults to FALSE, which is why both
+      # "Coverage Baseline Protection" and "Coverage Baseline Check" have only
+      # ever reported `skipped`. It needs two inputs this repo did not have,
+      # both added in this commit: `scripts/coverage-guard.php` (byte-identical
+      # to openregister's) and `.coverage-baseline` = 45.56, this repo's own
+      # measured coverage (272 of 597 statements) read from clover.xml in the
+      # `coverage-report` artifact of run 30911249478.
+      enable-coverage-guard: true
+
+      # ── Hydra mechanical gates ───────────────────────────────────────────
+      # `enable-hydra-gates` defaults to FALSE, so this tier has never executed
+      # here — the job reported `skipped`, which the Quality Report renders
+      # identically to a pass. Pinned to v1.0.1 so a change to the gate package
+      # cannot move this repo's verdict without a commit here.
+      # `enable-axe` deliberately NOT set: a vanilla Nextcloud 34 already carries
+      # serious/critical violations from core's own UI.
+      enable-hydra-gates: true
+      hydra-gates-ref: v1.0.1
