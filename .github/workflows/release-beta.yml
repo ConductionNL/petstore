@@ -8,5 +8,10 @@ jobs:
   release:
     uses: ConductionNL/.github/.github/workflows/release-beta.yml@main
     with:
-      app-name: app-template
+      # Was `app-template`, a leftover from the scaffold this repo was cloned
+      # from. The shared workflow requires this to match `appinfo/info.xml`
+      # (`<id>petstore</id>`); it names the packaged tarball and the release
+      # artifacts, so every beta release would have been published under the
+      # wrong app id.
+      app-name: petstore
     secrets: inherit
