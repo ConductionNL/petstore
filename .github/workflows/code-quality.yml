@@ -33,6 +33,32 @@ jobs:
       frontend-checks: '["test:unit", "check:specs"]'
       enable-phpunit: true
       enable-newman: true
-      # additional-apps: '[]'  # Add app dependencies here if needed, e.g.:
-      # additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"main"}]'
+      # petstore stores every pet, category and order as an OpenRegister object
+      # (register `petstore`), so OpenRegister has to be present for the app to
+      # do anything at all. Without it the SPA still boots and the E2E suite
+      # fails as a wall of 404s from the object API.
+      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
       enable-sbom: true
+
+      # ── E2E browser tests ────────────────────────────────────────────────
+      # `enable-playwright` was unset, so the shared workflow reported this job
+      # as `skipped` on every run — and a skipped check reads exactly like a
+      # passing one. tests/e2e/ has been carrying 5 gating spec files that had
+      # never executed in CI.
+      #
+      # `playwright-test-path` stays at its default (`tests/e2e`). The shared
+      # workflow uses it twice: to assert tests exist, and to locate a config —
+      # first `tests/e2e/playwright.config.ts`, then the repo root. petstore has
+      # no config under tests/e2e, so the root `playwright.config.ts` is used.
+      # Its `chromium` project runs spec-coverage/ + workflows/ and testIgnores
+      # both docs-screenshots.spec.ts (journeydoc capture, ADR-030 — reshooting
+      # screenshots on every push is not a gate) and visual/ (PNG baselines are
+      # host-font/GPU specific and cannot byte-match a Linux runner).
+      enable-playwright: true
+      # The register import is NOT left to `occ app:enable`. That runs the
+      # InitializeSettings repair step with no user session, so OpenRegister's
+      # RBAC can deny it, and the step catches \Throwable and downgrades the
+      # failure to a warning while `occ` still exits 0. See ci-seed.sh — it
+      # imports over the admin HTTP API and then verifies the register and the
+      # `pet` / `category` / `order` schemas actually exist.
+      playwright-seed-command: 'bash apps/petstore/tests/e2e/ci-seed.sh'

@@ -130,9 +130,73 @@ export async function dismissOverlays(page: Page): Promise<void> {
 	}
 }
 
-/** Direct-navigate to an app route (history-mode router base /apps/petstore). */
+/**
+ * Per-page cache of the app's REAL history-mode router base.
+ *
+ * WHY THIS EXISTS — the deep-link trap that made 9 specs fail and 2 pass for
+ * the wrong reason.
+ *
+ * Nextcloud serves this app under two different canonical path forms, and
+ * which one is canonical depends on whether mod_rewrite is available:
+ *
+ *   - docker dev (Apache, mod_rewrite ON):  /apps/petstore/...
+ *   - shared CI  (`php -S`, no rewrite):    /index.php/apps/petstore/...
+ *
+ * `generateUrl()` follows `OC.config.modRewriteWorking`, so on CI every URL
+ * the app itself emits — and therefore the vue-router history base — carries
+ * the `/index.php` prefix. Hard-navigating to the PRETTY form there produces a
+ * failure that looks like nothing of the sort:
+ *
+ *   1. `GET /apps/petstore/examples` returns **200 text/html, no redirect** —
+ *      the SPA catch-all route in appinfo/routes.php serves it happily.
+ *   2. The bundle boots with router base `/index.php/apps/petstore`, which is
+ *      NOT a prefix of `location.pathname`, so vue-router resolves no route.
+ *   3. The catch-all sends it to `/`, and the URL is rewritten to
+ *      `/index.php/apps/petstore/` — the DASHBOARD.
+ *
+ * Every downstream assertion then reports "element(s) not found" while the
+ * server, the bundle and the data layer are all healthy. Worse, two specs
+ * PASSED this way: the dashboard also carries an object-table widget, so
+ * `#content-vue table` was visible on the page the test had been bounced onto
+ * and the Examples assertions were satisfied without Examples ever loading.
+ *
+ * Resolving the base from the running page (rather than hardcoding either
+ * form) makes the suite correct under both deployments. The first navigation
+ * per page pays one extra load; the base is cached for the rest of the test.
+ */
+const APP_BASE = new WeakMap<Page, string>()
+
+/**
+ * Resolve the app's actual router base by loading the app root once and
+ * reading back the path Nextcloud + vue-router settled on.
+ *
+ * @param page - the page to resolve the base for
+ * @returns the base path, e.g. `/index.php/apps/petstore` or `/apps/petstore`
+ */
+async function resolveAppBase(page: Page): Promise<string> {
+	const cached = APP_BASE.get(page)
+	if (cached) return cached
+	await page.goto(APP, { waitUntil: 'domcontentloaded' }).catch(() => {})
+	await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {})
+	const base = await page.evaluate(() => {
+		const m = window.location.pathname.match(/^(.*\/apps\/petstore)(\/|$)/)
+		return m ? m[1] : '/apps/petstore'
+	})
+	APP_BASE.set(page, base)
+	return base
+}
+
+/**
+ * Direct-navigate to an app route as a REAL history-mode deep link — a full
+ * document load at the deep URL, using whichever base this deployment makes
+ * canonical (see APP_BASE above).
+ *
+ * @param page  - the page to navigate
+ * @param route - route below the app base, e.g. `examples`; empty for the root
+ */
 export async function go(page: Page, route = ''): Promise<void> {
-	const url = route ? `${APP}/${route}` : APP
+	const base = await resolveAppBase(page)
+	const url = route ? `${base}/${route}` : `${base}/`
 	await page.goto(url, { waitUntil: 'domcontentloaded' }).catch(() => {})
 	// `networkidle` is best-effort only: the example-detail route fires a burst
 	// of (legitimately 404-ing, for non-existent demo ids) object-fetch XHRs
