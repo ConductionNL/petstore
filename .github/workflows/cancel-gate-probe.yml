@@ -17,12 +17,19 @@ on:
   push:
     branches: [probe/cancel-gate**]
 
+# PHASE 2 — shape (b). Workflow-level concurrency, exactly like quality.yml.
+# A second push now supersedes and cancels the WHOLE first run, not just one
+# job. The `report` job still executes because `if: always()` runs a job even
+# when its run is cancelled — which is precisely why the aggregate goes green
+# on superseded runs today. `cancelled()` must be TRUE here, so the
+# `!cancelled()`-guarded gate must be SKIPPED and `report` must NOT fail.
+concurrency:
+  group: cancel-gate-probe-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   dep:
     runs-on: ubuntu-latest
-    concurrency:
-      group: cancel-gate-probe-dep
-      cancel-in-progress: true
     timeout-minutes: 10
     steps:
       - run: sleep 240
