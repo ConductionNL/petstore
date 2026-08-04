@@ -1,0 +1,65 @@
+name: Cancel Gate Probe
+
+# TEMPORARY PROBE — delete after use.
+#
+# Establishes, empirically rather than from memory, what GitHub's expression
+# context actually reports in the two shapes of cancellation the shared
+# Quality Report gate has to tell apart:
+#
+#   (a) a single job cancelled while its RUN carries on  -> must fail the gate
+#   (b) the WHOLE run cancelled by concurrency supersession -> must stay quiet
+#
+# `dep` carries its own job-level `concurrency` group, so pushing twice in
+# quick succession cancels the FIRST run's `dep` job without cancelling the
+# first run itself. That reproduces shape (a) on demand.
+
+on:
+  push:
+    branches: [probe/cancel-gate**]
+
+jobs:
+  dep:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: cancel-gate-probe-dep
+      cancel-in-progress: true
+    timeout-minutes: 10
+    steps:
+      - run: sleep 120
+
+  sibling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: echo "sibling produced a real verdict"
+
+  report:
+    runs-on: ubuntu-latest
+    needs: [dep, sibling]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - name: Dump expression context
+        run: |
+          echo "PROBE cancelled()      = ${{ cancelled() }}"
+          echo "PROBE always()         = ${{ always() }}"
+          echo "PROBE needs.dep.result = ${{ needs.dep.result }}"
+          echo "PROBE contains-failure = ${{ contains(needs.*.result, 'failure') }}"
+          echo "PROBE contains-cancel  = ${{ contains(needs.*.result, 'cancelled') }}"
+          echo "PROBE needs JSON       = ${{ toJSON(needs) }}"
+
+      - name: Gate — fail when any upstream job failed
+        if: ${{ always() && contains(needs.*.result, 'failure') }}
+        run: |
+          echo "PROBE VERDICT: failure-gate FIRED"
+          exit 1
+
+      - name: Gate — fail when an upstream job was cancelled mid-run
+        if: ${{ !cancelled() && contains(needs.*.result, 'cancelled') }}
+        run: |
+          echo "PROBE VERDICT: cancelled-gate FIRED"
+          exit 1
+
+      - name: Reached the end
+        if: always()
+        run: echo "PROBE VERDICT: report reached the end without firing a gate"
