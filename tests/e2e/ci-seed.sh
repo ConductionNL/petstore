@@ -242,4 +242,22 @@ if [ "${GITHUB_ACTIONS:-}" = "true" ] || [ "${CI:-}" = "true" ]; then
 	esac
 fi
 
+# ---------------------------------------------------------------------------
+# TRUNCATION CONTROL — THROWAWAY BRANCH ONLY. NEVER MERGE THIS HUNK.
+#
+# Proves the green E2E floor is not hollow. A suite that still passes with an
+# empty bundle is testing nothing, and this environment hides that well: a
+# missing bundle serves HTTP 200 text/html, never 404.
+#
+# TRUNCATE, never delete — a deleted bundle gets rebuilt by ensureBundleBuilt()
+# and the control would silently measure a healthy run.
+#
+# Runs AFTER the bundle-verified gate above on purpose, so the gate sees the
+# real artefact and the specs see an empty one.
+# ---------------------------------------------------------------------------
+echo "[ci-seed] TRUNCATION CONTROL: emptying petstore JS bundles."
+for f in apps/petstore/js/*.js; do
+	[ -f "$f" ] && : > "$f" && echo "[ci-seed]   truncated $f -> $(wc -c < "$f") bytes"
+done
+
 echo "[ci-seed] done."
