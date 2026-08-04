@@ -2,27 +2,31 @@ name: Cancel Gate Probe
 
 # TEMPORARY PROBE — delete after use.
 #
-# Establishes, empirically rather than from memory, what GitHub's expression
-# context actually reports in the two shapes of cancellation the shared
-# Quality Report gate has to tell apart:
+# Establishes, empirically rather than from memory, whether the shared Quality
+# Report gate can tell apart the two shapes of cancellation:
 #
-#   (a) a single job cancelled while its RUN carries on  -> must fail the gate
-#   (b) the WHOLE run cancelled by concurrency supersession -> must stay quiet
+#   (a) a job cancelled while its RUN carries on   -> must FAIL the gate
+#   (b) the WHOLE run superseded by concurrency    -> must stay QUIET
 #
-# `dep` carries its own job-level `concurrency` group, so pushing twice in
-# quick succession cancels the FIRST run's `dep` job without cancelling the
-# first run itself. That reproduces shape (a) on demand.
+# ALREADY MEASURED (phases 1-2):
+#   run 30906581133 — shape (a): cancelled() = FALSE, run.conclusion = cancelled
+#   run 30906801110 — shape (b): cancelled() = FALSE, run.conclusion = cancelled
+# Identical. `cancelled()` is NOT a discriminator, and neither is the run
+# conclusion. Gating on `!cancelled()` alone reds every superseded run.
+#
+# PHASES 3-4 test the replacement discriminator: is this run's SHA still the
+# tip of its ref? Two cancellation mechanisms coexist in this file:
+#
+#   * workflow-level concurrency, keyed on the ref -> pushing TWICE TO THE SAME
+#     BRANCH supersedes the whole first run AND moves the tip.  = shape (b)
+#   * `dep`'s job-level concurrency group, NOT keyed on the ref -> pushing to a
+#     DIFFERENT branch cancels the first run's `dep` only, leaving the first
+#     branch's tip untouched.                                    = shape (a)
 
 on:
   push:
     branches: [probe/cancel-gate**]
 
-# PHASE 2 — shape (b). Workflow-level concurrency, exactly like quality.yml.
-# A second push now supersedes and cancels the WHOLE first run, not just one
-# job. The `report` job still executes because `if: always()` runs a job even
-# when its run is cancelled — which is precisely why the aggregate goes green
-# on superseded runs today. `cancelled()` must be TRUE here, so the
-# `!cancelled()`-guarded gate must be SKIPPED and `report` must NOT fail.
 concurrency:
   group: cancel-gate-probe-${{ github.ref }}
   cancel-in-progress: true
@@ -30,6 +34,11 @@ concurrency:
 jobs:
   dep:
     runs-on: ubuntu-latest
+    # Deliberately NOT keyed on the ref, so a push to a sibling probe branch
+    # cancels this job without touching the first branch's tip.
+    concurrency:
+      group: cancel-gate-probe-dep-shared
+      cancel-in-progress: true
     timeout-minutes: 10
     steps:
       - run: sleep 240
@@ -47,9 +56,7 @@ jobs:
     timeout-minutes: 5
     steps:
       # `cancelled()` may only appear in an `if:` — actionlint:
-      # 'calling function "cancelled" is not allowed here'. So its value is
-      # read out through two mutually exclusive guarded steps rather than
-      # interpolated into a run block.
+      # 'calling function "cancelled" is not allowed here'.
       - name: cancelled() is TRUE
         if: ${{ cancelled() }}
         run: |
@@ -66,7 +73,6 @@ jobs:
           echo "PROBE needs.dep.result = ${{ needs.dep.result }}"
           echo "PROBE contains-failure = ${{ contains(needs.*.result, 'failure') }}"
           echo "PROBE contains-cancel  = ${{ contains(needs.*.result, 'cancelled') }}"
-          echo "PROBE needs JSON       = ${{ toJSON(needs) }}"
 
       - name: Gate — fail when any upstream job failed
         if: ${{ always() && contains(needs.*.result, 'failure') }}
@@ -74,13 +80,31 @@ jobs:
           echo "PROBE VERDICT: failure-gate FIRED"
           exit 1
 
+      # EXACT MIRROR of the shipped quality.yml step.
       - name: Gate — fail when an upstream job was cancelled mid-run
         if: ${{ !cancelled() && contains(needs.*.result, 'cancelled') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          RUN_REF: ${{ github.head_ref || github.ref_name }}
         run: |
-          echo "PROBE VERDICT: cancelled-gate FIRED"
+          set -uo pipefail
+
+          TIP="$(gh api "repos/${{ github.repository }}/commits/${RUN_REF}" --jq .sha 2>/dev/null || true)"
+
+          echo "PROBE RUN_REF = ${RUN_REF}"
+          echo "PROBE RUN_SHA = ${RUN_SHA}"
+          echo "PROBE TIP     = ${TIP:-<lookup failed>}"
+
+          if [ -n "$TIP" ] && [ "$TIP" != "$RUN_SHA" ]; then
+            echo "PROBE VERDICT: SUPERSEDED — cancelled-gate stayed QUIET"
+            exit 0
+          fi
+
+          echo "PROBE VERDICT: STILL TIP — cancelled-gate FIRED"
           exit 1
 
       - name: Reached the end
         if: always()
         run: |
-          echo "PROBE VERDICT: report reached the end without firing a gate"
+          echo "PROBE VERDICT: report reached the end"
