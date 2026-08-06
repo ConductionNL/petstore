@@ -125,7 +125,29 @@ jobs:
       #      rather than failing the run with exit 98 on gates this repo has
       #      no subject matter for.
       #
-      # v1.2.0 is deliberately BELOW the v1.3.0 floor: it predates the
-      # NOT-APPLICABLE accounting, so it is exactly the shape that made
-      # decidesk and doriath red in #173.
-      hydra-gates-ref: v1.2.0
+      # ROUND 1 pinned v1.2.0, deliberately BELOW the v1.3.0 floor. Measured
+      # (run 31075019659, job 92533090886):
+      #
+      #   step 4  "Can the pinned gate package tell 'not applicable' from a
+      #            gap?"  -> success, and printed
+      #            `hydra-gates @ v1.2.0 predates the coverage accounting fix
+      #            (v1.3.0).` — so the #173 capability probe read the
+      #            package's own accounting and set CAP=0, which is the state
+      #            in which --require-full-coverage is WITHHELD.
+      #   step 5  "Verify the pinned gates package satisfies this workflow"
+      #            -> failure:
+      #            `hydra-gates-ref 'v1.2.0' does not contain:
+      #             scripts/axe-run.cjs scripts/lib/check_spec_anchors.py
+      #             scripts/lib/check_form_labels.py
+      #             scripts/lib/check_license_triangle.py`
+      #            ...`This is NOT a code-quality finding about your
+      #            repository.`
+      #
+      # So the escape hatch has a FLOOR, and the floor announces itself by
+      # name instead of producing a quiet wrong verdict. Worth knowing: the
+      # rollback lever reaches back to v1.3.0/v1.4.0, not indefinitely.
+      #
+      # ROUND 2 pins v1.4.0 — a ref the shared workflow accepts — to show the
+      # ordinary rollback actually completes: the checkout resolves v1.4.0
+      # rather than main, and the gates run at that package.
+      hydra-gates-ref: v1.4.0
