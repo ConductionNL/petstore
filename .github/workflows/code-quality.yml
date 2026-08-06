@@ -114,4 +114,18 @@ jobs:
       # reproducible and a later gate change cannot move this repo's verdict
       # without a commit here.
       enable-hydra-gates: true
-      hydra-gates-ref: v1.3.0
+      # THROWAWAY — DO NOT MERGE. This branch exists to prove two properties of
+      # the unpinning change (.github#177), and it is closed once they are
+      # measured:
+      #
+      #   1. an explicit pin is still HONOURED, so a single repo retains a
+      #      rollback lever independent of ConductionNL/.github;
+      #   2. the .github#173 capability probe still WITHHOLDS
+      #      --require-full-coverage from a package too old to honour it,
+      #      rather than failing the run with exit 98 on gates this repo has
+      #      no subject matter for.
+      #
+      # v1.2.0 is deliberately BELOW the v1.3.0 floor: it predates the
+      # NOT-APPLICABLE accounting, so it is exactly the shape that made
+      # decidesk and doriath red in #173.
+      hydra-gates-ref: v1.2.0
