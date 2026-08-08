@@ -30,7 +30,12 @@ jobs:
       # register / registry validators had NEVER run on a pull request — only
       # eslint and stylelint did. Both scripts are self-contained (each leg is a
       # fresh checkout + `npm ci`).
-      frontend-checks: '["test:unit", "check:specs"]'
+      # `check:manifest` is added here: it is NOT part of `check:specs` in this
+      # repo (that aggregate is json-strict + manifest-v2 + register + registry),
+      # so the v1 manifest validator ran nowhere. Measured on this tree before
+      # enabling: it FAILS — `pages[8].type: "roadmap" not in v1.1 enum`, the
+      # same defect that reproduces in 10 other fleet repos.
+      frontend-checks: '["test:unit", "check:specs", "check:manifest"]'
       enable-phpunit: true
       enable-newman: true
       # petstore stores every pet, category and order as an OpenRegister object
@@ -62,3 +67,51 @@ jobs:
       # imports over the admin HTTP API and then verifies the register and the
       # `pet` / `category` / `order` schemas actually exist.
       playwright-seed-command: 'bash apps/petstore/tests/e2e/ci-seed.sh'
+
+      # ── Coverage ratchet ─────────────────────────────────────────────────
+      # `enable-coverage-guard` defaults to FALSE, which is why both
+      # "Coverage Baseline Protection" and "Coverage Baseline Check" have only
+      # ever reported `skipped`. It needs two inputs this repo did not have,
+      # both added in this commit: `scripts/coverage-guard.php` (byte-identical
+      # to openregister's) and `.coverage-baseline` = 45.56, this repo's own
+      # measured coverage (272 of 597 statements) read from clover.xml in the
+      # `coverage-report` artifact of run 30911249478.
+      enable-coverage-guard: true
+
+      # ── Hydra mechanical gates ───────────────────────────────────────────
+      # `enable-hydra-gates` defaults to FALSE, so this tier has never executed
+      # here — the job reported `skipped`, which the Quality Report renders
+      # identically to a pass. Pinned to v1.0.1 so a change to the gate package
+      # cannot move this repo's verdict without a commit here.
+      # `enable-axe` deliberately NOT set: a vanilla Nextcloud 34 already carries
+      # serious/critical violations from core's own UI.
+      #
+      # v1.0.1 -> v1.3.0 (ConductionNL/.github#159). Two defects, one bump.
+      #
+      # 1. STALE. v1.0.1 is `f4d9756` (2026-08-03) and predates three gate
+      #    fixes, so every Hydra Gates run this repo has ever made executed a
+      #    script in which 16 gates reported PASS when their helper never ran
+      #    (#147), gate-33 had no axe report to read and never said so (#148),
+      #    and gates 6 and 7 reported PASS on an EMPTY scope (#149). A gate
+      #    that reports PASS without running emits a tick identical to a real
+      #    one, which is why nothing in this repo's history shows it.
+      #
+      # 2. RED. quality.yml is referenced `@main` while this package is
+      #    PINNED, so the two can desync — and on 2026-08-05 they did. #164
+      #    flipped `hydra-gates-require-full-coverage` to default TRUE, but
+      #    the accounting that makes that flag survivable (NOT APPLICABLE, as
+      #    distinct from a structural or a wiring gap) ships in the PACKAGE.
+      #    So every pin older than `f7eaf2a` now fails the coverage assertion
+      #    for gates it has no subject matter for. Measured diff-scoped,
+      #    exactly as CI scopes it:
+      #      v1.0.1  exit 98  FAIL — "GATES THAT DID NOT RUN: 24 33"
+      #      v1.3.0  exit 0   PASS — those gates named NOT APPLICABLE
+      #    The old pin was not merely stale, it was failing this repo's CI for
+      #    a reason that had nothing to do with this repo — and it is what is
+      #    currently blocking #28.
+      #
+      # v1.3.0 is `f7eaf2a` = .github@main, tagged so the ref stays
+      # reproducible and a later gate change cannot move this repo's verdict
+      # without a commit here.
+      enable-hydra-gates: true
+      hydra-gates-ref: v1.3.0
