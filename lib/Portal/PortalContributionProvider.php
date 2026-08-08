@@ -29,8 +29,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-contribution/tasks.md#task-2
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-4
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
  */
 
 declare(strict_types=1);
@@ -50,7 +49,7 @@ namespace OCA\PetStore\Portal;
  * UUID references (the owner *contact*), never Nextcloud user ids — externals
  * have no Nextcloud account by premise (amendment A4).
  *
- * @spec openspec/changes/portal-contribution/tasks.md#task-2
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
  */
 class PortalContributionProvider
 {
@@ -63,7 +62,7 @@ class PortalContributionProvider
      *
      * @return array<int, string> The audience identifiers.
      *
-     * @spec openspec/changes/portal-contribution/tasks.md#task-3
+     * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
      */
     public function getAudiences(): array
     {
@@ -80,7 +79,7 @@ class PortalContributionProvider
      *
      * @return string The audience identifier.
      *
-     * @spec openspec/changes/portal-contribution/tasks.md#task-3
+     * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
      */
     public function getAudience(): string
     {
@@ -109,8 +108,7 @@ class PortalContributionProvider
      *
      * @return array<string, mixed>|null The manifest, or null when not contributing.
      *
-     * @spec openspec/changes/portal-contribution/tasks.md#task-3
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-4
+     * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
      */
     public function getContribution(array $subject): ?array
     {
