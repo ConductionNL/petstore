@@ -35,7 +35,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-3
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
  */
 
 declare(strict_types=1);
@@ -57,7 +57,7 @@ use Throwable;
 /**
  * Receives portaliq's forwarded portal actions on the pet schema.
  *
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-3
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
  */
 class PortalActionController extends Controller
 {
@@ -111,7 +111,7 @@ class PortalActionController extends Controller
      *
      * @return JSONResponse
      *
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-3
+     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity) -- one fail-closed guard
      * per response class (401/400/403/503) on an auth boundary (ADR-005);
@@ -180,7 +180,7 @@ class PortalActionController extends Controller
      *
      * @return array<string, mixed>|null
      *
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-3
+     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
      */
     private function fetchPet(object $objectService, string $petId): ?array
     {
@@ -214,7 +214,7 @@ class PortalActionController extends Controller
      *
      * @return array<string, mixed>|null The saved row, or null on write failure.
      *
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-3
+     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
      */
     private function renamePet(object $objectService, array $pet, string $petId, string $name): ?array
     {

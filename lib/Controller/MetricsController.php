@@ -19,9 +19,12 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/example-change/tasks.md#task-8
+ * @spec openspec/specs/observability/spec.md#REQ-OBS-001
  *   (Illustrative stub per ADR-006 — every app MUST expose `GET /api/metrics`
- *   as Prometheus text, admin auth. Replace the metric values with real data.)
+ *   as Prometheus text, admin auth. Replace the metric values with real data.
+ *
+ *   Point @spec at the canonical spec under `openspec/specs/`, never at
+ *   `openspec/changes/<name>/` — see ConductionNL/.github#228.)
  */
 
 declare(strict_types=1);
