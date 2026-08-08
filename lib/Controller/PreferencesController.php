@@ -60,7 +60,7 @@ class PreferencesController extends Controller
      *
      * @return JSONResponse `{value: string|null}`.
      *
-     * @spec openspec/specs/settings-management/spec.md#REQ-CFG-005
+     * @spec openspec/specs/user-preference-api/spec.md#REQ-PREF-001
      *
      * @NoAdminRequired
      * @NoCSRFRequired
@@ -101,7 +101,7 @@ class PreferencesController extends Controller
      *
      * @return JSONResponse `{value: string|null}`.
      *
-     * @spec openspec/specs/settings-management/spec.md#REQ-CFG-006
+     * @spec openspec/specs/user-preference-api/spec.md#REQ-PREF-002
      *
      * @NoAdminRequired
      * @NoCSRFRequired
