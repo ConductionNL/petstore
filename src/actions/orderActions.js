@@ -11,7 +11,7 @@
 // ActionAuthService::requireAction). A non-authorized user who calls this
 // handler still gets a 403 from the backend.
 //
-// @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#req-order-cancel-001
+// @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#requirement-cancel-an-order-with-action-level-authorization
 
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'

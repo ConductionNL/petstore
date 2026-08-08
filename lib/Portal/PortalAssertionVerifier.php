@@ -45,8 +45,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-1
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-2
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
  */
 
 declare(strict_types=1);
@@ -64,7 +63,7 @@ use Psr\Log\LoggerInterface;
  * to the caller (debug log only). A receiving controller derives ALL subject
  * scope from the returned claims — never from request parameters.
  *
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-1
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
  */
 class PortalAssertionVerifier
 {
@@ -133,7 +132,7 @@ class PortalAssertionVerifier
      * @param string|null          $secretOverride Plain signing secret for tests (bypasses config).
      * @param LoggerInterface|null $logger         Optional logger — rejection reasons at debug level only.
      *
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-2
+     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
      */
     public function __construct(
         private readonly ?IConfig $config=null,
@@ -164,7 +163,7 @@ class PortalAssertionVerifier
      *
      * @return array<string, mixed>|null The verified claims, or null.
      *
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-1
+     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity) -- one fail-closed guard
      * per attack surface on an auth boundary (ADR-005); collapsing them would
@@ -235,7 +234,7 @@ class PortalAssertionVerifier
      *
      * @return string|null
      *
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-2
+     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
      */
     private function secret(): ?string
     {

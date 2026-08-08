@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#req-order-cancel-001
+ * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#requirement-cancel-an-order-with-action-level-authorization
  */
 
 declare(strict_types=1);
@@ -49,7 +49,7 @@ use Psr\Log\LoggerInterface;
  * Route:
  *   POST /api/orders/{id}/cancel → cancel
  *
- * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#req-order-cancel-001
+ * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#requirement-cancel-an-order-with-action-level-authorization
  */
 class OrderController extends Controller
 {
@@ -93,7 +93,7 @@ class OrderController extends Controller
      *
      * @return void
      *
-     * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#req-order-cancel-001
+     * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#requirement-cancel-an-order-with-action-level-authorization
      */
     public function __construct(
         IRequest $request,
@@ -127,7 +127,7 @@ class OrderController extends Controller
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      *
-     * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#req-order-cancel-001
+     * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#requirement-cancel-an-order-with-action-level-authorization
      */
     public function cancel(string $id): JSONResponse
     {
