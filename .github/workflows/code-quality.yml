@@ -19,7 +19,11 @@ jobs:
       app-name: petstore
       php-version: "8.3"
       php-test-versions: '["8.3", "8.4"]'
-      nextcloud-test-refs: '["stable31", "stable32", "stable33"]'
+      # appinfo/info.xml declares <nextcloud min-version="32" max-version="34"/>
+      # and `nextcloud/ocp` is now `^34.0` — the stubs the analysers resolve
+      # against. Both sides name the same server, so the test matrix names it
+      # too.
+      nextcloud-test-refs: '["stable34"]'
       enable-psalm: true
       enable-phpstan: true
       enable-phpmetrics: true
