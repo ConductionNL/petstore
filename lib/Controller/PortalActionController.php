@@ -74,7 +74,7 @@ class PortalActionController extends Controller
     /**
      * Record a rejected assertion with the brute-force throttler.
      *
-     * petstore is the ADR-046 REFERENCE implementation — the file other apps
+     * Petstore is the ADR-046 REFERENCE implementation — the file other apps
      * copy when they build an A6 receiver — so the throttling belongs here as
      * much as the fail-closed ordering does. An app that copies this pattern
      * should inherit both halves, not just the 401.
@@ -94,7 +94,7 @@ class PortalActionController extends Controller
             );
         } catch (\Throwable $throttlerFailure) {
             $this->logger->warning(
-                'PortalActionController: registerAttempt failed: ' . $throttlerFailure->getMessage()
+                'PortalActionController: registerAttempt failed: '.$throttlerFailure->getMessage()
             );
         }
     }//end registerRejectedAssertion()
