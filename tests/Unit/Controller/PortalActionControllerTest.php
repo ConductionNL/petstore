@@ -439,6 +439,7 @@ class PortalActionControllerTest extends TestCase
             request: $request,
             verifier: new PortalAssertionVerifier(config: null, secretOverride: self::SECRET),
             container: $container,
+            throttler: $this->createMock(IThrottler::class),
             logger: $this->createMock(LoggerInterface::class),
         );
 
