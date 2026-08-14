@@ -39,6 +39,7 @@ use OCA\PetStore\Portal\PortalAssertionVerifier;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\Security\Bruteforce\IThrottler;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -221,6 +222,7 @@ class PortalActionControllerTest extends TestCase
             request: $this->request,
             verifier: new PortalAssertionVerifier(config: null, secretOverride: self::SECRET),
             container: $this->container,
+            throttler: $this->createMock(IThrottler::class),
             logger: $this->createMock(LoggerInterface::class),
         );
 
