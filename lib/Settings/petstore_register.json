@@ -34,7 +34,7 @@
         "type": "object",
         "required": ["name"],
         "x-schema-org": "schema:DefinedTerm",
-        "x-openregister": { "publicRead": false, "publicWrite": false },
+        "authorization": { "read": ["authenticated"] },
         "properties": {
           "name":        { "type": "string", "example": "Dogs" },
           "description": { "type": "string", "example": "Friendly mammals, four legs, often barks" }
@@ -49,7 +49,7 @@
         "type": "object",
         "required": ["name", "category", "status"],
         "x-schema-org": "schema:Product",
-        "x-openregister": { "publicRead": false, "publicWrite": false },
+        "authorization": { "read": ["authenticated"] },
         "properties": {
           "name":   { "type": "string", "title": "Name", "example": "doggie" },
           "category": {
@@ -81,7 +81,7 @@
         "type": "object",
         "required": ["administrationId"],
         "x-schema-org": "schema:Order",
-        "x-openregister": { "publicRead": false, "publicWrite": false },
+        "authorization": { "read": ["authenticated"] },
         "properties": {
           "pet": {
             "type": "string",
