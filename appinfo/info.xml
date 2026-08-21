@@ -32,14 +32,14 @@
 
     <!-- @spec openspec/architecture/adr-023-action-authorization.md -->
     <repair-steps>
-        <install>
-            <step>OCA\PetStore\Repair\InitializeSettings</step>
-            <step>OCA\PetStore\Repair\InitializeActions</step>
-        </install>
         <post-migration>
             <step>OCA\PetStore\Repair\InitializeSettings</step>
             <step>OCA\PetStore\Repair\InitializeActions</step>
         </post-migration>
+        <install>
+            <step>OCA\PetStore\Repair\InitializeSettings</step>
+            <step>OCA\PetStore\Repair\InitializeActions</step>
+        </install>
     </repair-steps>
 
     <settings>
