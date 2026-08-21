@@ -19,7 +19,14 @@ jobs:
       app-name: petstore
       php-version: "8.3"
       php-test-versions: '["8.3", "8.4"]'
-      nextcloud-test-refs: '["stable31", "stable32", "stable33"]'
+      # stable31 REMOVED, not dropped for coverage. petstore hard-depends on
+      # openregister (src/manifest.json "dependencies": ["openregister"]), and
+      # openregister declares <nextcloud min-version="32"/>. The stable31 cells
+      # could therefore never enable it and failed at "Install Nextcloud" with
+      # "This is an ENVIRONMENT failure, not an application failure" — before a
+      # line of this repo's code ran. Matches the fleet (procest, pipelinq,
+      # scholiq all test 34/32/33).
+      nextcloud-test-refs: '["stable34", "stable32", "stable33"]'
       enable-psalm: true
       enable-phpstan: true
       enable-phpmetrics: true

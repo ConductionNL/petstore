@@ -27,7 +27,7 @@
 
     <dependencies>
         <php min-version="8.3"/>
-        <nextcloud min-version="28" max-version="34"/>
+        <nextcloud min-version="32" max-version="34"/>
         </dependencies>
 
     <!-- @spec openspec/architecture/adr-023-action-authorization.md -->
