@@ -14,9 +14,9 @@
 // @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#requirement-cancel-an-order-with-action-level-authorization
 
 import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
-import { showSuccess, showError } from '@nextcloud/dialogs'
+import { showError, showSuccess } from '@nextcloud/dialogs'
 import { translate as t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 
 /**
  * Extract the order id from the handler payload. The manifest renderer invokes

@@ -23,10 +23,10 @@
 	<CnDataTable :rows="items"
 		:columns="columns"
 		:loading="loading"
-		hide-header
+		hideHeader
 		borderless
-		:empty-text="emptyMessage"
-		@row-click="onRowClick">
+		:emptyText="emptyMessage"
+		@rowClick="onRowClick">
 		<template #footer>
 			<a class="cn-data-table__view-all" @click.prevent="onViewAll">
 				{{ t('petstore', 'View all') }} →
@@ -36,9 +36,9 @@
 </template>
 
 <script>
+import { CnDataTable } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
-import { CnDataTable } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'ExampleWidget',
@@ -46,6 +46,7 @@ export default {
 	props: {
 		title: { type: String, default: '' },
 	},
+
 	data: () => ({
 		items: [],
 		loading: true,
@@ -55,6 +56,7 @@ export default {
 			{ key: 'subText', cellClass: 'cn-cell--muted cn-cell--end' },
 		],
 	}),
+
 	/**
 	 * Load widget rows on mount; degrade to an empty state on failure.
 	 *
@@ -84,6 +86,7 @@ export default {
 			this.loading = false
 		}
 	},
+
 	methods: {
 		/**
 		 * Navigate to the clicked pet in the same tab. The native dashboard
@@ -98,6 +101,7 @@ export default {
 				window.location.href = row.targetUrl
 			}
 		},
+
 		/**
 		 * Navigate to the app's full pet list in the same tab.
 		 *

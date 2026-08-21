@@ -51,11 +51,13 @@ export default {
 			type: Boolean,
 			default: false,
 		},
+
 		/** Modal heading (i18n key resolved by the caller). */
 		title: {
 			type: String,
 			default: 'Confirm action',
 		},
+
 		/** Modal body text. */
 		message: {
 			type: String,
@@ -76,6 +78,7 @@ export default {
 			this.$emit('confirm')
 			this.$emit('update:open', false)
 		},
+
 		/**
 		 * Relay a cancellation, then request the parent close the modal.
 		 *

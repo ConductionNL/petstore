@@ -22,8 +22,8 @@
 -->
 <template>
 	<CnAdminSettingsShell
-		app-id="petstore"
-		app-name="PetStore">
+		appId="petstore"
+		appName="PetStore">
 		<p class="petstore-admin-settings__hint">
 			{{ t('petstore', 'No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.') }}
 		</p>

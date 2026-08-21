@@ -119,7 +119,7 @@ export default {
 					displayNameCache.set(uid, name)
 					this.resolvedName = name
 				}
-			} catch (e) {
+			} catch {
 				// Best-effort — fall back to the raw UID via the `label` computed.
 				this.resolvedName = ''
 			}

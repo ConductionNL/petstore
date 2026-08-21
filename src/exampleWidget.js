@@ -13,13 +13,13 @@
  * @see lib/Dashboard/ExampleWidget.php
  */
 
+import { translatePlural as n, translate as t } from '@nextcloud/l10n'
+import { createApp } from 'vue'
+import ExampleWidget from './views/widgets/ExampleWidget.vue'
+import pinia from './pinia.js'
+
 // MUST be first: sets __webpack_public_path__ before any async chunk loads.
 import './publicPath.js'
-import { createApp } from 'vue'
-import { translate as t, translatePlural as n } from '@nextcloud/l10n'
-
-import pinia from './pinia.js'
-import ExampleWidget from './views/widgets/ExampleWidget.vue'
 
 OCA.Dashboard.register('petstore_example_widget', (el, { widget }) => {
 	// Vue 3: `createApp(Component, props)` replaces `Vue.extend()` + `propsData`,
