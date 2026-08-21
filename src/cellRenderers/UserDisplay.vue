@@ -89,6 +89,12 @@ export default {
 		 * Resolve the UID to a display name (cache → current user → OCS).
 		 *
 		 * @return {Promise<void>} Resolves when resolvedName is set.
+		 *
+		 * @spec exclude Behaviourally untouched — this method appears in the diff
+		 * only because eslint 10 flagged its unused catch binding
+		 * (`catch (e)` -> `catch`). Resolving a UID to a display name is
+		 * presentation detail with no petstore requirement behind it, so naming
+		 * a spec anchor here would assert a traceability that does not exist.
 		 */
 		async resolve() {
 			const uid = this.uid
