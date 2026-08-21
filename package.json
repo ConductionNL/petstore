@@ -41,7 +41,6 @@
     "@nextcloud/vue": "^9.0.0",
     "@vueuse/core": "^14.0.0",
     "babel-loader": "^10.1.1",
-    "dexie": "^4.0.8",
     "dompurify": "^3.0.0",
     "gridstack": "^12.0.0",
     "marked": "^12.0.0",
