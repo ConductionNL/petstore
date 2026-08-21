@@ -26,18 +26,9 @@
     <screenshot>https://codeberg.org/Conduction/nextcloud-petstore/raw/branch/main/img/app-store.svg</screenshot>
 
     <dependencies>
-        <nextcloud min-version="28" max-version="34"/>
         <php min-version="8.3"/>
-    </dependencies>
-
-    <navigations>
-        <navigation>
-            <id>petstore</id>
-            <name>PetStore</name>
-            <route>petstore.dashboard.page</route>
-            <icon>app.svg</icon>
-        </navigation>
-    </navigations>
+        <nextcloud min-version="28" max-version="34"/>
+        </dependencies>
 
     <!-- @spec openspec/architecture/adr-023-action-authorization.md -->
     <repair-steps>
@@ -55,4 +46,12 @@
         <admin>OCA\PetStore\Settings\AdminSettings</admin>
         <admin-section>OCA\PetStore\Sections\SettingsSection</admin-section>
     </settings>
+    <navigations>
+        <navigation>
+            <id>petstore</id>
+            <name>PetStore</name>
+            <route>petstore.dashboard.page</route>
+            <icon>app.svg</icon>
+        </navigation>
+    </navigations>
 </info>
