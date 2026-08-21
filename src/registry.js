@@ -53,12 +53,12 @@
 //
 // See: https://codeberg.org/Conduction/hydra → openspec/architecture/adr-036-universal-widget-manifest.md
 
-import ChartByFieldWidget from './widgets/ChartByFieldWidget.vue'
-import ExampleModal from './modals/ExampleModal.vue'
-import EmailField from './formFields/EmailField.vue'
 import StatusBadge from './cellRenderers/StatusBadge.vue'
 import UserDisplay from './cellRenderers/UserDisplay.vue'
+import EmailField from './formFields/EmailField.vue'
+import ExampleModal from './modals/ExampleModal.vue'
 import CustomExample from './views/CustomExample.vue'
+import ChartByFieldWidget from './widgets/ChartByFieldWidget.vue'
 
 export default {
 	// -------------------------------------------------------------------------

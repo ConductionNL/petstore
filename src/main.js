@@ -1,42 +1,40 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 
-// MUST be first: sets __webpack_public_path__ before any async chunk loads.
-import './publicPath.js'
-import { createApp, h } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import {
 	CnPageRenderer,
 	defaultPageTypes,
 	registerIcons,
 	registerTranslations,
 } from '@conduction/nextcloud-vue'
-import pinia from './pinia.js'
+import { loadTranslations, translatePlural as n, translate as t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
+import { createApp, h } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import bundledManifest from './manifest.json'
+import ListRows from './icons/ListRows.vue'
+// Bespoke view-toggle icons that mirror the docudesk reference exactly
+// (MDI has no pixel-identical equivalent for the rounded grid / stacked rows).
+import TilesGrid from './icons/TilesGrid.vue'
 import customComponents from './customComponents.js'
+import appIcons from './icons.js'
+import bundledManifest from './manifest.json'
+import pinia from './pinia.js'
 // v2 five-kind registry — the replacement for customComponents.
 // Both props coexist during the v1 → v2 transition.
 // Once fully migrated to v2, remove the customComponents import and prop.
 import registry from './registry.js'
-// Bespoke view-toggle icons that mirror the docudesk reference exactly
-// (MDI has no pixel-identical equivalent for the rounded grid / stacked rows).
-import TilesGrid from './icons/TilesGrid.vue'
-import ListRows from './icons/ListRows.vue'
-import appIcons from './icons.js'
 
+// MUST be first: sets __webpack_public_path__ before any async chunk loads.
+import './publicPath.js'
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
-
 // gridstack is a PEER dependency of @conduction/nextcloud-vue that no consumer
 // declares, and CnDashboardPage (the manifest's `type: "dashboard"` page) needs
 // BOTH halves. Omitting the stylesheet is the silent case: gridstack v12 sizes
 // items with `width: var(--gs-column-width)`, so without it every dashboard item
 // renders 0 px wide with no console error at all.
 import 'gridstack/dist/gridstack.min.css'
-
 // Global (unscoped) app styles
 import './assets/app.css'
 
@@ -60,6 +58,9 @@ try {
 // its callback would silently fail boot when translations can't load.
 // Strings just fall back to their English source on miss; boot MUST
 // not depend on this resolving.
+/**
+ *
+ */
 function tryLoadTranslations() {
 	try {
 		const result = loadTranslations('petstore', () => {})

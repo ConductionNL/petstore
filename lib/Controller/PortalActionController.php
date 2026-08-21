@@ -122,6 +122,7 @@ class PortalActionController extends Controller
      * @param IRequest                $request   The request object.
      * @param PortalAssertionVerifier $verifier  Verifies the X-Portal-Subject assertion.
      * @param ContainerInterface      $container For resolving OpenRegister services lazily.
+     * @param IThrottler              $throttler Rate-limits repeated portal action attempts.
      * @param LoggerInterface         $logger    The logger.
      */
     public function __construct(
