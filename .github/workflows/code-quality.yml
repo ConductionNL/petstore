@@ -55,7 +55,28 @@ jobs:
       # only to playwright-seed-command.
       #
       # Same defect and same fix as ConductionNL/planix#325.
-      newman-seed-command: 'bash apps/petstore/tests/e2e/ci-seed.sh'
+      #
+      # `SEED_SCOPE=register` is NOT optional here, and leaving it off is what
+      # turned this cell red the moment the seed was wired up (runs
+      # 32756772022 and 32772512725 on `development`; 32670107263 was the last
+      # green, and it was green only because this input did not exist yet and
+      # the whole `Seed test data` step was therefore `if:`-skipped).
+      #
+      # ci-seed.sh ends with a GATE that asserts the webpack bundle serves as
+      # JavaScript. That gate is correct and stays hard-failing — but it is
+      # written for the Playwright job, which has a `Build app frontend` step.
+      # THIS job has none: the Newman job's only Node step is `Setup Node.js
+      # and Newman`, and it runs AFTER the seed. So the bundle can never exist
+      # when this script runs here, `Util::addScript` logs "Could not find
+      # resource petstore/js/petstore-main.js to load" and omits the tag, the
+      # script finds no src to probe, and the gate fires on an environment
+      # that has no subject matter for it.
+      #
+      # The scope prefix stops the shared script after the register import and
+      # verification — the only part Newman actually needs, since every request
+      # in the collection is an HTTP API call. Identical wiring to integriq
+      # (ConductionNL/openconnector), which hit this first.
+      newman-seed-command: 'SEED_SCOPE=register bash apps/petstore/tests/e2e/ci-seed.sh'
       # petstore stores every pet, category and order as an OpenRegister object
       # (register `petstore`), so OpenRegister has to be present for the app to
       # do anything at all. Without it the SPA still boots and the E2E suite
