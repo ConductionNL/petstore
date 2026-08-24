@@ -42,7 +42,7 @@ Clone the template, rename `app-template` to your slug, and build:
 
 ```bash
 cd /var/www/html/custom_apps
-git clone https://codeberg.org/Conduction/nextcloud-app-template.git app-template
+git clone https://github.com/ConductionNL/nextcloud-app-template.git app-template
 cd app-template
 npm install && npm run build
 php occ app:enable app-template
