@@ -38,6 +38,7 @@
          already passed, so the error names the wrong element; check the whole
          sequence rather than the reported pair. -->
     <dependencies>
+
         <php min-version="8.3"/>
         <nextcloud min-version="32" max-version="34"/>
     </dependencies>
