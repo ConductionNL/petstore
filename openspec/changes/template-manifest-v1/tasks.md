@@ -7,7 +7,7 @@
 - [x] 1.3 Declare `dependencies: ["openregister"]` (the template's pre-wired default; downstream apps remove if they don't need OR).
 - [x] 1.4 Settings page declares a `version-info` rich-section widget; the `register-mapping` widget is NOT in the template manifest (per-app decision).
 - [x] 1.5 Set top-level `version` to `0.1.0` (template content version, distinct from the schema version).
-- [x] 1.6 Set `$schema` to `https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest.schema.json`.
+- [x] 1.6 Set `$schema` to `https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest.schema.json`.
 
 ## 2. Bootstrap pattern
 
