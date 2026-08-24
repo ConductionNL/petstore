@@ -45,6 +45,17 @@ jobs:
       frontend-checks: '["test:unit", "check:specs", "check:manifest"]'
       enable-phpunit: true
       enable-newman: true
+      # Newman needs the SAME seed as Playwright, and had none. petstore's
+      # collection drives the OpenRegister object API for register `petstore`,
+      # which does not exist on a freshly installed instance — so the creates
+      # return 400 and everything depending on them fails downstream against
+      # objects that were never created. `occ app:enable` cannot provision it:
+      # an IRepairStep runs with no user session, so OpenRegister's RBAC denies
+      # the import as 'Anonymous'. ci-seed.sh already does it and was wired
+      # only to playwright-seed-command.
+      #
+      # Same defect and same fix as ConductionNL/planix#325.
+      newman-seed-command: 'bash apps/petstore/tests/e2e/ci-seed.sh'
       # petstore stores every pet, category and order as an OpenRegister object
       # (register `petstore`), so OpenRegister has to be present for the app to
       # do anything at all. Without it the SPA still boots and the E2E suite
