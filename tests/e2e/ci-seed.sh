@@ -12,10 +12,12 @@
 #
 #     playwright-seed-command: 'bash apps/petstore/tests/e2e/ci-seed.sh'
 #
-# The `Integration Tests (Newman)` job needs the SAME register provisioning —
-# its collection drives /apps/openregister/api/objects/petstore/<schema>
-# directly — but must NOT run the SPA warm-up or the bundle gate, because that
-# job never builds the frontend. It has no `Build app frontend` step at all
+# The `Integration Tests (Newman)` job is wired to the SAME register
+# provisioning — its collection is HTTP-only and, once it grows past the
+# scaffold's `GET /status.php`, will drive /apps/openregister/api/objects/
+# petstore/<schema> directly — but it must NOT run the SPA warm-up or the
+# bundle gate, because that job never builds the frontend. It has no
+# `Build app frontend` step at all
 # (only the Playwright job and the standalone `Frontend Build` job do), and
 # `Setup Node.js` runs AFTER the seed. It therefore invokes this same script
 # with the register-only scope:
@@ -29,7 +31,7 @@
 # bundle gate; only a caller that has positively declared itself API-only opts
 # out, and it does so in the workflow where the reason is readable next to the
 # job it applies to. Defaulting the gate OFF would restore exactly the
-# blindness step 4 exists to close — a missing bundle serves HTTP 200
+# blindness step 3's gate exists to close — a missing bundle serves HTTP 200
 # text/html, not 404.
 #
 # Same contract, same wording as integriq's tests/e2e/ci-seed.sh, which solved
