@@ -12,6 +12,29 @@
 #
 #     playwright-seed-command: 'bash apps/petstore/tests/e2e/ci-seed.sh'
 #
+# The `Integration Tests (Newman)` job needs the SAME register provisioning —
+# its collection drives /apps/openregister/api/objects/petstore/<schema>
+# directly — but must NOT run the SPA warm-up or the bundle gate, because that
+# job never builds the frontend. It has no `Build app frontend` step at all
+# (only the Playwright job and the standalone `Frontend Build` job do), and
+# `Setup Node.js` runs AFTER the seed. It therefore invokes this same script
+# with the register-only scope:
+#
+#     newman-seed-command: 'SEED_SCOPE=register bash apps/petstore/tests/e2e/ci-seed.sh'
+#
+# SEED_SCOPE=register   -> steps 1-2 only (import + verify register/schemas).
+# SEED_SCOPE unset/full -> steps 1-3 (adds the SPA warm-up + the bundle gate).
+#
+# The default is FULL on purpose. A new caller that says nothing inherits the
+# bundle gate; only a caller that has positively declared itself API-only opts
+# out, and it does so in the workflow where the reason is readable next to the
+# job it applies to. Defaulting the gate OFF would restore exactly the
+# blindness step 4 exists to close — a missing bundle serves HTTP 200
+# text/html, not 404.
+#
+# Same contract, same wording as integriq's tests/e2e/ci-seed.sh, which solved
+# this identical split first (ConductionNL/openconnector).
+#
 # WHY THIS IS NEEDED
 # ------------------
 # `occ app:enable petstore` runs the `InitializeSettings` repair step, which is
@@ -159,6 +182,27 @@ curl -sS -u "${USER_NAME}:${USER_PASS}" -H 'OCS-APIRequest: true' \
 verify "$SCH_BODY" schemas
 
 echo "[ci-seed] petstore register + schemas provisioned."
+
+# ── 2b. Stop here for API-only consumers (SEED_SCOPE=register) ───────────────
+# The `Integration Tests (Newman)` job needs EXACTLY steps 1-2 and nothing
+# else: every request in the collection is an HTTP API call, and that job never
+# runs `npm run build` — it has no `Build app frontend` step, and its
+# `Setup Node.js` step comes AFTER this one. So the warm-up below would warm
+# nothing and the bundle gate would hard-fail the seed over a bundle that job
+# is not supposed to have.
+#
+# This is a SCOPE, not an escape hatch. The gate keeps its full force in the
+# job it was written for: the Playwright job DOES build the frontend, so an
+# absent bundle there is a real build failure and still fails the seed loudly.
+# What is removed is a check being applied to an environment that has no
+# subject matter for it — not the check.
+#
+# Splitting on scope keeps ONE definition of "provision the register" for both
+# jobs, which is the whole point of pointing both seed commands at this file.
+if [ "${SEED_SCOPE:-full}" = "register" ]; then
+	echo "[ci-seed] SEED_SCOPE=register — skipping SPA warm-up and bundle gate (API-only consumer)."
+	exit 0
+fi
 
 # ── 3. Warm the SPA so the first spec doesn't pay the cold start ─────────────
 # The shared workflow serves Nextcloud with `php -S 0.0.0.0:8080` and does not
