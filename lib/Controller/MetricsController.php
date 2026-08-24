@@ -36,6 +36,7 @@ use OCA\PetStore\Service\SettingsService;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;
@@ -80,12 +81,35 @@ class MetricsController extends Controller
     }//end __construct()
 
     /**
-     * Prometheus text exposition. Admin auth per ADR-006.
+     * Prometheus text exposition. Admin-only per ADR-006.
+     *
+     * "Admin-only" is the exact posture wording gate-30 recognises for a
+     * *metrics* controller, and it is the wording openregister's own
+     * GenericMetricsController — the engine that owns this decision — uses.
+     * This method previously said "Admin auth", which is the same posture in
+     * different words, so gate-30 read it as an UNDECLARED posture and asked
+     * for #[PublicPage]. Adding that attribute would have published this
+     * exposition to anonymous callers to satisfy a gate, so the fix is to
+     * state the posture the way the fleet states it, not to change it.
+     *
+     * Deliberately NOT #[PublicPage]. ADR-006 splits the two monitoring
+     * surfaces: `/api/metrics` is admin-authed, `/api/health` is public. The
+     * exposition carries the deployed app version and health state, so
+     * publishing it anonymously would be a real leak.
+     *
+     * #[NoCSRFRequired] declares the posture explicitly (NC defaults an
+     * un-attributed method to admin-required, which is correct here, but
+     * leaves the intent undeclared, and gate-5 cannot tell a deliberate admin
+     * endpoint from a forgotten attribute) and is what actually makes the
+     * route reachable for its consumer: a Prometheus scraper is not a browser
+     * and carries no CSRF token. Admin auth still applies — that comes from
+     * the ABSENCE of #[NoAdminRequired], which is not added here.
      *
      * @return DataDisplayResponse
      *
      * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.2
      */
+    #[NoCSRFRequired]
     public function index(): DataDisplayResponse
     {
         try {
