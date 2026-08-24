@@ -46,10 +46,13 @@ use OCA\PetStore\AppInfo\Application;
 use OCA\PetStore\Portal\PortalAssertionVerifier;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
+use OCP\AppFramework\Http\Attribute\BruteForceProtection;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\Security\Bruteforce\IThrottler;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -61,6 +64,41 @@ use Throwable;
  */
 class PortalActionController extends Controller
 {
+    /**
+     * Brute-force throttler action for rejected portal assertions.
+     *
+     * @var string
+     */
+    private const THROTTLE_ACTION = 'petstore_portal_assertion';
+
+    /**
+     * Record a rejected assertion with the brute-force throttler.
+     *
+     * Petstore is the ADR-046 REFERENCE implementation — the file other apps
+     * copy when they build an A6 receiver — so the throttling belongs here as
+     * much as the fail-closed ordering does. An app that copies this pattern
+     * should inherit both halves, not just the 401.
+     *
+     * The call is wrapped: bookkeeping must never turn a fail-closed refusal
+     * into a 500, which would leak an internal fault and let a caller tell a
+     * bad assertion apart from a broken cache.
+     *
+     * @return void
+     */
+    private function registerRejectedAssertion(): void
+    {
+        try {
+            $this->throttler->registerAttempt(
+                action: self::THROTTLE_ACTION,
+                ip: $this->request->getRemoteAddress()
+            );
+        } catch (\Throwable $throttlerFailure) {
+            $this->logger->warning(
+                'PortalActionController: registerAttempt failed: '.$throttlerFailure->getMessage()
+            );
+        }
+    }//end registerRejectedAssertion()
+
     /**
      * OpenRegister's object service, resolved lazily by FQCN so petstore
      * keeps zero compile-time OpenRegister coupling (same pattern as
@@ -84,12 +122,14 @@ class PortalActionController extends Controller
      * @param IRequest                $request   The request object.
      * @param PortalAssertionVerifier $verifier  Verifies the X-Portal-Subject assertion.
      * @param ContainerInterface      $container For resolving OpenRegister services lazily.
+     * @param IThrottler              $throttler Rate-limits repeated portal action attempts.
      * @param LoggerInterface         $logger    The logger.
      */
     public function __construct(
         IRequest $request,
         private readonly PortalAssertionVerifier $verifier,
         private readonly ContainerInterface $container,
+        private readonly IThrottler $throttler,
         private readonly LoggerInterface $logger,
     ) {
         parent::__construct(appName: Application::APP_ID, request: $request);
@@ -119,11 +159,18 @@ class PortalActionController extends Controller
      */
     #[PublicPage]
     #[NoCSRFRequired]
+    #[AnonRateLimit(limit: 20, period: 60)]
+    #[BruteForceProtection(action: self::THROTTLE_ACTION)]
     public function renameOwnedPet(): JSONResponse
     {
         // 1. Verify — the assertion is the ONLY credential (fail-closed 401).
         $claims = $this->verifier->verify((string) $this->request->getHeader(PortalAssertionVerifier::HEADER));
         if ($claims === null) {
+            // The assertion being the ONLY credential is exactly why a failed
+            // verify belongs in the brute-force counter. This is the half that
+            // COUNTS; #[BruteForceProtection] above is the half that ENFORCES,
+            // and either alone is inert (ADR-082).
+            $this->registerRejectedAssertion();
             return new JSONResponse(['error' => 'unauthorized'], Http::STATUS_UNAUTHORIZED);
         }
 
@@ -150,6 +197,12 @@ class PortalActionController extends Controller
         // 403 so pet UUIDs cannot be enumerated (no existence oracle).
         $pet = $this->fetchPet(objectService: $objectService, petId: $petId);
         if ($pet === null || (string) ($pet['owner'] ?? '') !== $subjectRef) {
+            // Counted as well. The uniform 403 above is what stops this being
+            // an existence oracle, but a uniform answer only hides WHICH
+            // failure happened — it says nothing about how fast a caller may
+            // keep asking. Both halves are needed and they solve different
+            // problems.
+            $this->registerRejectedAssertion();
             return new JSONResponse(['error' => 'forbidden'], Http::STATUS_FORBIDDEN);
         }
 

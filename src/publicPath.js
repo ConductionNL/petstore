@@ -32,5 +32,5 @@
 
 import { generateFilePath } from '@nextcloud/router'
 
-// eslint-disable-next-line camelcase, no-undef
+// eslint-disable-next-line no-undef
 __webpack_public_path__ = generateFilePath('petstore', '', 'js/')

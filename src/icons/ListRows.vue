@@ -28,15 +28,18 @@ export default {
 			type: String,
 			default: '',
 		},
+
 		fillColor: {
 			type: String,
 			default: 'currentColor',
 		},
+
 		size: {
 			type: Number,
 			default: 24,
 		},
 	},
+
 	// Declared AFTER props: `vue/order-in-components` requires props to precede
 	// emits, and the original order tripped it on every lint run.
 	emits: ['click'],
