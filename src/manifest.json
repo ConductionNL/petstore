@@ -56,235 +56,258 @@
 			"route": "/",
 			"type": "dashboard",
 			"title": "Dashboard",
-			"widgets": [
-				{
-					"id": "dashboard-header",
-					"widgetKey": "header",
-					"slot": "body",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 12,
-					"gridHeight": 1,
-					"_note": "Built-in `header` worked example (nc-vue #91 Wave 1): the dashboard catalog's content-only header widget reused on the v2 grid. Replaces the custom page-header registry widget (ADR-049 Phase 4) — page chrome is pure config via props.content ({ title, subtitle, height, and optionally backgroundImageUrl / overlayMode / cta }). Known gap, accepted: CnHeaderWidget has no MDI icon field, so the old icon: \"Paw\" is dropped.",
-					"props": {
+			"config": {
+				"widgets": [
+					{
+						"id": "header",
+						"type": "header",
 						"content": {
-							"title": "Dashboard",
-							"subtitle": "Daily overview of pets, orders and categories",
-							"height": "small"
+							"content": {
+								"title": "Dashboard",
+								"subtitle": "Daily overview of pets, orders and categories",
+								"height": "small"
+							}
 						}
-					}
-				},
-				{
-					"id": "kpi-available-pets",
-					"widgetKey": "stats-block",
-					"slot": "body",
-					"gridX": 0,
-					"gridY": 1,
-					"gridWidth": 3,
-					"gridHeight": 1,
-					"_note": "Built-in `stats-block` worked example (ADR-049 / nc-vue #91 Wave 1): replaces the custom self-fetching bridge widget — zero Vue code. Each entries[] item is one KPI: register + schema + filter (shared @-token grammar: @today, @me, @workspace.*, trailing ? = optional clause) counted via the OpenRegister /value aggregation, plus per-entry title / countLabel / variant and a route deep link. One entry per card keeps these four KPIs side-by-side; several entries in one card stack vertically. The three sibling cards below follow this same pattern.",
-					"props": {
-						"entries": [
-							{
-								"title": "Available pets",
-								"iconClass": "icon-files",
-								"register": "petstore",
-								"schema": "pet",
-								"filter": {
-									"status": "available"
-								},
-								"countLabel": "pets",
-								"variant": "success",
-								"route": {
-									"name": "Examples",
-									"query": {
+					},
+					{
+						"id": "stats-block",
+						"type": "stats-block",
+						"content": {
+							"entries": [
+								{
+									"title": "Available pets",
+									"iconClass": "icon-files",
+									"register": "petstore",
+									"schema": "pet",
+									"filter": {
 										"status": "available"
+									},
+									"countLabel": "pets",
+									"variant": "success",
+									"route": {
+										"name": "Examples",
+										"query": {
+											"status": "available"
+										}
 									}
 								}
-							}
-						]
-					}
-				},
-				{
-					"id": "kpi-pending-pets",
-					"widgetKey": "stats-block",
-					"slot": "body",
-					"gridX": 3,
-					"gridY": 1,
-					"gridWidth": 3,
-					"gridHeight": 1,
-					"props": {
-						"entries": [
-							{
-								"title": "Pending reservations",
-								"iconClass": "icon-history",
-								"register": "petstore",
-								"schema": "pet",
-								"filter": {
-									"status": "pending"
-								},
-								"countLabel": "pets",
-								"variant": "warning",
-								"route": {
-									"name": "Examples",
-									"query": {
+							]
+						}
+					},
+					{
+						"id": "stats-block-2",
+						"type": "stats-block",
+						"content": {
+							"entries": [
+								{
+									"title": "Pending reservations",
+									"iconClass": "icon-history",
+									"register": "petstore",
+									"schema": "pet",
+									"filter": {
 										"status": "pending"
+									},
+									"countLabel": "pets",
+									"variant": "warning",
+									"route": {
+										"name": "Examples",
+										"query": {
+											"status": "pending"
+										}
 									}
 								}
-							}
-						]
-					}
-				},
-				{
-					"id": "kpi-open-orders",
-					"widgetKey": "stats-block",
-					"slot": "body",
-					"gridX": 6,
-					"gridY": 1,
-					"gridWidth": 3,
-					"gridHeight": 1,
-					"props": {
-						"entries": [
-							{
-								"title": "Open orders",
-								"iconClass": "icon-category-workflow",
-								"register": "petstore",
-								"schema": "order",
-								"filter": {
-									"complete": "false"
-								},
-								"countLabel": "orders",
-								"variant": "primary",
-								"route": {
-									"name": "Orders",
-									"query": {
+							]
+						}
+					},
+					{
+						"id": "stats-block-3",
+						"type": "stats-block",
+						"content": {
+							"entries": [
+								{
+									"title": "Open orders",
+									"iconClass": "icon-category-workflow",
+									"register": "petstore",
+									"schema": "order",
+									"filter": {
 										"complete": "false"
+									},
+									"countLabel": "orders",
+									"variant": "primary",
+									"route": {
+										"name": "Orders",
+										"query": {
+											"complete": "false"
+										}
 									}
 								}
-							}
-						]
-					}
-				},
-				{
-					"id": "kpi-categories",
-					"widgetKey": "stats-block",
-					"slot": "body",
-					"gridX": 9,
-					"gridY": 1,
-					"gridWidth": 3,
-					"gridHeight": 1,
-					"_note": "Filterless entry: omitting `filter` counts every object of the schema.",
-					"props": {
-						"entries": [
-							{
-								"title": "Categories",
-								"iconClass": "icon-category-organization",
-								"register": "petstore",
-								"schema": "category",
-								"countLabel": "categories",
-								"variant": "default",
-								"route": {
-									"name": "Categories"
+							]
+						}
+					},
+					{
+						"id": "stats-block-4",
+						"type": "stats-block",
+						"content": {
+							"entries": [
+								{
+									"title": "Categories",
+									"iconClass": "icon-category-organization",
+									"register": "petstore",
+									"schema": "category",
+									"countLabel": "categories",
+									"variant": "default",
+									"route": {
+										"name": "Categories"
+									}
 								}
-							}
-						]
-					}
-				},
-				{
-					"id": "chart-pets-per-category",
-					"widgetKey": "chart-by-field",
-					"slot": "body",
-					"gridX": 0,
-					"gridY": 2,
-					"gridWidth": 6,
-					"gridHeight": 3,
-					"_note": "Custom registry widget kept deliberately for tranche B (ADR-049): the built-in `chart` widget cannot yet express a grouped-count over one register/schema field (its dataSource only buckets by DATE interval) — this needs the Wave-3 groupBy aggregation vocabulary, nc-vue #91. Dissolve both chart-by-field placements when it lands; justification lives in src/registry.js.",
-					"props": {
+							]
+						}
+					},
+					{
+						"id": "chart-by-field",
+						"type": "chart-by-field",
 						"title": "Pets per category",
-						"register": "petstore",
-						"schema": "pet",
-						"field": "category",
-						"chartType": "donut"
-					}
-				},
-				{
-					"id": "chart-orders-by-status",
-					"widgetKey": "chart-by-field",
-					"slot": "body",
-					"gridX": 6,
-					"gridY": 2,
-					"gridWidth": 6,
-					"gridHeight": 3,
-					"props": {
+						"content": {
+							"register": "petstore",
+							"schema": "pet",
+							"field": "category",
+							"chartType": "donut"
+						}
+					},
+					{
+						"id": "chart-by-field-2",
+						"type": "chart-by-field",
 						"title": "Orders by status",
-						"register": "petstore",
-						"schema": "order",
-						"field": "status",
-						"chartType": "bar"
-					}
-				},
-				{
-					"id": "recent-orders",
-					"widgetKey": "object-table",
-					"slot": "body",
-					"gridX": 0,
-					"gridY": 5,
-					"gridWidth": 12,
-					"gridHeight": 3,
-					"_note": "Built-in `object-table` worked example (hydra ADR-049): ONE declarative table now replaces both the custom recent-objects bridge widget and the earlier compact recent-pets example. Vocabulary shown, all zero Vue code: token-resolved source with order/limit, mixed column forms (string shorthand; object form with formatter: \"date\"; widget: \"badge\" + widgetProps colorMap — same shape as the Orders index page columns), rowRoute/viewAllRoute navigation, emptyText, and a declarative object-op row action (patch with confirm). For the compact dashboard-list look instead, flip hideHeader + borderless and trim to two columns with cn-cell-- utility classes.",
-					"props": {
-						"title": "Recent orders",
-						"source": {
+						"content": {
 							"register": "petstore",
 							"schema": "order",
-							"order": {
-								"created": "desc"
-							},
-							"limit": 5
-						},
-						"columns": [
-							{
-								"key": "pet",
-								"cellClass": "cn-cell--strong"
-							},
-							"quantity",
-							{
-								"key": "shipDate",
-								"formatter": "date"
-							},
-							{
-								"key": "status",
-								"widget": "badge",
-								"widgetProps": {
-									"colorMap": {
-										"placed": "primary",
-										"approved": "warning",
-										"delivered": "success"
-									}
-								}
-							},
-							"complete"
-						],
-						"rowRoute": "OrderDetail",
-						"viewAllRoute": {
-							"name": "Orders"
-						},
-						"emptyText": "No orders yet",
-						"actions": [
-							{
-								"id": "mark-complete",
-								"label": "Mark complete",
-								"type": "object-op",
-								"op": "patch",
-								"values": {
-									"complete": true
+							"field": "status",
+							"chartType": "bar"
+						}
+					},
+					{
+						"id": "object-table",
+						"type": "object-table",
+						"title": "Recent orders",
+						"content": {
+							"source": {
+								"register": "petstore",
+								"schema": "order",
+								"order": {
+									"created": "desc"
 								},
-								"confirm": true
-							}
-						]
+								"limit": 5
+							},
+							"columns": [
+								{
+									"key": "pet",
+									"cellClass": "cn-cell--strong"
+								},
+								"quantity",
+								{
+									"key": "shipDate",
+									"formatter": "date"
+								},
+								{
+									"key": "status",
+									"widget": "badge",
+									"widgetProps": {
+										"colorMap": {
+											"placed": "primary",
+											"approved": "warning",
+											"delivered": "success"
+										}
+									}
+								},
+								"complete"
+							],
+							"rowRoute": "OrderDetail",
+							"viewAllRoute": {
+								"name": "Orders"
+							},
+							"emptyText": "No orders yet",
+							"actions": [
+								{
+									"id": "mark-complete",
+									"label": "Mark complete",
+									"type": "object-op",
+									"op": "patch",
+									"values": {
+										"complete": true
+									},
+									"confirm": true
+								}
+							]
+						}
 					}
-				}
-			]
+				],
+				"layout": [
+					{
+						"id": 1,
+						"widgetId": "header",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 1
+					},
+					{
+						"id": 2,
+						"widgetId": "stats-block",
+						"gridX": 0,
+						"gridY": 1,
+						"gridWidth": 3,
+						"gridHeight": 1
+					},
+					{
+						"id": 3,
+						"widgetId": "stats-block-2",
+						"gridX": 3,
+						"gridY": 1,
+						"gridWidth": 3,
+						"gridHeight": 1
+					},
+					{
+						"id": 4,
+						"widgetId": "stats-block-3",
+						"gridX": 6,
+						"gridY": 1,
+						"gridWidth": 3,
+						"gridHeight": 1
+					},
+					{
+						"id": 5,
+						"widgetId": "stats-block-4",
+						"gridX": 9,
+						"gridY": 1,
+						"gridWidth": 3,
+						"gridHeight": 1
+					},
+					{
+						"id": 6,
+						"widgetId": "chart-by-field",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 6,
+						"gridHeight": 3
+					},
+					{
+						"id": 7,
+						"widgetId": "chart-by-field-2",
+						"gridX": 6,
+						"gridY": 2,
+						"gridWidth": 6,
+						"gridHeight": 3
+					},
+					{
+						"id": 8,
+						"widgetId": "object-table",
+						"gridX": 0,
+						"gridY": 5,
+						"gridWidth": 12,
+						"gridHeight": 3
+					}
+				]
+			}
 		},
 		{
 			"id": "Examples",
@@ -317,22 +340,96 @@
 				"documentationUrl": "https://petstore.conduction.nl",
 				"_note": "Product/catalog archetype for a single pet (ADR-062 rev3). The pet schema is small (name, category, status, tags, photoUrls, price, notes — 7 fields): one 2-column data widget covers it cleanly, so it is deliberately NOT split into 'Core'/'Process' groups the way procest's case is — splitting a 7-field schema would just scatter it across two thin cards with nothing distinct to separate (judgment call, ADR-062 rule 3 'don't split for splitting's sake'). The former summaryAggregates chip ('Orders for this pet') is now an in-grid stats-block, top-right of the data widget per rule 2, with the Related panel (category + orders) stacked below it in the same column — a real, useful KPI (how many orders reference this pet), not manufactured. The pet's photos and documents get a full-width Files leaf below — photoUrls is a URI array, so imagery is a primary content type here. The schema declares NO email/calendar/talk linkedType, so this record carries NO comms leaves (no vet-appointment calendar). The audit trail is a rarely-read history, so it stays a sidebar tab.",
 				"widgets": [
-					{ "id": "pet-data", "type": "data", "title": "Pet details", "icon": "Package", "content": { "columns": 2 } },
-					{ "id": "pet-stats", "type": "stats-block", "title": "Orders", "icon": "Cash", "content": { "entries": [ { "title": "Orders for this pet", "register": "petstore", "schema": "order", "metric": "count", "filter": { "pet": "@objectId" } } ] } },
-					{ "id": "pet-related", "type": "related", "title": "Category & orders", "icon": "LinkVariant" },
-					{ "id": "pet-files", "type": "integration", "integrationId": "files", "title": "Photos & documents", "icon": "FolderOutline" }
+					{
+						"id": "pet-data",
+						"type": "data",
+						"title": "Pet details",
+						"icon": "Package",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "pet-stats",
+						"type": "stats-block",
+						"title": "Orders",
+						"icon": "Cash",
+						"content": {
+							"entries": [
+								{
+									"title": "Orders for this pet",
+									"register": "petstore",
+									"schema": "order",
+									"metric": "count",
+									"filter": {
+										"pet": "@objectId"
+									}
+								}
+							]
+						}
+					},
+					{
+						"id": "pet-related",
+						"type": "related",
+						"title": "Category & orders",
+						"icon": "LinkVariant"
+					},
+					{
+						"id": "pet-files",
+						"type": "integration",
+						"integrationId": "files",
+						"title": "Photos & documents",
+						"icon": "FolderOutline"
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "pet-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
-					{ "id": "2", "widgetId": "pet-stats", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
-					{ "id": "3", "widgetId": "pet-related", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 3 },
-					{ "id": "4", "widgetId": "pet-files", "gridX": 0, "gridY": 5, "gridWidth": 12, "gridHeight": 3 }
+					{
+						"id": "1",
+						"widgetId": "pet-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 5
+					},
+					{
+						"id": "2",
+						"widgetId": "pet-stats",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 2
+					},
+					{
+						"id": "3",
+						"widgetId": "pet-related",
+						"gridX": 8,
+						"gridY": 2,
+						"gridWidth": 4,
+						"gridHeight": 3
+					},
+					{
+						"id": "4",
+						"widgetId": "pet-files",
+						"gridX": 0,
+						"gridY": 5,
+						"gridWidth": 12,
+						"gridHeight": 3
+					}
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
 					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
 					]
 				}
 			}
@@ -366,22 +463,142 @@
 				"documentationUrl": "https://petstore.conduction.nl",
 				"_note": "Catalog archetype for a pet category (Dogs, Cats, ...) — ADR-062 rev3. A category is a thin grouping (only name + description), so its purpose on the detail page is still to answer 'which pets are in it?': the dominant 8-wide column is a live object-list of the pets whose 'category' FK points at this record (viewAllRoute → Examples, filtered by category), and the narrow 4-wide column stacks the compact data card ABOVE the former summaryAggregates chips (now an in-grid stats-block with the same two KPIs: pet count + available count) — an intentional inversion of the CaseDetail 8/4 data-left pattern, kept from round 1, because here the LIST is the primary content, not the data card (rule 2's canonical layout describes a reference shape, not a mandate; content drives placement). No comms leaves (the schema declares none), no Files (categories carry no attachments). Audit history stays a sidebar tab.",
 				"widgets": [
-					{ "id": "category-data", "type": "data", "title": "Category", "icon": "TagOutline", "content": { "columns": 1 } },
-					{ "id": "category-stats-pets-in-category", "type": "stats-block", "title": "Pets in category", "icon": "Package", "content": { "entries": [ { "title": "Pets in category", "register": "petstore", "schema": "pet", "metric": "count", "filter": { "category": "@objectId" } } ] } },
-					{ "id": "category-stats-available", "type": "stats-block", "title": "Available", "icon": "Package", "content": { "entries": [ { "title": "Available", "register": "petstore", "schema": "pet", "metric": "count", "filter": { "category": "@objectId", "status": "available" } } ] } },
-					{ "id": "category-pets", "type": "object-list", "title": "Pets in this category", "icon": "TableColumn", "content": { "register": "petstore", "schema": "pet", "filter": { "category": "@objectId" }, "sort": { "field": "name", "dir": "asc" }, "columns": [{ "key": "name", "label": "Name" }, { "key": "status", "label": "Status" }, { "key": "price", "label": "Price" }], "limit": 25, "rowRoute": "ExampleDetail", "viewAllRoute": "Examples", "viewAllQuery": { "category": "@objectId" }, "emptyText": "No pets in this category yet.", "allowCreate": true } }
+					{
+						"id": "category-data",
+						"type": "data",
+						"title": "Category",
+						"icon": "TagOutline",
+						"content": {
+							"columns": 1
+						}
+					},
+					{
+						"id": "category-stats-pets-in-category",
+						"type": "stats-block",
+						"title": "Pets in category",
+						"icon": "Package",
+						"content": {
+							"entries": [
+								{
+									"title": "Pets in category",
+									"register": "petstore",
+									"schema": "pet",
+									"metric": "count",
+									"filter": {
+										"category": "@objectId"
+									}
+								}
+							]
+						}
+					},
+					{
+						"id": "category-stats-available",
+						"type": "stats-block",
+						"title": "Available",
+						"icon": "Package",
+						"content": {
+							"entries": [
+								{
+									"title": "Available",
+									"register": "petstore",
+									"schema": "pet",
+									"metric": "count",
+									"filter": {
+										"category": "@objectId",
+										"status": "available"
+									}
+								}
+							]
+						}
+					},
+					{
+						"id": "category-pets",
+						"type": "object-list",
+						"title": "Pets in this category",
+						"icon": "TableColumn",
+						"content": {
+							"register": "petstore",
+							"schema": "pet",
+							"filter": {
+								"category": "@objectId"
+							},
+							"sort": {
+								"field": "name",
+								"dir": "asc"
+							},
+							"columns": [
+								{
+									"key": "name",
+									"label": "Name"
+								},
+								{
+									"key": "status",
+									"label": "Status"
+								},
+								{
+									"key": "price",
+									"label": "Price"
+								}
+							],
+							"limit": 25,
+							"rowRoute": "ExampleDetail",
+							"viewAllRoute": "Examples",
+							"viewAllQuery": {
+								"category": "@objectId"
+							},
+							"emptyText": "No pets in this category yet.",
+							"allowCreate": true
+						}
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "category-data", "gridX": 0, "gridY": 0, "gridWidth": 4, "gridHeight": 3 },
-					{ "id": "2-1", "widgetId": "category-stats-pets-in-category", "gridX": 0, "gridY": 3, "gridWidth": 4, "gridHeight": 2 },
-					{ "id": "2-2", "widgetId": "category-stats-available", "gridX": 0, "gridY": 5, "gridWidth": 4, "gridHeight": 2 },
-					{ "id": "3", "widgetId": "category-pets", "gridX": 4, "gridY": 0, "gridWidth": 8, "gridHeight": 6 }
+					{
+						"id": "1",
+						"widgetId": "category-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 3
+					},
+					{
+						"id": "2-1",
+						"widgetId": "category-stats-pets-in-category",
+						"gridX": 0,
+						"gridY": 3,
+						"gridWidth": 4,
+						"gridHeight": 2
+					},
+					{
+						"id": "2-2",
+						"widgetId": "category-stats-available",
+						"gridX": 0,
+						"gridY": 5,
+						"gridWidth": 4,
+						"gridHeight": 2
+					},
+					{
+						"id": "3",
+						"widgetId": "category-pets",
+						"gridX": 4,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					}
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
 					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
 					]
 				}
 			}
@@ -439,22 +656,131 @@
 				"documentationUrl": "https://petstore.conduction.nl",
 				"_note": "Transaction archetype for a customer order — ADR-062 rev3. The order schema is the shared cross-app Order primitive (26 fields incl. the new `pet` relation), so a single data card was the worst clip in the fleet (26 fields into a 6-field-height cell). Fixed by splitting field-scoped per rule 3: 'Order' (12 commercial fields — orderNumber/orderType/direction/counterparty/totals/dates) and 'Fulfilment & finance' (14 fields — pet, quantity, status, shipDate, complete, deposits, invoicing, state) via CnObjectDataWidget's include prop, laid out 1:1 (6/6) with an explicit fixed columns:2 (not left to the 3-col default). Related panel (pet) and the invoice/shipping Files leaf stack full-width below. DELIBERATE EXCEPTION to rule 2's KPI placement: round 1's summaryAggregates ('Items ordered', sum of quantity filtered to this order's own id) was dropped rather than converted to a stats-block — it was a thin, self-referential aggregate that only restated the order's own 'quantity' field (already visible in the data card) via a filter matching the object's own id; an order is atomic (no child line-items, no collection to summarize), so there is no real KPI to show here. Manufacturing an empty-content 4-wide card would be worse than no KPI at all. The order schema is atomic so there is NO object-list of sub-lines. The schema declares no email/calendar/talk linkedType, so this record carries NO comms leaves and NO meetings. Audit history stays a sidebar tab.",
 				"widgets": [
-					{ "id": "order-data", "type": "data", "title": "Order", "icon": "Cash", "content": { "columns": 2, "include": ["orderNumber", "orderType", "direction", "counterpartyId", "counterpartyName", "paymentTerms", "totalAmount", "orderDate", "currency", "basePrice", "taxRate", "estimatedTotal"] } },
-					{ "id": "order-fulfilment", "type": "data", "title": "Fulfilment & finance", "icon": "TableColumn", "content": { "columns": 2, "include": ["pet", "quantity", "status", "shipDate", "complete", "projectReference", "administrationId", "orderId", "bookingTypeId", "customerId", "description", "depositRequired", "depositAmount", "depositPaymentId", "paymentTermsDays", "invoiceId", "completedAt", "state"] } },
-					{ "id": "order-related", "type": "related", "title": "Ordered pet", "icon": "LinkVariant" },
-					{ "id": "order-files", "type": "integration", "integrationId": "files", "title": "Invoice & documents", "icon": "FolderOutline" }
+					{
+						"id": "order-data",
+						"type": "data",
+						"title": "Order",
+						"icon": "Cash",
+						"content": {
+							"columns": 2,
+							"include": [
+								"orderNumber",
+								"orderType",
+								"direction",
+								"counterpartyId",
+								"counterpartyName",
+								"paymentTerms",
+								"totalAmount",
+								"orderDate",
+								"currency",
+								"basePrice",
+								"taxRate",
+								"estimatedTotal"
+							]
+						}
+					},
+					{
+						"id": "order-fulfilment",
+						"type": "data",
+						"title": "Fulfilment & finance",
+						"icon": "TableColumn",
+						"content": {
+							"columns": 2,
+							"include": [
+								"pet",
+								"quantity",
+								"status",
+								"shipDate",
+								"complete",
+								"projectReference",
+								"administrationId",
+								"orderId",
+								"bookingTypeId",
+								"customerId",
+								"description",
+								"depositRequired",
+								"depositAmount",
+								"depositPaymentId",
+								"paymentTermsDays",
+								"invoiceId",
+								"completedAt",
+								"state"
+							],
+							"overrides": {
+								"status": {
+									"editable": false
+								},
+								"completedAt": {
+									"editable": false
+								},
+								"state": {
+									"editable": false
+								}
+							}
+						}
+					},
+					{
+						"id": "order-related",
+						"type": "related",
+						"title": "Ordered pet",
+						"icon": "LinkVariant"
+					},
+					{
+						"id": "order-files",
+						"type": "integration",
+						"integrationId": "files",
+						"title": "Invoice & documents",
+						"icon": "FolderOutline"
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "order-data", "gridX": 0, "gridY": 0, "gridWidth": 6, "gridHeight": 8 },
-					{ "id": "2", "widgetId": "order-fulfilment", "gridX": 6, "gridY": 0, "gridWidth": 6, "gridHeight": 8 },
-					{ "id": "3", "widgetId": "order-related", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 3 },
-					{ "id": "4", "widgetId": "order-files", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 3 }
+					{
+						"id": "1",
+						"widgetId": "order-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 6,
+						"gridHeight": 8
+					},
+					{
+						"id": "2",
+						"widgetId": "order-fulfilment",
+						"gridX": 6,
+						"gridY": 0,
+						"gridWidth": 6,
+						"gridHeight": 8
+					},
+					{
+						"id": "3",
+						"widgetId": "order-related",
+						"gridX": 0,
+						"gridY": 8,
+						"gridWidth": 12,
+						"gridHeight": 3
+					},
+					{
+						"id": "4",
+						"widgetId": "order-files",
+						"gridX": 0,
+						"gridY": 11,
+						"gridWidth": 12,
+						"gridHeight": 3
+					}
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
 					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
 					]
 				}
 			}

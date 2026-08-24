@@ -13,17 +13,17 @@
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>PetStore</namespace>
     <documentation>
-        <user>https://codeberg.org/Conduction/nextcloud-petstore</user>
-        <admin>https://codeberg.org/Conduction/nextcloud-petstore</admin>
-        <developer>https://codeberg.org/Conduction/nextcloud-petstore</developer>
+        <user>https://github.com/ConductionNL/petstore</user>
+        <admin>https://github.com/ConductionNL/petstore</admin>
+        <developer>https://github.com/ConductionNL/petstore</developer>
     </documentation>
     <category>tools</category>
-    <website>https://codeberg.org/Conduction/nextcloud-petstore</website>
-    <discussion>https://codeberg.org/Conduction/nextcloud-petstore/discussions</discussion>
-    <bugs>https://codeberg.org/Conduction/nextcloud-petstore/issues</bugs>
-    <repository>https://codeberg.org/Conduction/nextcloud-petstore</repository>
+    <website>https://github.com/ConductionNL/petstore</website>
+    <discussion>https://github.com/ConductionNL/petstore/discussions</discussion>
+    <bugs>https://github.com/ConductionNL/petstore/issues</bugs>
+    <repository>https://github.com/ConductionNL/petstore</repository>
 
-    <screenshot>https://codeberg.org/Conduction/nextcloud-petstore/raw/branch/main/img/app-store.svg</screenshot>
+    <screenshot>https://raw.githubusercontent.com/ConductionNL/petstore/development/img/app-store.svg</screenshot>
 
     <!-- ELEMENT ORDER BELOW IS FIXED BY app-info.xsd, NOT BY PREFERENCE.
          <dependencies>: php, database, command, lib, owncloud, nextcloud,
@@ -39,7 +39,7 @@
          sequence rather than the reported pair. -->
     <dependencies>
         <php min-version="8.3"/>
-        <nextcloud min-version="28" max-version="34"/>
+        <nextcloud min-version="32" max-version="34"/>
     </dependencies>
 
     <!-- @spec openspec/architecture/adr-023-action-authorization.md -->
