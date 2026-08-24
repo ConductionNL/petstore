@@ -37,6 +37,7 @@ use OCA\PetStore\Service\SettingsService;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;
@@ -76,6 +77,17 @@ class HealthController extends Controller
     /**
      * Health check JSON. Public endpoint.
      *
+     * This is the app's only anonymously-reachable endpoint, and it had no
+     * volume ceiling at all: an unauthenticated caller could poll it as fast
+     * as the server would answer, and each call reaches through to
+     * SettingsService::isOpenRegisterAvailable(). ADR-082 requires every
+     * public endpoint to carry one.
+     *
+     * The ceiling is deliberately generous — 240/minute, the same value
+     * openregister's GenericHealthController uses. Monitoring polls this on a
+     * short interval, and a limit that trips on a normal probe cadence turns
+     * the health check into the outage it was meant to detect.
+     *
      * @PublicPage
      * @NoCSRFRequired
      *
@@ -83,6 +95,7 @@ class HealthController extends Controller
      *
      * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.1
      */
+    #[AnonRateLimit(limit: 240, period: 60)]
     public function index(): JSONResponse
     {
         try {

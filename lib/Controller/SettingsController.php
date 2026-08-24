@@ -77,6 +77,17 @@ class SettingsController extends Controller
     /**
      * Update settings with provided data.
      *
+     * Admin-only, and deliberately so: this rewrites the app-wide register and
+     * schema binding, which is what every object read and write in PetStore
+     * resolves through. It is NOT annotated @NoAdminRequired — in Nextcloud the
+     * ABSENCE of that tag IS the admin gate, so the posture was already
+     * correct. What was missing is the DECLARATION: an endpoint that is
+     * admin-only on purpose and one whose author forgot the attribute look
+     * identical in the source, which is exactly what gate-5 exists to catch.
+     * The tag below states the intent without changing the enforcement.
+     *
+     * @auth admin-only Rewrites the app-wide register/schema binding that every PetStore object read and write resolves through.
+     *
      * @return JSONResponse
      *
      * @spec openspec/specs/settings-management/spec.md#REQ-CFG-002
@@ -99,6 +110,13 @@ class SettingsController extends Controller
      *
      * Forces a fresh import regardless of version, auto-configuring
      * all schema and register IDs from the import result.
+     *
+     * Admin-only, and deliberately so: a re-import discards the current
+     * register/schema binding and replaces it wholesale. Same reasoning as
+     * create() above — the posture came from the absence of @NoAdminRequired
+     * and was already correct; only the declaration was missing.
+     *
+     * @auth admin-only Forces a full configuration re-import, replacing the register and schema binding wholesale.
      *
      * @return JSONResponse
      *
