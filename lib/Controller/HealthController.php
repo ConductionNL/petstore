@@ -51,79 +51,77 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.1
  */
-class HealthController extends Controller
-{
-    /**
-     * Constructor.
-     *
-     * @param IRequest        $request         The request object
-     * @param SettingsService $settingsService For OpenRegister availability check
-     * @param IAppManager     $appManager      For reading the deployed app version
-     * @param LoggerInterface $logger          The logger
-     *
-     * @return void
-     *
-     * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.1
-     */
-    public function __construct(
-        IRequest $request,
-        private SettingsService $settingsService,
-        private IAppManager $appManager,
-        private LoggerInterface $logger,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+class HealthController extends Controller {
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The request object
+	 * @param SettingsService $settingsService For OpenRegister availability check
+	 * @param IAppManager $appManager For reading the deployed app version
+	 * @param LoggerInterface $logger The logger
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.1
+	 */
+	public function __construct(
+		IRequest $request,
+		private SettingsService $settingsService,
+		private IAppManager $appManager,
+		private LoggerInterface $logger,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Health check JSON. Public endpoint.
-     *
-     * This is the app's only anonymously-reachable endpoint, and it had no
-     * volume ceiling at all: an unauthenticated caller could poll it as fast
-     * as the server would answer, and each call reaches through to
-     * SettingsService::isOpenRegisterAvailable(). ADR-082 requires every
-     * public endpoint to carry one.
-     *
-     * The ceiling is deliberately generous — 240/minute, the same value
-     * openregister's GenericHealthController uses. Monitoring polls this on a
-     * short interval, and a limit that trips on a normal probe cadence turns
-     * the health check into the outage it was meant to detect.
-     *
-     * @PublicPage
-     * @NoCSRFRequired
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.1
-     */
-    #[AnonRateLimit(limit: 240, period: 60)]
-    public function index(): JSONResponse
-    {
-        try {
-            $openRegister = $this->settingsService->isOpenRegisterAvailable();
-            $status       = 'degraded';
-            $httpStatus   = Http::STATUS_SERVICE_UNAVAILABLE;
-            if ($openRegister === true) {
-                $status     = 'ok';
-                $httpStatus = Http::STATUS_OK;
-            }
+	/**
+	 * Health check JSON. Public endpoint.
+	 *
+	 * This is the app's only anonymously-reachable endpoint, and it had no
+	 * volume ceiling at all: an unauthenticated caller could poll it as fast
+	 * as the server would answer, and each call reaches through to
+	 * SettingsService::isOpenRegisterAvailable(). ADR-082 requires every
+	 * public endpoint to carry one.
+	 *
+	 * The ceiling is deliberately generous — 240/minute, the same value
+	 * openregister's GenericHealthController uses. Monitoring polls this on a
+	 * short interval, and a limit that trips on a normal probe cadence turns
+	 * the health check into the outage it was meant to detect.
+	 *
+	 * @PublicPage
+	 * @NoCSRFRequired
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/document-petstore-domain-capabilities/tasks.md#task-3.1
+	 */
+	#[AnonRateLimit(limit: 240, period: 60)]
+	public function index(): JSONResponse {
+		try {
+			$openRegister = $this->settingsService->isOpenRegisterAvailable();
+			$status = 'degraded';
+			$httpStatus = Http::STATUS_SERVICE_UNAVAILABLE;
+			if ($openRegister === true) {
+				$status = 'ok';
+				$httpStatus = Http::STATUS_OK;
+			}
 
-            return new JSONResponse(
-                [
-                    'status'       => $status,
-                    'app'          => Application::APP_ID,
-                    'version'      => $this->appManager->getAppVersion(appId: Application::APP_ID),
-                    'dependencies' => [
-                        'openregister' => $openRegister,
-                    ],
-                ],
-                $httpStatus
-            );
-        } catch (\Throwable $e) {
-            $this->logger->error('PetStore: health check failed', ['exception' => $e]);
-            return new JSONResponse(
-                ['status' => 'error', 'message' => 'Health check failed'],
-                Http::STATUS_INTERNAL_SERVER_ERROR
-            );
-        }//end try
-    }//end index()
+			return new JSONResponse(
+				[
+					'status' => $status,
+					'app' => Application::APP_ID,
+					'version' => $this->appManager->getAppVersion(appId: Application::APP_ID),
+					'dependencies' => [
+						'openregister' => $openRegister,
+					],
+				],
+				$httpStatus
+			);
+		} catch (\Throwable $e) {
+			$this->logger->error('PetStore: health check failed', ['exception' => $e]);
+			return new JSONResponse(
+				['status' => 'error', 'message' => 'Health check failed'],
+				Http::STATUS_INTERNAL_SERVER_ERROR
+			);
+		}//end try
+	}//end index()
 }//end class

@@ -36,43 +36,40 @@ use ReflectionMethod;
  * and pass whether or not the attribute were there, which is precisely the shape
  * of test that let this endpoint ship unthrottled in the first place.
  */
-class HealthControllerRateLimitTest extends TestCase
-{
-    /**
-     * @return void
-     */
-    public function testIndexDeclaresAnAnonymousRateLimit(): void
-    {
-        $attributes = (new ReflectionMethod(HealthController::class, 'index'))
-            ->getAttributes(AnonRateLimit::class);
+class HealthControllerRateLimitTest extends TestCase {
+	/**
+	 * @return void
+	 */
+	public function testIndexDeclaresAnAnonymousRateLimit(): void {
+		$attributes = (new ReflectionMethod(HealthController::class, 'index'))
+			->getAttributes(AnonRateLimit::class);
 
-        $this->assertCount(
-            1,
-            $attributes,
-            'HealthController::index is anonymously reachable and MUST carry '
-            . '#[AnonRateLimit] per ADR-082 — without it an unauthenticated '
-            . 'caller can poll it as fast as the server answers, and each call '
-            . 'reaches through to SettingsService::isOpenRegisterAvailable().'
-        );
-    }
+		$this->assertCount(
+			1,
+			$attributes,
+			'HealthController::index is anonymously reachable and MUST carry '
+			. '#[AnonRateLimit] per ADR-082 — without it an unauthenticated '
+			. 'caller can poll it as fast as the server answers, and each call '
+			. 'reaches through to SettingsService::isOpenRegisterAvailable().'
+		);
+	}
 
-    /**
-     * The numbers matter, not just the presence of the attribute.
-     *
-     * 240/minute is deliberately generous and matches openregister's
-     * GenericHealthController: monitoring polls this on a short interval, and a
-     * ceiling that trips on a normal probe cadence gets removed rather than
-     * tuned — which would leave the endpoint unthrottled again.
-     *
-     * @return void
-     */
-    public function testTheCeilingIsGenerousEnoughToSurviveMonitoring(): void
-    {
-        $arguments = (new ReflectionMethod(HealthController::class, 'index'))
-            ->getAttributes(AnonRateLimit::class)[0]
-            ->getArguments();
+	/**
+	 * The numbers matter, not just the presence of the attribute.
+	 *
+	 * 240/minute is deliberately generous and matches openregister's
+	 * GenericHealthController: monitoring polls this on a short interval, and a
+	 * ceiling that trips on a normal probe cadence gets removed rather than
+	 * tuned — which would leave the endpoint unthrottled again.
+	 *
+	 * @return void
+	 */
+	public function testTheCeilingIsGenerousEnoughToSurviveMonitoring(): void {
+		$arguments = (new ReflectionMethod(HealthController::class, 'index'))
+			->getAttributes(AnonRateLimit::class)[0]
+			->getArguments();
 
-        $this->assertSame(240, $arguments['limit'] ?? $arguments[0] ?? null);
-        $this->assertSame(60, $arguments['period'] ?? $arguments[1] ?? null);
-    }
+		$this->assertSame(240, $arguments['limit'] ?? $arguments[0] ?? null);
+		$this->assertSame(60, $arguments['period'] ?? $arguments[1] ?? null);
+	}
 }

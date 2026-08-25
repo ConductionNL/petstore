@@ -25,54 +25,53 @@ namespace OCA\OpenRegister\Service;
 use OCA\OpenRegister\Db\ObjectEntity;
 
 if (class_exists(ObjectService::class) === false) {
-    /**
-     * Stub ObjectService — used only in standalone unit tests.
-     */
-    class ObjectService
-    {
+	/**
+	 * Stub ObjectService — used only in standalone unit tests.
+	 */
+	class ObjectService {
 
-        /**
-         * Find one object by id, optionally scoped to a register/schema.
-         *
-         * @param int|string                $id            Object id or UUID.
-         * @param array<string, mixed>|null $_extend       Extend directives.
-         * @param bool                      $files         Include files.
-         * @param mixed                     $register      Register slug/id/entity.
-         * @param mixed                     $schema        Schema slug/id/entity.
-         * @param bool                      $_rbac         Apply RBAC.
-         * @param bool                      $_multitenancy Apply multitenancy.
-         *
-         * @return ObjectEntity|null
-         */
-        public function find(
-            int | string $id,
-            ?array $_extend=[],
-            bool $files=false,
-            mixed $register=null,
-            mixed $schema=null,
-            bool $_rbac=true,
-            bool $_multitenancy=true
-        ): ?ObjectEntity {
-            return null;
-        }//end find()
+		/**
+		 * Find one object by id, optionally scoped to a register/schema.
+		 *
+		 * @param int|string $id Object id or UUID.
+		 * @param array<string, mixed>|null $_extend Extend directives.
+		 * @param bool $files Include files.
+		 * @param mixed $register Register slug/id/entity.
+		 * @param mixed $schema Schema slug/id/entity.
+		 * @param bool $_rbac Apply RBAC.
+		 * @param bool $_multitenancy Apply multitenancy.
+		 *
+		 * @return ObjectEntity|null
+		 */
+		public function find(
+			int|string $id,
+			?array $_extend = [],
+			bool $files = false,
+			mixed $register = null,
+			mixed $schema = null,
+			bool $_rbac = true,
+			bool $_multitenancy = true,
+		): ?ObjectEntity {
+			return null;
+		}//end find()
 
-        /**
-         * Update an existing object.
-         *
-         * @param string               $objectId      Object id or UUID.
-         * @param array<string, mixed> $data          Partial object data.
-         * @param bool                 $_rbac         Apply RBAC.
-         * @param bool                 $_multitenancy Apply multitenancy.
-         *
-         * @return ObjectEntity
-         */
-        public function updateObject(
-            string $objectId,
-            array $data,
-            bool $_rbac=true,
-            bool $_multitenancy=true
-        ): ObjectEntity {
-            return new ObjectEntity();
-        }//end updateObject()
-    }//end class
+		/**
+		 * Update an existing object.
+		 *
+		 * @param string $objectId Object id or UUID.
+		 * @param array<string, mixed> $data Partial object data.
+		 * @param bool $_rbac Apply RBAC.
+		 * @param bool $_multitenancy Apply multitenancy.
+		 *
+		 * @return ObjectEntity
+		 */
+		public function updateObject(
+			string $objectId,
+			array $data,
+			bool $_rbac = true,
+			bool $_multitenancy = true,
+		): ObjectEntity {
+			return new ObjectEntity();
+		}//end updateObject()
+	}//end class
 }//end if

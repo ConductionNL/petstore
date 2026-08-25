@@ -43,79 +43,74 @@ use PHPUnit\Framework\TestCase;
  * @spec openspec/specs/dashboard-page/spec.md#REQ-DASH-001
  * @spec openspec/specs/dashboard-page/spec.md#REQ-DASH-002
  */
-class DashboardControllerTest extends TestCase
-{
-    /**
-     * The controller under test.
-     *
-     * @var DashboardController
-     */
-    private DashboardController $controller;
+class DashboardControllerTest extends TestCase {
+	/**
+	 * The controller under test.
+	 *
+	 * @var DashboardController
+	 */
+	private DashboardController $controller;
 
-    /**
-     * Build the controller.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Build the controller.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-        $this->controller = new DashboardController($this->createMock(IRequest::class));
+		$this->controller = new DashboardController($this->createMock(IRequest::class));
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * The root route renders the app's `index` template.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-page/spec.md#REQ-DASH-001
-     */
-    public function testPageRendersTheAppIndexTemplate(): void
-    {
-        $response = $this->controller->page();
+	/**
+	 * The root route renders the app's `index` template.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-page/spec.md#REQ-DASH-001
+	 */
+	public function testPageRendersTheAppIndexTemplate(): void {
+		$response = $this->controller->page();
 
-        $this->assertInstanceOf(TemplateResponse::class, $response);
-        $this->assertSame('petstore', $response->getApp());
-        $this->assertSame('index', $response->getTemplateName());
+		$this->assertInstanceOf(TemplateResponse::class, $response);
+		$this->assertSame('petstore', $response->getApp());
+		$this->assertSame('index', $response->getTemplateName());
 
-    }//end testPageRendersTheAppIndexTemplate()
+	}//end testPageRendersTheAppIndexTemplate()
 
-    /**
-     * The catch-all serves the same shell as the root — see the class docblock.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-page/spec.md#REQ-DASH-002
-     */
-    public function testCatchAllServesTheSameShellAsTheRoot(): void
-    {
-        $page     = $this->controller->page();
-        $catchAll = $this->controller->catchAll();
+	/**
+	 * The catch-all serves the same shell as the root — see the class docblock.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-page/spec.md#REQ-DASH-002
+	 */
+	public function testCatchAllServesTheSameShellAsTheRoot(): void {
+		$page = $this->controller->page();
+		$catchAll = $this->controller->catchAll();
 
-        $this->assertInstanceOf(TemplateResponse::class, $catchAll);
-        $this->assertSame($page->getApp(), $catchAll->getApp());
-        $this->assertSame($page->getTemplateName(), $catchAll->getTemplateName());
-        $this->assertSame($page->getRenderAs(), $catchAll->getRenderAs());
-        $this->assertSame($page->getParams(), $catchAll->getParams());
+		$this->assertInstanceOf(TemplateResponse::class, $catchAll);
+		$this->assertSame($page->getApp(), $catchAll->getApp());
+		$this->assertSame($page->getTemplateName(), $catchAll->getTemplateName());
+		$this->assertSame($page->getRenderAs(), $catchAll->getRenderAs());
+		$this->assertSame($page->getParams(), $catchAll->getParams());
 
-    }//end testCatchAllServesTheSameShellAsTheRoot()
+	}//end testCatchAllServesTheSameShellAsTheRoot()
 
-    /**
-     * The shell renders inside Nextcloud's chrome (`user`), not standalone.
-     *
-     * A `blank`/`base` render would drop the header, the navigation and the
-     * bootstrap the SPA reads its initial state from, so the page would load
-     * and then mount into nothing.
-     *
-     * @return void
-     *
-     * @spec openspec/specs/dashboard-page/spec.md#REQ-DASH-001
-     */
-    public function testPageRendersInsideTheNextcloudChrome(): void
-    {
-        $this->assertSame(TemplateResponse::RENDER_AS_USER, $this->controller->page()->getRenderAs());
+	/**
+	 * The shell renders inside Nextcloud's chrome (`user`), not standalone.
+	 *
+	 * A `blank`/`base` render would drop the header, the navigation and the
+	 * bootstrap the SPA reads its initial state from, so the page would load
+	 * and then mount into nothing.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/dashboard-page/spec.md#REQ-DASH-001
+	 */
+	public function testPageRendersInsideTheNextcloudChrome(): void {
+		$this->assertSame(TemplateResponse::RENDER_AS_USER, $this->controller->page()->getRenderAs());
 
-    }//end testPageRendersInsideTheNextcloudChrome()
+	}//end testPageRendersInsideTheNextcloudChrome()
 }//end class

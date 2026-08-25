@@ -212,11 +212,23 @@ export default [
 	// which is why Nextcloud ships both packages. Agreement is not the point: two
 	// tools formatting the same bytes is the unfixable state this fleet already
 	// hit with php-cs-fixer and PHPCS, so exactly one of them is allowed an
-	// opinion and prettier is it. `prettier --check` runs as its own CI job.
+	// opinion.
+	//
+	// ⚠️ THAT ONE TOOL IS NOT PRESENT IN THIS REPO. The paragraph here used to
+	// end "`prettier --check` runs as its own CI job", and it does not: there is
+	// no prettier dependency, no format script, and no CI leg. A `.prettierrc`
+	// sat next to it doing the worst possible thing — inert in CI, live in every
+	// contributor's editor, reformatting files into a shape nothing verified.
+	// It has been deleted (hydra gate-65 `prettier-config-without-prettier`).
+	//
+	// So this preset currently only turns rules OFF, and nothing takes over what
+	// it turned off. Adopting prettier properly — @nextcloud/prettier-config +
+	// prettier + a `format:check` script + a CI leg, the way nextcloud/forms
+	// does it — is the open follow-up; until then frontend formatting is
+	// unenforced rather than double-enforced.
 	//
 	// NOTE: forms additionally uses `eslint-plugin-prettier/recommended`, which
 	// reports prettier violations AS eslint errors. Deliberately not adopted —
-	// this fleet already runs `prettier --check` separately, and doing both means
 	// one defect reported twice in two places.
 	eslintConfigPrettier,
 

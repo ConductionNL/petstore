@@ -51,119 +51,113 @@ namespace OCA\PetStore\Portal;
  *
  * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
  */
-class PortalContributionProvider
-{
-    /**
-     * The audiences this provider contributes to (contract v2, preferred).
-     *
-     * The registry probes for this method first; the audience vocabulary is an
-     * open string set (amendment A2). Pet Store serves its (pet) owners, so it
-     * contributes to the `client` audience only.
-     *
-     * @return array<int, string> The audience identifiers.
-     *
-     * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
-     */
-    public function getAudiences(): array
-    {
-        return ['client'];
+class PortalContributionProvider {
+	/**
+	 * The audiences this provider contributes to (contract v2, preferred).
+	 *
+	 * The registry probes for this method first; the audience vocabulary is an
+	 * open string set (amendment A2). Pet Store serves its (pet) owners, so it
+	 * contributes to the `client` audience only.
+	 *
+	 * @return array<int, string> The audience identifiers.
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
+	 */
+	public function getAudiences(): array {
+		return ['client'];
+	}//end getAudiences()
 
-    }//end getAudiences()
+	/**
+	 * The single audience this provider contributes to (contract v1 fallback).
+	 *
+	 * Kept alongside getAudiences() so the provider also works against a v1
+	 * registry that predates multi-audience support. Implement BOTH in real
+	 * apps until the fleet is fully on contract v2.
+	 *
+	 * @return string The audience identifier.
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
+	 */
+	public function getAudience(): string {
+		return 'client';
+	}//end getAudience()
 
-    /**
-     * The single audience this provider contributes to (contract v1 fallback).
-     *
-     * Kept alongside getAudiences() so the provider also works against a v1
-     * registry that predates multi-audience support. Implement BOTH in real
-     * apps until the fleet is fully on contract v2.
-     *
-     * @return string The audience identifier.
-     *
-     * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
-     */
-    public function getAudience(): string
-    {
-        return 'client';
+	/**
+	 * Build the declarative portal manifest for one resolved subject.
+	 *
+	 * The subject array is server-derived by portaliq (subjectRef UUID,
+	 * audience, organisation, trust level low|substantial|high). Returns null
+	 * when this app has nothing for the subject — here: for any non-client
+	 * audience (fail-closed; the registry already filters by audience, but a
+	 * provider must not rely on that).
+	 *
+	 * Manifest vocabulary (amendment A2–A6): `collections` are read surfaces
+	 * portaliq serves from OpenRegister, scoped by `scopeField` == the
+	 * subject's owner-contact UUID; `actions` of type `create` expose a strict
+	 * field whitelist (status/complete/price stay back-office-only); actions
+	 * declaring an `endpoint` + `method` are forwarded server-to-server with
+	 * a signed X-Portal-Subject assertion (A6 — see PortalAssertionVerifier);
+	 * `notifications` feed the shared inbox (none in this demo).
+	 *
+	 * @param array<string, mixed> $subject The resolved portal subject.
+	 *
+	 * @return array<string, mixed>|null The manifest, or null when not contributing.
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
+	 */
+	public function getContribution(array $subject): ?array {
+		if (($subject['audience'] ?? '') !== 'client') {
+			return null;
+		}
 
-    }//end getAudience()
+		return [
+			'label' => 'Pet Store',
+			'collections' => [
+				[
+					'id' => 'petCollection',
+					'register' => 'petstore',
+					'schema' => 'pet',
+					'scopeField' => 'owner',
+					'label' => 'My pets',
+					'listable' => true,
+				],
+				[
+					'id' => 'orderCollection',
+					'register' => 'petstore',
+					'schema' => 'order',
+					'scopeField' => 'owner',
+					'label' => 'My orders',
+					'listable' => true,
+				],
+			],
+			'actions' => [
+				[
+					'id' => 'createOrder',
+					'type' => 'create',
+					'label' => 'Place an order',
+					'register' => 'petstore',
+					'schema' => 'order',
+					'fields' => [
+						'pet',
+						'quantity',
+						'shipDate',
+					],
+				],
+				// Endpoint action (contract v2, A6): portaliq forwards this
+				// server-to-server to the declared instance-local endpoint
+				// with a signed X-Portal-Subject assertion; petstore verifies
+				// it in PortalActionController via PortalAssertionVerifier.
+				// Vocabulary is {id, label, endpoint, method, minTrust?} — no
+				// `type` key (only create-actions carry one).
+				[
+					'id' => 'renamePet',
+					'label' => 'Rename a pet',
+					'endpoint' => '/apps/petstore/api/portal/pets/rename',
+					'method' => 'POST',
+				],
+			],
+			'notifications' => [],
+		];
 
-    /**
-     * Build the declarative portal manifest for one resolved subject.
-     *
-     * The subject array is server-derived by portaliq (subjectRef UUID,
-     * audience, organisation, trust level low|substantial|high). Returns null
-     * when this app has nothing for the subject — here: for any non-client
-     * audience (fail-closed; the registry already filters by audience, but a
-     * provider must not rely on that).
-     *
-     * Manifest vocabulary (amendment A2–A6): `collections` are read surfaces
-     * portaliq serves from OpenRegister, scoped by `scopeField` == the
-     * subject's owner-contact UUID; `actions` of type `create` expose a strict
-     * field whitelist (status/complete/price stay back-office-only); actions
-     * declaring an `endpoint` + `method` are forwarded server-to-server with
-     * a signed X-Portal-Subject assertion (A6 — see PortalAssertionVerifier);
-     * `notifications` feed the shared inbox (none in this demo).
-     *
-     * @param array<string, mixed> $subject The resolved portal subject.
-     *
-     * @return array<string, mixed>|null The manifest, or null when not contributing.
-     *
-     * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
-     */
-    public function getContribution(array $subject): ?array
-    {
-        if (($subject['audience'] ?? '') !== 'client') {
-            return null;
-        }
-
-        return [
-            'label'         => 'Pet Store',
-            'collections'   => [
-                [
-                    'id'         => 'petCollection',
-                    'register'   => 'petstore',
-                    'schema'     => 'pet',
-                    'scopeField' => 'owner',
-                    'label'      => 'My pets',
-                    'listable'   => true,
-                ],
-                [
-                    'id'         => 'orderCollection',
-                    'register'   => 'petstore',
-                    'schema'     => 'order',
-                    'scopeField' => 'owner',
-                    'label'      => 'My orders',
-                    'listable'   => true,
-                ],
-            ],
-            'actions'       => [
-                [
-                    'id'       => 'createOrder',
-                    'type'     => 'create',
-                    'label'    => 'Place an order',
-                    'register' => 'petstore',
-                    'schema'   => 'order',
-                    'fields'   => [
-                        'pet',
-                        'quantity',
-                        'shipDate',
-                    ],
-                ],
-                // Endpoint action (contract v2, A6): portaliq forwards this
-                // server-to-server to the declared instance-local endpoint
-                // with a signed X-Portal-Subject assertion; petstore verifies
-                // it in PortalActionController via PortalAssertionVerifier.
-                // Vocabulary is {id, label, endpoint, method, minTrust?} — no
-                // `type` key (only create-actions carry one).
-                [
-                    'id'       => 'renamePet',
-                    'label'    => 'Rename a pet',
-                    'endpoint' => '/apps/petstore/api/portal/pets/rename',
-                    'method'   => 'POST',
-                ],
-            ],
-            'notifications' => [],
-        ];
-
-    }//end getContribution()
+	}//end getContribution()
 }//end class
