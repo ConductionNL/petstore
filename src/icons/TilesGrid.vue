@@ -3,8 +3,7 @@
 		:aria-hidden="title ? null : 'true'"
 		:aria-label="title"
 		class="material-design-icon tiles-grid-icon"
-		role="img"
-		@click="$emit('click', $event)">
+		role="img">
 		<svg :fill="fillColor"
 			class="material-design-icon__svg"
 			:width="size"
@@ -40,8 +39,9 @@ export default {
 		},
 	},
 
-	// Declared AFTER props: `vue/order-in-components` requires props to precede
-	// emits, and the original order tripped it on every lint run.
-	emits: ['click'],
+	// NO `emits: ['click']`, and no @click on the root span — same reasoning as
+	// ListRows.vue: an icon is presentational (role="img"), the control that
+	// wraps it owns activation, and declaring `click` in `emits` suppressed the
+	// native fallthrough that now carries a consumer's `@click` again.
 }
 </script>

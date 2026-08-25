@@ -27,7 +27,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-6
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-003
  */
 
 declare(strict_types=1);
@@ -145,7 +145,7 @@ class ObjectServiceStub
 /**
  * Tests for PortalActionController.
  *
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-6
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-003
  */
 class PortalActionControllerTest extends TestCase
 {

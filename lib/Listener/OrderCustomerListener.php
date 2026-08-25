@@ -40,6 +40,7 @@ declare(strict_types=1);
 
 namespace OCA\PetStore\Listener;
 
+use OCP\App\IAppManager;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IUserSession;
@@ -75,6 +76,8 @@ class OrderCustomerListener implements IEventListener
      * Constructor.
      *
      * @param IUserSession       $userSession The current user session (customer source).
+     * @param IAppManager        $appManager  Used to establish that OpenRegister is installed
+     *                                        before any OpenRegister class is looked up.
      * @param ContainerInterface $container   Service locator for OpenRegister mappers.
      * @param LoggerInterface    $logger      The logger.
      *
@@ -82,10 +85,28 @@ class OrderCustomerListener implements IEventListener
      */
     public function __construct(
         private readonly IUserSession $userSession,
+        private readonly IAppManager $appManager,
         private readonly ContainerInterface $container,
         private readonly LoggerInterface $logger,
     ) {
     }//end __construct()
+
+    /**
+     * True when the OpenRegister app is installed on this instance.
+     *
+     * OpenRegister is an OPTIONAL dependency of this listener (ADR-083 rule 1):
+     * the mappers below cannot be constructor-injected, because a typed
+     * property would make this listener — which is registered unconditionally
+     * in Application.php — unconstructable on an instance without OpenRegister.
+     * Availability is therefore established here, before the container is
+     * asked for anything OpenRegister owns.
+     *
+     * @return bool True when `openregister` is installed.
+     */
+    private function isOpenRegisterAvailable(): bool
+    {
+        return $this->appManager->isInstalled('openregister');
+    }//end isOpenRegisterAvailable()
 
     /**
      * Handle an OpenRegister pre-create event; stamp customer for petstore/order.
@@ -167,6 +188,14 @@ class OrderCustomerListener implements IEventListener
         $schemaId   = (string) $entity->getSchema();
         $registerId = (string) $entity->getRegister();
         if ($schemaId === '' || $registerId === '') {
+            return false;
+        }
+
+        // Establish availability BEFORE reaching into the container — the
+        // mappers below are an optional dependency (see the note on
+        // isOpenRegisterAvailable()). Without OpenRegister there is no
+        // petstore/order object to stamp, so "not available" is "not ours".
+        if ($this->isOpenRegisterAvailable() === false) {
             return false;
         }
 

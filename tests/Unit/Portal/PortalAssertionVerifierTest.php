@@ -29,7 +29,9 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-5
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-001
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-002
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-004
  */
 
 declare(strict_types=1);
@@ -43,7 +45,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for PortalAssertionVerifier.
  *
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-5
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-001
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-002
+ * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-004
  */
 class PortalAssertionVerifierTest extends TestCase
 {

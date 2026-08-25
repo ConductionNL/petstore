@@ -786,49 +786,6 @@
 			}
 		},
 		{
-			"id": "Settings",
-			"route": "/settings",
-			"type": "settings",
-			"title": "Settings",
-			"config": {
-				"saveEndpoint": "/index.php/apps/petstore/api/settings",
-				"sections": [
-					{
-						"title": "Version",
-						"widgets": [
-							{
-								"type": "version-info",
-								"props": {
-									"appName": "PetStore",
-									"showUpdateButton": false,
-									"isUpToDate": true,
-									"title": "Version Information",
-									"description": "Information about the current installation."
-								}
-							}
-						]
-					}
-				]
-			},
-			"widgets": [
-				{
-					"widgetKey": "version-info",
-					"slot": "section:version",
-					"gridX": 0,
-					"gridY": 0,
-					"gridWidth": 12,
-					"gridHeight": 1,
-					"props": {
-						"appName": "PetStore",
-						"showUpdateButton": false,
-						"isUpToDate": true,
-						"title": "Version Information",
-						"description": "Information about the current installation."
-					}
-				}
-			]
-		},
-		{
 			"id": "FeaturesRoadmap",
 			"route": "/features-roadmap",
 			"type": "roadmap",

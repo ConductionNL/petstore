@@ -21,8 +21,9 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-contribution/tasks.md#task-4
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-6
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-001
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-002
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-003
  */
 
 declare(strict_types=1);
@@ -35,7 +36,9 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for PortalContributionProvider.
  *
- * @spec openspec/changes/portal-contribution/tasks.md#task-4
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-001
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-002
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-003
  */
 class PortalContributionProviderTest extends TestCase
 {
@@ -199,7 +202,7 @@ class PortalContributionProviderTest extends TestCase
      *
      * @return void
      *
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-6
+     * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-003
      */
     public function testRenamePetEndpointActionIsDeclared(): void
     {

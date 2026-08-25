@@ -1,6 +1,6 @@
 ## ADDED Requirements
 
-### Requirement: Cancel an order with action-level authorization
+### Requirement: Cancel an order with action-level authorization (REQ-ORDER-CANCEL-001)
 
 The system MUST expose `POST /api/orders/{id}/cancel`, reachable by
 authenticated non-admins (`#[NoAdminRequired]`). Before mutating the order,

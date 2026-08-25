@@ -18,13 +18,16 @@ ships:
 
 - **A manifest-driven UI** — pages, navigation, and dependencies are
   declared in `src/manifest.json`; the shell (CnAppRoot) reads the
-  manifest at boot and renders index / detail / dashboard / settings
+  manifest at boot and renders index / detail / dashboard / roadmap
   pages without per-page Vue files.
 - **A Dashboard widget** — a working `ExampleWidget` (PHP `IWidget`
   class + webpack entry + `NcDashboardWidget` renderer) you copy and
   rename.
-- **Admin settings** — a settings panel wired through
-  `NcAppSettingsDialog`, backed by an OpenRegister settings register.
+- **Admin settings** — a Nextcloud admin section
+  (`lib/Settings/AdminSettings.php`, served at `/settings/admin/petstore`),
+  backed by the app's settings API. Per ADR-079 app configuration has
+  exactly one home, and it is the platform settings framework — not an
+  in-app page.
 - **An MCP tool provider** — `ExampleToolProvider` exposes the app's
   capabilities to the in-app AI Chat Companion over MCP.
 - **OpenRegister integration** — `manifest.dependencies` lists
