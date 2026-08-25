@@ -18,15 +18,15 @@ tool — run locally by a developer — opens a PR on every app in the fleet.
 
 | File | What it does |
 |---|---|
-| `phpcs.xml` | PHPCS ruleset. Wires the Conduction custom sniffs + standard NC + PHPCompatibility. |
-| `phpmd.xml` | PHPMD ruleset for `lib/` source. |
-| `psalm.xml` | Psalm config (level + ignored files). |
-| `phpstan.neon` | PHPStan config (level + paths). |
+| `phpcs.xml` | PHPCS **stub** — declares `<file>lib</file>` and references `vendor/conduction/hydra-gates/quality-config/phpcs.xml`. Semantics only; formatting belongs to php-cs-fixer. |
+| `phpmd.xml` | PHPMD **stub** — references the same package's `quality-config/phpmd.xml`. |
+| `.php-cs-fixer.dist.php` | php-cs-fixer config, from `conduction/coding-standard` (which extends `nextcloud/coding-standard` and may only add to it). |
+| `psalm.xml` | Psalm config (level + ignored files). Psalm has no config inheritance, so this one is still a full per-app copy. |
+| `phpstan.neon` | PHPStan **stub** — includes the package's `quality-config/phpstan-base.neon` plus this app's own baseline and app-only ignores. |
 | `phpstan-bootstrap.php` | Bootstrap stubs so PHPStan can resolve `\OC` accessors. |
-| `phpcs-custom-sniffs/CustomSniffs/Sniffs/**` | The custom-sniff ruleset (SpecTagSniff, NoLegacyServerAccessorsSniff, etc.). |
+| `.editorconfig` | Editor defaults (tab indent), matching Nextcloud core and what php-cs-fixer enforces. |
 | `stylelint.config.js` | CSS/SCSS lint config for `src/**`. |
 | `eslint.config.js` | ESLint flat config (replaces `.eslintrc.*`) for `src/`. |
-| `.prettierrc` | Prettier config. |
 | `.gitattributes` | Line-ending normalization + binary-file marks. |
 | `.npmrc` | npm registry policy (cooldown + `legacy-peer-deps=true`). |
 | `.nvmrc` | Node version floor (currently `20`). |

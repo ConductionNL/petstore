@@ -28,7 +28,7 @@
 		:emptyText="emptyMessage"
 		@rowClick="onRowClick">
 		<template #footer>
-			<a class="cn-data-table__view-all" @click.prevent="onViewAll">
+			<a class="cn-data-table__view-all" :href="viewAllUrl">
 				{{ t('petstore', 'View all') }} →
 			</a>
 		</template>
@@ -51,6 +51,10 @@ export default {
 		items: [],
 		loading: true,
 		emptyMessage: '',
+		// A REAL link, not a click handler on a bare <a>. The footer target is
+		// a plain navigation, so an href gives keyboard focus, Enter/middle-click
+		// and the link role for free (WCAG 2.2 AA — 2.1.1 Keyboard, 4.1.2).
+		viewAllUrl: generateUrl('/apps/petstore/examples'),
 		columns: [
 			{ key: 'mainText', cellClass: 'cn-cell--strong' },
 			{ key: 'subText', cellClass: 'cn-cell--muted cn-cell--end' },
@@ -100,16 +104,6 @@ export default {
 			if (row?.targetUrl) {
 				window.location.href = row.targetUrl
 			}
-		},
-
-		/**
-		 * Navigate to the app's full pet list in the same tab.
-		 *
-		 * @spec openspec/specs/scaffold-components/spec.md#REQ-COMP-003
-		 * @return {void}
-		 */
-		onViewAll() {
-			window.location.href = generateUrl('/apps/petstore/examples')
 		},
 	},
 }

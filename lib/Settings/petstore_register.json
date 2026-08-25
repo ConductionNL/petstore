@@ -3,7 +3,7 @@
   "info": {
     "title": "PetStore Register",
     "description": "Categories, pets, and orders for the PetStore app.",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "x-openregister": {
     "type": "application",
@@ -20,7 +20,7 @@
         "slug": "petstore",
         "title": "PetStore",
         "description": "Categories, pets, and orders for the PetStore app.",
-        "version": "0.4.0",
+        "version": "0.5.0",
         "schemas": ["category", "pet", "order"]
       }
     },
@@ -28,7 +28,7 @@
       "category": {
         "slug": "category",
         "icon": "Tag",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "title": "Category",
         "description": "A category of pets (Dogs, Cats, Reptiles, Fish, ...).",
         "type": "object",
@@ -36,14 +36,14 @@
         "x-schema-org": "schema:DefinedTerm",
         "authorization": { "read": ["authenticated"] },
         "properties": {
-          "name":        { "type": "string", "example": "Dogs" },
-          "description": { "type": "string", "example": "Friendly mammals, four legs, often barks" }
+          "name":        { "type": "string", "title": "Name", "description": "Display name of the category, as shown in the pet catalogue and in the Category picker on a pet.", "example": "Dogs" },
+          "description": { "type": "string", "title": "Description", "description": "Short prose describing what belongs in this category; shown under the name on the category detail page.", "example": "Friendly mammals, four legs, often barks" }
         }
       },
       "pet": {
         "slug": "pet",
         "icon": "Paw",
-        "version": "0.4.0",
+        "version": "0.5.0",
         "title": "Pet",
         "description": "A pet in the store.",
         "type": "object",
@@ -51,7 +51,7 @@
         "x-schema-org": "schema:Product",
         "authorization": { "read": ["authenticated"] },
         "properties": {
-          "name":   { "type": "string", "title": "Name", "example": "doggie" },
+          "name":   { "type": "string", "title": "Name", "description": "The pet's name, as advertised in the store. This is the only field the portal `renamePet` action is allowed to write (REQ-PAV-003).", "example": "doggie" },
           "category": {
             "type": "string",
             "format": "uuid",
@@ -59,23 +59,24 @@
             "title": "Category",
             "description": "Reference to the pet's category (uuid of the category object)."
           },
-          "status": { "type": "string", "title": "Status", "enum": ["available", "pending", "sold"] },
-          "tags":   { "type": "array", "title": "Tags", "items": { "type": "string" } },
-          "photoUrls": { "type": "array", "title": "Photo URLs", "items": { "type": "string", "format": "uri" } },
-          "price":  { "type": "number",  "title": "Price", "minimum": 0, "example": 49.95 },
-          "notes":  { "type": "string", "title": "Notes" },
+          "status": { "type": "string", "title": "Status", "description": "Sale state of the pet: `available` (on offer), `pending` (reserved by an unfulfilled order) or `sold`. Back-office only — the portal create-action cannot set it.", "enum": ["available", "pending", "sold"] },
+          "tags":   { "type": "array", "title": "Tags", "description": "Free-text labels used to filter and group pets in the catalogue (e.g. `puppy`, `hypoallergenic`). Not a relation — see `category` for the typed one.", "items": { "type": "string", "title": "Tag", "description": "A single free-text label." } },
+          "photoUrls": { "type": "array", "title": "Photo URLs", "description": "Absolute URLs of the pet's photos, in display order; the first is used as the thumbnail in list and card views.", "items": { "type": "string", "format": "uri", "title": "Photo URL", "description": "Absolute URL of one photo." } },
+          "price":  { "type": "number",  "title": "Price", "description": "Asking price of the pet in the store's currency, excluding tax. Back-office only — the portal create-action cannot set it.", "minimum": 0, "example": 49.95 },
+          "notes":  { "type": "string", "title": "Notes", "description": "Internal free-text notes about the pet (temperament, medical history, handling instructions). Staff-facing." },
           "owner":  {
             "type": "string",
             "format": "uuid",
             "title": "Owner",
-            "description": "Portal-subject/owner reference — the UUID of the owner contact (a domain object reference, never a Nextcloud user id). Portaliq scopes external portal reads to this field (hydra ADR-046 A4)."
+            "x-external-register": "portaliq",
+            "description": "Portal-subject/owner reference — the UUID of the owner contact (a domain object reference, never a Nextcloud user id). Portaliq scopes external portal reads to this field (hydra ADR-046 A4). The contact object is the portal subject that portaliq resolves and signs into the X-Portal-Subject `sub` claim; it belongs to portaliq's subject registry, not to the petstore register set, so OpenRegister cannot resolve a $ref for it (ADR-062 rule 7, external-reference form)."
           }
         }
       },
       "order": {
         "slug": "order",
         "icon": "Receipt",
-        "version": "0.5.0",
+        "version": "0.6.0",
         "title": "Order",
         "description": "A customer order for a pet — the base order/agreement primitive shared with other Conduction order-bearing apps (concrete kinds discriminate via orderType). PetStore populates it as a `sales` order per pet purchase.",
         "type": "object",
@@ -97,34 +98,35 @@
           "counterpartyName":  { "type": "string", "title": "Counterparty Name", "nullable": true, "description": "Customer display name (snapshot)." },
           "paymentTerms":      { "type": "string", "title": "Payment Terms", "nullable": true, "description": "Payment terms (e.g. '30 dagen')." },
           "totalAmount":       { "type": "number", "title": "Total Amount", "nullable": true, "description": "Headline order total." },
-          "orderDate":         { "type": "string", "title": "Order Date", "format": "date", "nullable": true },
-          "currency":          { "type": "string", "title": "Currency", "nullable": true, "example": "EUR" },
-          "basePrice":         { "type": "number", "title": "Base Price", "nullable": true },
-          "taxRate":           { "type": "number", "title": "Tax Rate", "nullable": true, "example": 21 },
-          "estimatedTotal":    { "type": "number", "title": "Estimated Total", "nullable": true },
+          "orderDate":         { "type": "string", "title": "Order Date", "description": "Calendar date the order was placed. Distinct from the object's own created timestamp, which records when the row was written.", "format": "date", "nullable": true },
+          "currency":          { "type": "string", "title": "Currency", "description": "ISO 4217 code the monetary amounts on this order are expressed in.", "nullable": true, "example": "EUR" },
+          "basePrice":         { "type": "number", "title": "Base Price", "description": "Net amount before tax, before any deposit is applied.", "nullable": true },
+          "taxRate":           { "type": "number", "title": "Tax Rate", "description": "Tax percentage applied to the base price (21 means 21%).", "nullable": true, "example": 21 },
+          "estimatedTotal":    { "type": "number", "title": "Estimated Total", "description": "Projected gross total (base price plus tax) before the order is finalised. `totalAmount` carries the agreed figure.", "nullable": true },
           "projectReference":  { "type": "string", "title": "Project Reference", "nullable": true, "description": "Optional free-text project label — superseded by the typed `pet` relation above for anything the app needs to query or KPI on." },
           "administrationId":  { "type": "string", "title": "Administration ID", "example": "petstore-hq", "description": "FK to the administration owning this order for tenant isolation." },
-          "orderId":           { "type": "string", "title": "Order ID", "nullable": true },
-          "bookingTypeId":     { "type": "string", "title": "Booking Type ID", "nullable": true },
-          "customerId":        { "type": "string", "title": "Customer ID", "nullable": true },
-          "description":       { "type": "string", "title": "Description", "nullable": true },
-          "quantity":          { "type": "integer", "title": "Quantity", "minimum": 1, "example": 1 },
-          "shipDate":          { "type": "string", "title": "Ship Date", "format": "date-time", "nullable": true },
-          "status":            { "type": "string", "title": "Status", "enum": ["placed", "approved", "delivered", "cancelled"] },
-          "complete":          { "type": "boolean", "title": "Complete", "default": false },
+          "orderId":           { "type": "string", "title": "Order ID", "description": "Identifier this order carries in the upstream system it was imported from; empty for orders created here. Not the object's own id.", "nullable": true },
+          "bookingTypeId":     { "type": "string", "title": "Booking Type ID", "description": "Booking-kind identifier carried by the shared order primitive; unused by PetStore, which only issues `sales` orders.", "nullable": true },
+          "customerId":        { "type": "string", "title": "Customer ID", "description": "Identifier of the customer in the upstream system, from the shared order primitive. For portal scoping use `owner`; for the placing Nextcloud user use `customer`.", "nullable": true },
+          "description":       { "type": "string", "title": "Description", "description": "Free-text description of what was ordered, shown on the order detail page and on any generated document.", "nullable": true },
+          "quantity":          { "type": "integer", "title": "Quantity", "description": "Number of units of the referenced pet on this order line. One of the three fields the portal create-action may set.", "minimum": 1, "example": 1 },
+          "shipDate":          { "type": "string", "title": "Ship Date", "description": "Date and time the pet is expected to be handed over or shipped. One of the three fields the portal create-action may set.", "format": "date-time", "nullable": true },
+          "status":            { "type": "string", "title": "Status", "description": "Lifecycle state of the order: `placed`, `approved`, `delivered` or `cancelled`. `POST /api/orders/{id}/cancel` is the only route that moves it to `cancelled` (REQ-ORDER-CANCEL-001).", "enum": ["placed", "approved", "delivered", "cancelled"] },
+          "complete":          { "type": "boolean", "title": "Complete", "description": "True once the order has been fully handled and needs no further action. Independent of `status`, which records where it got to.", "default": false },
           "customer":          { "type": "string", "title": "Customer", "nullable": true, "description": "Nextcloud UID of the user who placed the order (display-only, not an authorization boundary)." },
-          "depositRequired":   { "type": "boolean", "title": "Deposit Required", "nullable": true },
-          "depositAmount":     { "type": "number", "title": "Deposit Amount", "nullable": true },
-          "depositPaymentId":  { "type": "string", "title": "Deposit Payment ID", "nullable": true },
-          "paymentTermsDays":  { "type": "integer", "title": "Payment Terms Days", "nullable": true },
-          "invoiceId":         { "type": "string", "title": "Invoice ID", "nullable": true },
-          "completedAt":       { "type": "string", "title": "Completed At", "format": "date-time", "nullable": true },
-          "state":             { "type": "string", "title": "State", "nullable": true, "example": "draft" },
+          "depositRequired":   { "type": "boolean", "title": "Deposit Required", "description": "True when the order may not proceed until a deposit is paid.", "nullable": true },
+          "depositAmount":     { "type": "number", "title": "Deposit Amount", "description": "Amount of the required deposit, in the order's currency. Meaningful only when `depositRequired` is true.", "nullable": true },
+          "depositPaymentId":  { "type": "string", "title": "Deposit Payment ID", "description": "Identifier of the payment that settled the deposit, in whichever payment system took it. Empty until the deposit is paid.", "nullable": true },
+          "paymentTermsDays":  { "type": "integer", "title": "Payment Terms Days", "description": "Number of days after invoicing that payment is due — the numeric form of `paymentTerms`, for computing a due date.", "nullable": true },
+          "invoiceId":         { "type": "string", "title": "Invoice ID", "description": "Identifier of the invoice raised for this order in the billing system. Empty until the order is invoiced.", "nullable": true },
+          "completedAt":       { "type": "string", "title": "Completed At", "description": "Date and time the order was completed. Set when `complete` becomes true.", "format": "date-time", "nullable": true },
+          "state":             { "type": "string", "title": "State", "description": "Free-form workflow state carried by the shared order primitive, alongside the constrained `status` enum. PetStore does not drive it; `status` is this app's lifecycle field.", "nullable": true, "example": "draft" },
           "owner":    {
             "type": "string",
             "format": "uuid",
             "title": "Owner",
-            "description": "Portal-subject/owner reference — the UUID of the owner contact (a domain object reference, never a Nextcloud user id). Portaliq scopes external portal reads and creates to this field (hydra ADR-046 A4)."
+            "x-external-register": "portaliq",
+            "description": "Portal-subject/owner reference — the UUID of the owner contact (a domain object reference, never a Nextcloud user id). Portaliq scopes external portal reads and creates to this field (hydra ADR-046 A4). The contact object is the portal subject that portaliq resolves and signs into the X-Portal-Subject `sub` claim; it belongs to portaliq's subject registry, not to the petstore register set, so OpenRegister cannot resolve a $ref for it (ADR-062 rule 7, external-reference form)."
           }
         }
       }

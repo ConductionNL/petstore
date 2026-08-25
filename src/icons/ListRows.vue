@@ -3,8 +3,7 @@
 		:aria-hidden="title ? null : 'true'"
 		:aria-label="title"
 		class="material-design-icon list-rows-icon"
-		role="img"
-		@click="$emit('click', $event)">
+		role="img">
 		<svg :fill="fillColor"
 			class="material-design-icon__svg"
 			:width="size"
@@ -40,8 +39,18 @@ export default {
 		},
 	},
 
-	// Declared AFTER props: `vue/order-in-components` requires props to precede
-	// emits, and the original order tripped it on every lint run.
-	emits: ['click'],
+	// NO `emits: ['click']`, and no @click on the root span.
+	//
+	// An icon is presentational (role="img"); the interactive element is the
+	// control that WRAPS it. A span carrying @click is a click target with no
+	// role, no tab stop and no keyboard activation — WCAG 2.2 AA 2.1.1 / 4.1.2,
+	// and hydra gate-32.
+	//
+	// Declaring `click` in `emits` also SUPPRESSED native fallthrough in Vue 3:
+	// a parent's `@click` became a component-event listener that only fired
+	// because the template re-emitted it by hand. With both gone the parent's
+	// `@click` binds to the root span as a plain native listener, so any
+	// consumer keeps working — and a click on the icon still bubbles to the
+	// button around it, which is where activation belongs.
 }
 </script>

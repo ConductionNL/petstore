@@ -62,284 +62,277 @@ use Throwable;
  *
  * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
  */
-class PortalActionController extends Controller
-{
-    /**
-     * Brute-force throttler action for rejected portal assertions.
-     *
-     * @var string
-     */
-    private const THROTTLE_ACTION = 'petstore_portal_assertion';
+class PortalActionController extends Controller {
+	/**
+	 * Brute-force throttler action for rejected portal assertions.
+	 *
+	 * @var string
+	 */
+	private const THROTTLE_ACTION = 'petstore_portal_assertion';
 
-    /**
-     * Record a rejected assertion with the brute-force throttler.
-     *
-     * Petstore is the ADR-046 REFERENCE implementation — the file other apps
-     * copy when they build an A6 receiver — so the throttling belongs here as
-     * much as the fail-closed ordering does. An app that copies this pattern
-     * should inherit both halves, not just the 401.
-     *
-     * The call is wrapped: bookkeeping must never turn a fail-closed refusal
-     * into a 500, which would leak an internal fault and let a caller tell a
-     * bad assertion apart from a broken cache.
-     *
-     * @return void
-     */
-    private function registerRejectedAssertion(): void
-    {
-        try {
-            $this->throttler->registerAttempt(
-                action: self::THROTTLE_ACTION,
-                ip: $this->request->getRemoteAddress()
-            );
-        } catch (\Throwable $throttlerFailure) {
-            $this->logger->warning(
-                'PortalActionController: registerAttempt failed: '.$throttlerFailure->getMessage()
-            );
-        }
-    }//end registerRejectedAssertion()
+	/**
+	 * Record a rejected assertion with the brute-force throttler.
+	 *
+	 * Petstore is the ADR-046 REFERENCE implementation — the file other apps
+	 * copy when they build an A6 receiver — so the throttling belongs here as
+	 * much as the fail-closed ordering does. An app that copies this pattern
+	 * should inherit both halves, not just the 401.
+	 *
+	 * The call is wrapped: bookkeeping must never turn a fail-closed refusal
+	 * into a 500, which would leak an internal fault and let a caller tell a
+	 * bad assertion apart from a broken cache.
+	 *
+	 * @return void
+	 */
+	private function registerRejectedAssertion(): void {
+		try {
+			$this->throttler->registerAttempt(
+				action: self::THROTTLE_ACTION,
+				ip: $this->request->getRemoteAddress()
+			);
+		} catch (\Throwable $throttlerFailure) {
+			$this->logger->warning(
+				'PortalActionController: registerAttempt failed: ' . $throttlerFailure->getMessage()
+			);
+		}
+	}//end registerRejectedAssertion()
 
-    /**
-     * OpenRegister's object service, resolved lazily by FQCN so petstore
-     * keeps zero compile-time OpenRegister coupling (same pattern as
-     * SettingsService and portaliq's reader/writer).
-     */
-    private const OBJECT_SERVICE = 'OCA\\OpenRegister\\Service\\ObjectService';
+	/**
+	 * OpenRegister's object service, resolved lazily by FQCN so petstore
+	 * keeps zero compile-time OpenRegister coupling (same pattern as
+	 * SettingsService and portaliq's reader/writer).
+	 */
+	private const OBJECT_SERVICE = 'OCA\\OpenRegister\\Service\\ObjectService';
 
-    /**
-     * The register the demo action operates on.
-     */
-    private const REGISTER = 'petstore';
+	/**
+	 * The register the demo action operates on.
+	 */
+	private const REGISTER = 'petstore';
 
-    /**
-     * The schema the demo action operates on.
-     */
-    private const SCHEMA_PET = 'pet';
+	/**
+	 * The schema the demo action operates on.
+	 */
+	private const SCHEMA_PET = 'pet';
 
-    /**
-     * Constructor.
-     *
-     * @param IRequest                $request   The request object.
-     * @param PortalAssertionVerifier $verifier  Verifies the X-Portal-Subject assertion.
-     * @param ContainerInterface      $container For resolving OpenRegister services lazily.
-     * @param IThrottler              $throttler Rate-limits repeated portal action attempts.
-     * @param LoggerInterface         $logger    The logger.
-     */
-    public function __construct(
-        IRequest $request,
-        private readonly PortalAssertionVerifier $verifier,
-        private readonly ContainerInterface $container,
-        private readonly IThrottler $throttler,
-        private readonly LoggerInterface $logger,
-    ) {
-        parent::__construct(appName: Application::APP_ID, request: $request);
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IRequest $request The request object.
+	 * @param PortalAssertionVerifier $verifier Verifies the X-Portal-Subject assertion.
+	 * @param ContainerInterface $container For resolving OpenRegister services lazily.
+	 * @param IThrottler $throttler Rate-limits repeated portal action attempts.
+	 * @param LoggerInterface $logger The logger.
+	 */
+	public function __construct(
+		IRequest $request,
+		private readonly PortalAssertionVerifier $verifier,
+		private readonly ContainerInterface $container,
+		private readonly IThrottler $throttler,
+		private readonly LoggerInterface $logger,
+	) {
+		parent::__construct(appName: Application::APP_ID, request: $request);
+	}//end __construct()
 
-    /**
-     * Rename a pet the asserted portal subject owns (demo A6 action).
-     *
-     * Declared in PortalContributionProvider as endpoint action `renamePet`;
-     * portaliq forwards `POST /apps/petstore/api/portal/pets/rename` with the
-     * portal client's JSON body `{"pet": "<uuid>", "name": "<new name>"}` and
-     * the signed assertion header. The domain effect is deliberately trivial
-     * but REAL and subject-scoped: the pet's `owner` must equal the verified
-     * `sub` claim, and only the `name` field is written.
-     *
-     * Response contract: 200 `{id, name}` on success; 401 missing/invalid
-     * assertion; 400 unusable `pet`/`name`; 403 pet absent OR not owned
-     * (identical — no existence oracle); 503 OpenRegister unavailable.
-     *
-     * @return JSONResponse
-     *
-     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity) -- one fail-closed guard
-     * per response class (401/400/403/503) on an auth boundary (ADR-005);
-     * collapsing them would trade auditability for a score.
-     */
-    #[PublicPage]
-    #[NoCSRFRequired]
-    #[AnonRateLimit(limit: 20, period: 60)]
-    #[BruteForceProtection(action: self::THROTTLE_ACTION)]
-    public function renameOwnedPet(): JSONResponse
-    {
-        // 1. Verify — the assertion is the ONLY credential (fail-closed 401).
-        $claims = $this->verifier->verify((string) $this->request->getHeader(PortalAssertionVerifier::HEADER));
-        if ($claims === null) {
-            // The assertion being the ONLY credential is exactly why a failed
-            // verify belongs in the brute-force counter. This is the half that
-            // COUNTS; #[BruteForceProtection] above is the half that ENFORCES,
-            // and either alone is inert (ADR-082).
-            $this->registerRejectedAssertion();
-            return new JSONResponse(['error' => 'unauthorized'], Http::STATUS_UNAUTHORIZED);
-        }
+	/**
+	 * Rename a pet the asserted portal subject owns (demo A6 action).
+	 *
+	 * Declared in PortalContributionProvider as endpoint action `renamePet`;
+	 * portaliq forwards `POST /apps/petstore/api/portal/pets/rename` with the
+	 * portal client's JSON body `{"pet": "<uuid>", "name": "<new name>"}` and
+	 * the signed assertion header. The domain effect is deliberately trivial
+	 * but REAL and subject-scoped: the pet's `owner` must equal the verified
+	 * `sub` claim, and only the `name` field is written.
+	 *
+	 * Response contract: 200 `{id, name}` on success; 401 missing/invalid
+	 * assertion; 400 unusable `pet`/`name`; 403 pet absent OR not owned
+	 * (identical — no existence oracle); 503 OpenRegister unavailable.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
+	 *
+	 * @SuppressWarnings(PHPMD.CyclomaticComplexity) -- one fail-closed guard
+	 * per response class (401/400/403/503) on an auth boundary (ADR-005);
+	 * collapsing them would trade auditability for a score.
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 20, period: 60)]
+	#[BruteForceProtection(action: self::THROTTLE_ACTION)]
+	public function renameOwnedPet(): JSONResponse {
+		// 1. Verify — the assertion is the ONLY credential (fail-closed 401).
+		$claims = $this->verifier->verify((string)$this->request->getHeader(PortalAssertionVerifier::HEADER));
+		if ($claims === null) {
+			// The assertion being the ONLY credential is exactly why a failed
+			// verify belongs in the brute-force counter. This is the half that
+			// COUNTS; #[BruteForceProtection] above is the half that ENFORCES,
+			// and either alone is inert (ADR-082).
+			$this->registerRejectedAssertion();
+			return new JSONResponse(['error' => 'unauthorized'], Http::STATUS_UNAUTHORIZED);
+		}
 
-        // 2. Derive ALL scope from the verified claims — never from params.
-        // The verifier guarantees `sub` is a non-empty string.
-        $subjectRef = (string) $claims['sub'];
+		// 2. Derive ALL scope from the verified claims — never from params.
+		// The verifier guarantees `sub` is a non-empty string.
+		$subjectRef = (string)$claims['sub'];
 
-        // 3. Validate the client-chosen target + effect.
-        $petId = $this->request->getParam('pet');
-        $name  = $this->request->getParam('name');
-        if (is_string($petId) === false || $petId === '' || is_string($name) === false || trim($name) === '') {
-            return new JSONResponse(['error' => 'invalid_request'], Http::STATUS_BAD_REQUEST);
-        }
+		// 3. Validate the client-chosen target + effect.
+		$petId = $this->request->getParam('pet');
+		$name = $this->request->getParam('name');
+		if (is_string($petId) === false || $petId === '' || is_string($name) === false || trim($name) === '') {
+			return new JSONResponse(['error' => 'invalid_request'], Http::STATUS_BAD_REQUEST);
+		}
 
-        $name = trim($name);
+		$name = trim($name);
 
-        $objectService = $this->objectService();
-        if ($objectService === null) {
-            return new JSONResponse(['error' => 'openregister_unavailable'], Http::STATUS_SERVICE_UNAVAILABLE);
-        }
+		$objectService = $this->objectService();
+		if ($objectService === null) {
+			return new JSONResponse(['error' => 'openregister_unavailable'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
 
-        // 4. Authorize against the domain row: the pet must exist AND be
-        // owned by the asserted subject. Both failures return the same
-        // 403 so pet UUIDs cannot be enumerated (no existence oracle).
-        $pet = $this->fetchPet(objectService: $objectService, petId: $petId);
-        if ($pet === null || (string) ($pet['owner'] ?? '') !== $subjectRef) {
-            // Counted as well. The uniform 403 above is what stops this being
-            // an existence oracle, but a uniform answer only hides WHICH
-            // failure happened — it says nothing about how fast a caller may
-            // keep asking. Both halves are needed and they solve different
-            // problems.
-            $this->registerRejectedAssertion();
-            return new JSONResponse(['error' => 'forbidden'], Http::STATUS_FORBIDDEN);
-        }
+		// 4. Authorize against the domain row: the pet must exist AND be
+		// owned by the asserted subject. Both failures return the same
+		// 403 so pet UUIDs cannot be enumerated (no existence oracle).
+		$pet = $this->fetchPet(objectService: $objectService, petId: $petId);
+		if ($pet === null || (string)($pet['owner'] ?? '') !== $subjectRef) {
+			// Counted as well. The uniform 403 above is what stops this being
+			// an existence oracle, but a uniform answer only hides WHICH
+			// failure happened — it says nothing about how fast a caller may
+			// keep asking. Both halves are needed and they solve different
+			// problems.
+			$this->registerRejectedAssertion();
+			return new JSONResponse(['error' => 'forbidden'], Http::STATUS_FORBIDDEN);
+		}
 
-        // 5. Act — write ONLY the name field back through OpenRegister.
-        $saved = $this->renamePet(objectService: $objectService, pet: $pet, petId: $petId, name: $name);
-        if ($saved === null) {
-            return new JSONResponse(['error' => 'openregister_unavailable'], Http::STATUS_SERVICE_UNAVAILABLE);
-        }
+		// 5. Act — write ONLY the name field back through OpenRegister.
+		$saved = $this->renamePet(objectService: $objectService, pet: $pet, petId: $petId, name: $name);
+		if ($saved === null) {
+			return new JSONResponse(['error' => 'openregister_unavailable'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
 
-        return new JSONResponse(
-            [
-                'id'   => (string) ($saved['id'] ?? $petId),
-                'name' => $name,
-            ]
-        );
-    }//end renameOwnedPet()
+		return new JSONResponse(
+			[
+				'id' => (string)($saved['id'] ?? $petId),
+				'name' => $name,
+			]
+		);
+	}//end renameOwnedPet()
 
-    /**
-     * Fetch the pet row via OpenRegister, or null when absent/unreadable.
-     *
-     * RBAC + multitenancy are OFF exactly as in portaliq's reader/writer:
-     * portal subjects are not Nextcloud users, so OR's user-based scoping
-     * would deny everything. The `owner === sub` check in the handler IS the
-     * security boundary for this read (ADR-005).
-     *
-     * @param object $objectService OpenRegister's ObjectService.
-     * @param string $petId         The pet id/uuid chosen by the client.
-     *
-     * @return array<string, mixed>|null
-     *
-     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
-     */
-    private function fetchPet(object $objectService, string $petId): ?array
-    {
-        try {
-            $row = $objectService->find(
-                id: $petId,
-                register: self::REGISTER,
-                schema: self::SCHEMA_PET,
-                _rbac: false,
-                _multitenancy: false
-            );
-        } catch (Throwable $e) {
-            // Unknown id or read failure — both collapse into the same 403
-            // upstream (fail-closed, no existence oracle). Debug log only.
-            $this->logger->debug('PetStore: portal pet lookup failed', ['reason' => $e->getMessage()]);
-            return null;
-        }
+	/**
+	 * Fetch the pet row via OpenRegister, or null when absent/unreadable.
+	 *
+	 * RBAC + multitenancy are OFF exactly as in portaliq's reader/writer:
+	 * portal subjects are not Nextcloud users, so OR's user-based scoping
+	 * would deny everything. The `owner === sub` check in the handler IS the
+	 * security boundary for this read (ADR-005).
+	 *
+	 * @param object $objectService OpenRegister's ObjectService.
+	 * @param string $petId The pet id/uuid chosen by the client.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
+	 */
+	private function fetchPet(object $objectService, string $petId): ?array {
+		try {
+			$row = $objectService->find(
+				id: $petId,
+				register: self::REGISTER,
+				schema: self::SCHEMA_PET,
+				_rbac: false,
+				_multitenancy: false
+			);
+		} catch (Throwable $e) {
+			// Unknown id or read failure — both collapse into the same 403
+			// upstream (fail-closed, no existence oracle). Debug log only.
+			$this->logger->debug('PetStore: portal pet lookup failed', ['reason' => $e->getMessage()]);
+			return null;
+		}
 
-        return $this->normalise(row: $row);
-    }//end fetchPet()
+		return $this->normalise(row: $row);
+	}//end fetchPet()
 
-    /**
-     * Persist the rename: strip OR metadata keys (`@…`, `id`) from the
-     * fetched row so the roundtrip cannot corrupt the object, set the new
-     * name, and save back under the same uuid.
-     *
-     * @param object               $objectService OpenRegister's ObjectService.
-     * @param array<string, mixed> $pet           The fetched (owner-verified) pet row.
-     * @param string               $petId         The pet uuid to update.
-     * @param string               $name          The new (trimmed, non-empty) name.
-     *
-     * @return array<string, mixed>|null The saved row, or null on write failure.
-     *
-     * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
-     */
-    private function renamePet(object $objectService, array $pet, string $petId, string $name): ?array
-    {
-        $data = [];
-        foreach ($pet as $key => $value) {
-            if ($key === 'id' || str_starts_with((string) $key, '@') === true) {
-                continue;
-            }
+	/**
+	 * Persist the rename: strip OR metadata keys (`@…`, `id`) from the
+	 * fetched row so the roundtrip cannot corrupt the object, set the new
+	 * name, and save back under the same uuid.
+	 *
+	 * @param object $objectService OpenRegister's ObjectService.
+	 * @param array<string, mixed> $pet The fetched (owner-verified) pet row.
+	 * @param string $petId The pet uuid to update.
+	 * @param string $name The new (trimmed, non-empty) name.
+	 *
+	 * @return array<string, mixed>|null The saved row, or null on write failure.
+	 *
+	 * @spec openspec/specs/portal-assertion-verifier/spec.md#REQ-PAV-000
+	 */
+	private function renamePet(object $objectService, array $pet, string $petId, string $name): ?array {
+		$data = [];
+		foreach ($pet as $key => $value) {
+			if ($key === 'id' || str_starts_with((string)$key, '@') === true) {
+				continue;
+			}
 
-            $data[$key] = $value;
-        }
+			$data[$key] = $value;
+		}
 
-        $data['name'] = $name;
+		$data['name'] = $name;
 
-        try {
-            $saved = $objectService->saveObject(
-                object: $data,
-                register: self::REGISTER,
-                schema: self::SCHEMA_PET,
-                uuid: $petId,
-                _rbac: false,
-                _multitenancy: false
-            );
-        } catch (Throwable $e) {
-            $this->logger->warning('PetStore: portal pet rename failed', ['reason' => $e->getMessage()]);
-            return null;
-        }
+		try {
+			$saved = $objectService->saveObject(
+				object: $data,
+				register: self::REGISTER,
+				schema: self::SCHEMA_PET,
+				uuid: $petId,
+				_rbac: false,
+				_multitenancy: false
+			);
+		} catch (Throwable $e) {
+			$this->logger->warning('PetStore: portal pet rename failed', ['reason' => $e->getMessage()]);
+			return null;
+		}
 
-        return $this->normalise(row: $saved);
-    }//end renamePet()
+		return $this->normalise(row: $saved);
+	}//end renamePet()
 
-    /**
-     * Normalise an OpenRegister result (array or ObjectEntity) to an array.
-     *
-     * @param mixed $row The fetched/saved object.
-     *
-     * @return array<string, mixed>|null
-     */
-    private function normalise(mixed $row): ?array
-    {
-        if (is_array($row) === true) {
-            return $row;
-        }
+	/**
+	 * Normalise an OpenRegister result (array or ObjectEntity) to an array.
+	 *
+	 * @param mixed $row The fetched/saved object.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function normalise(mixed $row): ?array {
+		if (is_array($row) === true) {
+			return $row;
+		}
 
-        if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-            $data = $row->jsonSerialize();
-            if (is_array($data) === true) {
-                return $data;
-            }
-        }
+		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+			$data = $row->jsonSerialize();
+			if (is_array($data) === true) {
+				return $data;
+			}
+		}
 
-        return null;
-    }//end normalise()
+		return null;
+	}//end normalise()
 
-    /**
-     * Resolve OpenRegister's ObjectService, or null when unavailable.
-     *
-     * @return object|null
-     */
-    private function objectService(): ?object
-    {
-        try {
-            $service = $this->container->get(self::OBJECT_SERVICE);
-        } catch (Throwable $e) {
-            $this->logger->debug('PetStore: OpenRegister unavailable for portal action', ['reason' => $e->getMessage()]);
-            return null;
-        }
+	/**
+	 * Resolve OpenRegister's ObjectService, or null when unavailable.
+	 *
+	 * @return object|null
+	 */
+	private function objectService(): ?object {
+		try {
+			$service = $this->container->get(self::OBJECT_SERVICE);
+		} catch (Throwable $e) {
+			$this->logger->debug('PetStore: OpenRegister unavailable for portal action', ['reason' => $e->getMessage()]);
+			return null;
+		}
 
-        if (is_object($service) === true) {
-            return $service;
-        }
+		if (is_object($service) === true) {
+			return $service;
+		}
 
-        return null;
-    }//end objectService()
+		return null;
+	}//end objectService()
 }//end class

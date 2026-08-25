@@ -40,6 +40,7 @@ declare(strict_types=1);
 
 namespace OCA\PetStore\Listener;
 
+use OCP\App\IAppManager;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IUserSession;
@@ -55,127 +56,151 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/add-order-customer-reference/specs/pet-catalog-domain/spec.md
  */
-class OrderCustomerListener implements IEventListener
-{
-    /**
-     * The register slug that owns the order schema.
-     *
-     * @var string
-     */
-    private const REGISTER_SLUG = 'petstore';
+class OrderCustomerListener implements IEventListener {
+	/**
+	 * The register slug that owns the order schema.
+	 *
+	 * @var string
+	 */
+	private const REGISTER_SLUG = 'petstore';
 
-    /**
-     * The schema slug this listener acts on.
-     *
-     * @var string
-     */
-    private const SCHEMA_SLUG = 'order';
+	/**
+	 * The schema slug this listener acts on.
+	 *
+	 * @var string
+	 */
+	private const SCHEMA_SLUG = 'order';
 
-    /**
-     * Constructor.
-     *
-     * @param IUserSession       $userSession The current user session (customer source).
-     * @param ContainerInterface $container   Service locator for OpenRegister mappers.
-     * @param LoggerInterface    $logger      The logger.
-     *
-     * @psalm-suppress PossiblyUnusedMethod Instantiated via Nextcloud dependency injection.
-     */
-    public function __construct(
-        private readonly IUserSession $userSession,
-        private readonly ContainerInterface $container,
-        private readonly LoggerInterface $logger,
-    ) {
-    }//end __construct()
+	/**
+	 * Constructor.
+	 *
+	 * @param IUserSession $userSession The current user session (customer source).
+	 * @param IAppManager $appManager Used to establish that OpenRegister is installed
+	 *                                before any OpenRegister class is looked up.
+	 * @param ContainerInterface $container Service locator for OpenRegister mappers.
+	 * @param LoggerInterface $logger The logger.
+	 *
+	 * @psalm-suppress PossiblyUnusedMethod Instantiated via Nextcloud dependency injection.
+	 */
+	public function __construct(
+		private readonly IUserSession $userSession,
+		private readonly IAppManager $appManager,
+		private readonly ContainerInterface $container,
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
 
-    /**
-     * Handle an OpenRegister pre-create event; stamp customer for petstore/order.
-     *
-     * @param Event $event The dispatched event.
-     *
-     * @return void
-     *
-     * @psalm-suppress MixedMethodCall  OpenRegister event/entity/mapper classes are optional dependencies.
-     * @psalm-suppress MixedAssignment  OpenRegister event/entity/mapper classes are optional dependencies.
-     * @psalm-suppress MixedArrayAccess OpenRegister returns loosely-typed object data.
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     *
-     * @spec openspec/changes/add-order-customer-reference/specs/pet-catalog-domain/spec.md
-     */
-    public function handle(Event $event): void
-    {
-        if (($event instanceof \OCA\OpenRegister\Event\ObjectCreatingEvent) === false) {
-            return;
-        }
+	/**
+	 * True when the OpenRegister app is installed on this instance.
+	 *
+	 * OpenRegister is an OPTIONAL dependency of this listener (ADR-083 rule 1):
+	 * the mappers below cannot be constructor-injected, because a typed
+	 * property would make this listener — which is registered unconditionally
+	 * in Application.php — unconstructable on an instance without OpenRegister.
+	 * Availability is therefore established here, before the container is
+	 * asked for anything OpenRegister owns.
+	 *
+	 * @return bool True when `openregister` is installed.
+	 */
+	private function isOpenRegisterAvailable(): bool {
+		return $this->appManager->isInstalled('openregister');
+	}//end isOpenRegisterAvailable()
 
-        try {
-            // @phpstan-ignore-next-line  Optional OpenRegister dependency.
-            $entity = $event->getObject();
-            if ($entity === null || $this->isPetstoreOrder(entity: $entity) === false) {
-                return;
-            }
+	/**
+	 * Handle an OpenRegister pre-create event; stamp customer for petstore/order.
+	 *
+	 * @param Event $event The dispatched event.
+	 *
+	 * @return void
+	 *
+	 * @psalm-suppress MixedMethodCall  OpenRegister event/entity/mapper classes are optional dependencies.
+	 * @psalm-suppress MixedAssignment  OpenRegister event/entity/mapper classes are optional dependencies.
+	 * @psalm-suppress MixedArrayAccess OpenRegister returns loosely-typed object data.
+	 *
+	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+	 * @SuppressWarnings(PHPMD.NPathComplexity)
+	 *
+	 * @spec openspec/changes/add-order-customer-reference/specs/pet-catalog-domain/spec.md
+	 */
+	public function handle(Event $event): void {
+		if (($event instanceof \OCA\OpenRegister\Event\ObjectCreatingEvent) === false) {
+			return;
+		}
 
-            $user = $this->userSession->getUser();
-            if ($user === null) {
-                return;
-            }
+		try {
+			// @phpstan-ignore-next-line  Optional OpenRegister dependency.
+			$entity = $event->getObject();
+			if ($entity === null || $this->isPetstoreOrder(entity: $entity) === false) {
+				return;
+			}
 
-            $data = $entity->getObject();
+			$user = $this->userSession->getUser();
+			if ($user === null) {
+				return;
+			}
 
-            // Do not override a customer already present on the incoming object
-            // (e.g. an admin import that intentionally set one).
-            $existing = ($data['customer'] ?? '');
-            if (is_string($existing) === true && $existing !== '') {
-                return;
-            }
+			$data = $entity->getObject();
 
-            // OR merges modifiedData into the entity before persisting.
-            // @phpstan-ignore-next-line  Optional OpenRegister dependency.
-            $event->setModifiedData(['customer' => $user->getUID()]);
-        } catch (\Throwable $e) {
-            // Never break object creation — this is a best-effort convenience.
-            $this->logger->debug(
-                'PetStore: order customer stamping skipped',
-                ['reason' => $e->getMessage()]
-            );
-        }//end try
-    }//end handle()
+			// Do not override a customer already present on the incoming object
+			// (e.g. an admin import that intentionally set one).
+			$existing = ($data['customer'] ?? '');
+			if (is_string($existing) === true && $existing !== '') {
+				return;
+			}
 
-    /**
-     * True when the entity is a petstore/order object.
-     *
-     * Resolves the entity's register+schema ids to their slugs via
-     * OpenRegister's mappers (request-cached) and matches both — so a
-     * same-named `order` schema in another register does not match.
-     *
-     * @param object $entity The OpenRegister ObjectEntity being created.
-     *
-     * @return bool
-     *
-     * @psalm-suppress MixedMethodCall OpenRegister mapper/entity classes are optional dependencies.
-     * @psalm-suppress MixedArgument   OpenRegister mapper/entity classes are optional dependencies.
-     */
-    private function isPetstoreOrder(object $entity): bool
-    {
-        if (method_exists($entity, 'getSchema') === false
-            || method_exists($entity, 'getRegister') === false
-        ) {
-            return false;
-        }
+			// OR merges modifiedData into the entity before persisting.
+			// @phpstan-ignore-next-line  Optional OpenRegister dependency.
+			$event->setModifiedData(['customer' => $user->getUID()]);
+		} catch (\Throwable $e) {
+			// Never break object creation — this is a best-effort convenience.
+			$this->logger->debug(
+				'PetStore: order customer stamping skipped',
+				['reason' => $e->getMessage()]
+			);
+		}//end try
+	}//end handle()
 
-        $schemaId   = (string) $entity->getSchema();
-        $registerId = (string) $entity->getRegister();
-        if ($schemaId === '' || $registerId === '') {
-            return false;
-        }
+	/**
+	 * True when the entity is a petstore/order object.
+	 *
+	 * Resolves the entity's register+schema ids to their slugs via
+	 * OpenRegister's mappers (request-cached) and matches both — so a
+	 * same-named `order` schema in another register does not match.
+	 *
+	 * @param object $entity The OpenRegister ObjectEntity being created.
+	 *
+	 * @return bool
+	 *
+	 * @psalm-suppress MixedMethodCall OpenRegister mapper/entity classes are optional dependencies.
+	 * @psalm-suppress MixedArgument   OpenRegister mapper/entity classes are optional dependencies.
+	 */
+	private function isPetstoreOrder(object $entity): bool {
+		if (method_exists($entity, 'getSchema') === false
+			|| method_exists($entity, 'getRegister') === false
+		) {
+			return false;
+		}
 
-        $schemaMapper   = $this->container->get('OCA\OpenRegister\Db\SchemaMapper');
-        $registerMapper = $this->container->get('OCA\OpenRegister\Db\RegisterMapper');
+		$schemaId = (string)$entity->getSchema();
+		$registerId = (string)$entity->getRegister();
+		if ($schemaId === '' || $registerId === '') {
+			return false;
+		}
 
-        $schemaSlug   = (string) $schemaMapper->find($schemaId)->getSlug();
-        $registerSlug = (string) $registerMapper->find($registerId)->getSlug();
+		// Establish availability BEFORE reaching into the container — the
+		// mappers below are an optional dependency (see the note on
+		// isOpenRegisterAvailable()). Without OpenRegister there is no
+		// petstore/order object to stamp, so "not available" is "not ours".
+		if ($this->isOpenRegisterAvailable() === false) {
+			return false;
+		}
 
-        return ($schemaSlug === self::SCHEMA_SLUG && $registerSlug === self::REGISTER_SLUG);
-    }//end isPetstoreOrder()
+		$schemaMapper = $this->container->get('OCA\OpenRegister\Db\SchemaMapper');
+		$registerMapper = $this->container->get('OCA\OpenRegister\Db\RegisterMapper');
+
+		$schemaSlug = (string)$schemaMapper->find($schemaId)->getSlug();
+		$registerSlug = (string)$registerMapper->find($registerId)->getSlug();
+
+		return ($schemaSlug === self::SCHEMA_SLUG && $registerSlug === self::REGISTER_SLUG);
+	}//end isPetstoreOrder()
 }//end class
