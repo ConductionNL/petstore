@@ -794,5 +794,154 @@
 				"documentationUrl": "https://petstore.conduction.nl"
 			}
 		}
-	]
+	],
+	"walkthrough": {
+		"enabled": true,
+		"version": 1,
+		"completionConfigKey": "walkthrough_seen_version",
+		"tours": [
+			{
+				"id": "petstore:getting-started",
+				"title": "Getting started",
+				"trigger": "first-visit",
+				"minAppVersion": "0.1.10",
+				"steps": [
+					{
+						"id": "welcome",
+						"sinceVersion": "0.1.10",
+						"placement": "center",
+						"title": "Welcome to PetStore",
+						"body": "PetStore is the worked example for the Conduction stack: three schemas (category, pet, order) wired end to end. You will create one of each yourself, so by the end you have real records rather than a demo fixture.",
+						"target": {
+							"kind": "page",
+							"ref": "Dashboard"
+						},
+						"advanceOn": {
+							"type": "manual"
+						}
+					},
+					{
+						"id": "open-categories",
+						"sinceVersion": "0.1.10",
+						"placement": "right",
+						"body": "Start with a category. Every pet belongs to one, so this is the record the rest hangs off.",
+						"task": "Open Categories",
+						"target": {
+							"kind": "nav-item",
+							"ref": "Categories"
+						},
+						"advanceOn": {
+							"type": "route-match",
+							"route": "Categories"
+						}
+					},
+					{
+						"id": "create-category",
+						"sinceVersion": "0.1.10",
+						"placement": "bottom",
+						"body": "Create one. \"Dogs\" or \"Reptiles\" will do. It is stored in OpenRegister under the petstore register, not in a table this app owns.",
+						"task": "Create a category",
+						"allowManualNext": true,
+						"target": {
+							"kind": "element",
+							"ref": "index-add"
+						},
+						"advanceOn": {
+							"type": "object-created",
+							"register": "petstore",
+							"schema": "category",
+							"capture": {
+								"categoryId": ":id"
+							}
+						}
+					},
+					{
+						"id": "open-pets",
+						"sinceVersion": "0.1.10",
+						"placement": "right",
+						"body": "Now the pet itself. The Pets index reads that same register through the shared object store.",
+						"task": "Open Pets",
+						"target": {
+							"kind": "nav-item",
+							"ref": "Examples"
+						},
+						"advanceOn": {
+							"type": "route-match",
+							"route": "Examples"
+						}
+					},
+					{
+						"id": "create-pet",
+						"sinceVersion": "0.1.10",
+						"placement": "bottom",
+						"body": "Add a pet and pick the category you just made. That relation is a real reference between two schemas, so the picker is populated from your own record.",
+						"task": "Create a pet",
+						"allowManualNext": true,
+						"target": {
+							"kind": "element",
+							"ref": "index-add"
+						},
+						"advanceOn": {
+							"type": "object-created",
+							"register": "petstore",
+							"schema": "pet",
+							"capture": {
+								"petId": ":id"
+							}
+						}
+					},
+					{
+						"id": "open-orders",
+						"sinceVersion": "0.1.10",
+						"placement": "right",
+						"body": "An order is what turns the catalogue into a transaction.",
+						"task": "Open Orders",
+						"target": {
+							"kind": "nav-item",
+							"ref": "Orders"
+						},
+						"advanceOn": {
+							"type": "route-match",
+							"route": "Orders"
+						}
+					},
+					{
+						"id": "create-order",
+						"sinceVersion": "0.1.10",
+						"placement": "bottom",
+						"body": "Order the pet you created. All three schemas are now linked by references you made yourself.",
+						"task": "Create an order",
+						"allowManualNext": true,
+						"target": {
+							"kind": "element",
+							"ref": "index-add"
+						},
+						"advanceOn": {
+							"type": "object-created",
+							"register": "petstore",
+							"schema": "order",
+							"capture": {
+								"orderId": ":id"
+							}
+						}
+					},
+					{
+						"id": "done",
+						"sinceVersion": "0.1.10",
+						"placement": "center",
+						"title": "That is the whole loop",
+						"body": "Category, pet, order: three schemas, one register, related records, all through the shared object store. Every other app on the stack is built this way. PetStore is simply the smallest one that shows it.",
+						"task": "Open the documentation to keep going",
+						"target": {
+							"kind": "nav-item",
+							"ref": "Documentation"
+						},
+						"advanceOn": {
+							"type": "manual"
+						}
+					}
+				]
+			}
+		]
+	}
 }
