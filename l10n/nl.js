@@ -1,5 +1,6 @@
-{
-    "translations": {
+OC.L10N.register(
+    "petstore",
+    {
         "Custom example component": "Aangepast voorbeeldcomponent",
         "Dashboard": "Dashboard",
         "Documentation": "Documentatie",
@@ -71,5 +72,5 @@
         "Category, pet, order: three schemas, one register, related records, all through the shared object store. Every other app on the stack is built this way. PetStore is simply the smallest one that shows it.": "Categorie, huisdier, bestelling: drie schema's, één register, gerelateerde records, allemaal via de gedeelde objectopslag. Elke andere app op het platform is zo gebouwd. PetStore is simpelweg de kleinste die het laat zien.",
         "Open the documentation to keep going": "Open de documentatie om verder te gaan"
     },
-    "plurals": null
-}
+    "nplurals=2; plural=(n != 1);"
+)
