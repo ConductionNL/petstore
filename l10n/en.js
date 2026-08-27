@@ -1,0 +1,25 @@
+OC.L10N.register(
+    "petstore",
+    {
+        "Custom example component": "Custom example component",
+        "Dashboard": "Dashboard",
+        "Documentation": "Documentation",
+        "Items": "Items",
+        "Item": "Item",
+        "Open items": "Open items",
+        "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.": "Replace the body of this component with whatever bespoke behaviour your page needs — realtime UI, vendor integrations, anything that does not fit the built-in page types.",
+        "Settings": "Settings",
+        "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.": "This is the canonical example of a custom-type page in the manifest renderer pattern. It is rendered when a manifest page declares `type: \"custom\"` and `component: \"CustomExample\"`.",
+        "Version Information": "Version Information",
+        "Information about the current installation.": "Information about the current installation.",
+        "items": "items",
+        "App Template": "App Template",
+        "No data yet": "No data yet",
+        "Cancel": "Cancel",
+        "Confirm": "Confirm",
+        "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).": "Pre-app-boot configuration. Most settings live inside the app at /settings (manifest-driven).",
+        "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.": "Add your settings fields here. See src/views/AdminRoot.vue for the pre-boot admin panel.",
+        "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here.": "No pre-boot settings yet. Edit `src/views/AdminRoot.vue` to add fields here."
+    },
+    "nplurals=2; plural=(n != 1);"
+)
