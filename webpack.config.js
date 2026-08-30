@@ -131,7 +131,18 @@ webpackConfig.optimization = {
 			},
 			vendor: {
 				name: appId + '-shared-vendor',
-				test: /[\\/]node_modules[\\/](vue|vue-router|pinia|vue-material-design-icons|@vueuse|core-js)[\\/]/,
+				// `dexie` is here because it MUST resolve to a single module
+				// instance. With `default: false` and `defaultVendors: false`
+				// nothing else can share it, so webpack copied it into BOTH the
+				// entry chunk (petstore depends on it directly) and
+				// shared-nc-vue (@conduction/nextcloud-vue depends on it). Two
+				// instances register at runtime and Dexie itself aborts the app
+				// with "Two different versions of Dexie loaded in the same app",
+				// leaving a blank page — every check still green.
+				//
+				// This group is already attached before the others, so adding a
+				// package to it needs no new <script> tag.
+				test: /[\\/]node_modules[\\/](vue|vue-router|pinia|vue-material-design-icons|@vueuse|core-js|dexie)[\\/]/,
 				priority: 20,
 				reuseExistingChunk: true,
 				enforce: true,

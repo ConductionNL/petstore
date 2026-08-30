@@ -50,234 +50,226 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/wire-action-authorization-demo/specs/order-lifecycle-actions/spec.md#req-order-cancel-001
  */
-class OrderControllerTest extends TestCase
-{
+class OrderControllerTest extends TestCase {
 
-    /**
-     * Mock IRequest.
-     *
-     * @var IRequest&MockObject
-     */
-    private IRequest&MockObject $request;
+	/**
+	 * Mock IRequest.
+	 *
+	 * @var IRequest&MockObject
+	 */
+	private IRequest&MockObject $request;
 
-    /**
-     * Mock ActionAuthService.
-     *
-     * @var ActionAuthService&MockObject
-     */
-    private ActionAuthService&MockObject $actionAuthService;
+	/**
+	 * Mock ActionAuthService.
+	 *
+	 * @var ActionAuthService&MockObject
+	 */
+	private ActionAuthService&MockObject $actionAuthService;
 
-    /**
-     * Mock SettingsService.
-     *
-     * @var SettingsService&MockObject
-     */
-    private SettingsService&MockObject $settingsService;
+	/**
+	 * Mock SettingsService.
+	 *
+	 * @var SettingsService&MockObject
+	 */
+	private SettingsService&MockObject $settingsService;
 
-    /**
-     * Mock IUserSession.
-     *
-     * @var IUserSession&MockObject
-     */
-    private IUserSession&MockObject $userSession;
+	/**
+	 * Mock IUserSession.
+	 *
+	 * @var IUserSession&MockObject
+	 */
+	private IUserSession&MockObject $userSession;
 
-    /**
-     * Mock ContainerInterface.
-     *
-     * @var ContainerInterface&MockObject
-     */
-    private ContainerInterface&MockObject $container;
+	/**
+	 * Mock ContainerInterface.
+	 *
+	 * @var ContainerInterface&MockObject
+	 */
+	private ContainerInterface&MockObject $container;
 
-    /**
-     * Mock LoggerInterface.
-     *
-     * @var LoggerInterface&MockObject
-     */
-    private LoggerInterface&MockObject $logger;
+	/**
+	 * Mock LoggerInterface.
+	 *
+	 * @var LoggerInterface&MockObject
+	 */
+	private LoggerInterface&MockObject $logger;
 
-    /**
-     * The controller under test.
-     *
-     * @var OrderController
-     */
-    private OrderController $controller;
+	/**
+	 * The controller under test.
+	 *
+	 * @var OrderController
+	 */
+	private OrderController $controller;
 
-    /**
-     * Set up test fixtures.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
 
-        $this->request           = $this->createMock(IRequest::class);
-        $this->actionAuthService = $this->createMock(ActionAuthService::class);
-        $this->settingsService   = $this->createMock(SettingsService::class);
-        $this->userSession       = $this->createMock(IUserSession::class);
-        $this->container         = $this->createMock(ContainerInterface::class);
-        $this->logger            = $this->createMock(LoggerInterface::class);
+		$this->request = $this->createMock(IRequest::class);
+		$this->actionAuthService = $this->createMock(ActionAuthService::class);
+		$this->settingsService = $this->createMock(SettingsService::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->container = $this->createMock(ContainerInterface::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
 
-        $this->controller = new OrderController(
-            request: $this->request,
-            actionAuthService: $this->actionAuthService,
-            settingsService: $this->settingsService,
-            userSession: $this->userSession,
-            container: $this->container,
-            logger: $this->logger,
-        );
+		$this->controller = new OrderController(
+			request: $this->request,
+			actionAuthService: $this->actionAuthService,
+			settingsService: $this->settingsService,
+			userSession: $this->userSession,
+			container: $this->container,
+			logger: $this->logger,
+		);
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * A signed-in user's UID resolves from the session, not the request.
-     *
-     * @param string $uid The user id to report.
-     *
-     * @return IUser&MockObject
-     */
-    private function signedInUser(string $uid='alice'): IUser&MockObject
-    {
-        $user = $this->createMock(IUser::class);
-        $user->method('getUID')->willReturn($uid);
-        return $user;
-    }//end signedInUser()
+	/**
+	 * A signed-in user's UID resolves from the session, not the request.
+	 *
+	 * @param string $uid The user id to report.
+	 *
+	 * @return IUser&MockObject
+	 */
+	private function signedInUser(string $uid = 'alice'): IUser&MockObject {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($uid);
+		return $user;
+	}//end signedInUser()
 
-    /**
-     * No authenticated user → 401, no authorization check attempted.
-     *
-     * @return void
-     */
-    public function testCancelWithoutUserReturnsUnauthorized(): void
-    {
-        $this->userSession->method('getUser')->willReturn(null);
-        $this->actionAuthService->expects($this->never())->method('requireAction');
+	/**
+	 * No authenticated user → 401, no authorization check attempted.
+	 *
+	 * @return void
+	 */
+	public function testCancelWithoutUserReturnsUnauthorized(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->actionAuthService->expects($this->never())->method('requireAction');
 
-        $result = $this->controller->cancel('order-1');
+		$result = $this->controller->cancel('order-1');
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+		self::assertInstanceOf(JSONResponse::class, $result);
+		self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
 
-    }//end testCancelWithoutUserReturnsUnauthorized()
+	}//end testCancelWithoutUserReturnsUnauthorized()
 
-    /**
-     * requireAction() refusal → 403 generic; no OpenRegister write attempted.
-     *
-     * @return void
-     */
-    public function testCancelDeniedReturnsForbidden(): void
-    {
-        $user = $this->signedInUser();
-        $this->userSession->method('getUser')->willReturn($user);
+	/**
+	 * requireAction() refusal → 403 generic; no OpenRegister write attempted.
+	 *
+	 * @return void
+	 */
+	public function testCancelDeniedReturnsForbidden(): void {
+		$user = $this->signedInUser();
+		$this->userSession->method('getUser')->willReturn($user);
 
-        $this->actionAuthService->expects($this->once())
-            ->method('requireAction')
-            ->with(user: $user, action: 'order.cancel')
-            ->willThrowException(new OCSForbiddenException('not allowed'));
+		$this->actionAuthService->expects($this->once())
+			->method('requireAction')
+			->with(user: $user, action: 'order.cancel')
+			->willThrowException(new OCSForbiddenException('not allowed'));
 
-        // No OpenRegister resolution when authorization fails.
-        $this->container->expects($this->never())->method('get');
+		// No OpenRegister resolution when authorization fails.
+		$this->container->expects($this->never())->method('get');
 
-        $result = $this->controller->cancel('order-1');
+		$result = $this->controller->cancel('order-1');
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
-        // Generic message — the real reason is logged, not returned.
-        self::assertSame('You are not allowed to cancel orders', $result->getData()['message']);
+		self::assertInstanceOf(JSONResponse::class, $result);
+		self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+		// Generic message — the real reason is logged, not returned.
+		self::assertSame('You are not allowed to cancel orders', $result->getData()['message']);
 
-    }//end testCancelDeniedReturnsForbidden()
+	}//end testCancelDeniedReturnsForbidden()
 
-    /**
-     * Authorized cancel of a placed order → 200 with status cancelled.
-     *
-     * @return void
-     */
-    public function testCancelAuthorizedUpdatesStatus(): void
-    {
-        $user = $this->signedInUser('admin');
-        $this->userSession->method('getUser')->willReturn($user);
+	/**
+	 * Authorized cancel of a placed order → 200 with status cancelled.
+	 *
+	 * @return void
+	 */
+	public function testCancelAuthorizedUpdatesStatus(): void {
+		$user = $this->signedInUser('admin');
+		$this->userSession->method('getUser')->willReturn($user);
 
-        // requireAction passes (admin break-glass) — no exception thrown.
-        $this->actionAuthService->expects($this->once())
-            ->method('requireAction')
-            ->with(user: $user, action: 'order.cancel');
+		// requireAction passes (admin break-glass) — no exception thrown.
+		$this->actionAuthService->expects($this->once())
+			->method('requireAction')
+			->with(user: $user, action: 'order.cancel');
 
-        $this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
+		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
 
-        $order = new ObjectEntity();
-        $order->setObject(['id' => 'order-1', 'status' => 'placed']);
+		$order = new ObjectEntity();
+		$order->setObject(['id' => 'order-1', 'status' => 'placed']);
 
-        $objectService = $this->createMock(ObjectService::class);
-        $objectService->expects($this->once())
-            ->method('find')
-            ->willReturn($order);
-        $objectService->expects($this->once())
-            ->method('updateObject')
-            ->with(objectId: 'order-1', data: ['status' => 'cancelled'])
-            ->willReturn($order);
+		$objectService = $this->createMock(ObjectService::class);
+		$objectService->expects($this->once())
+			->method('find')
+			->willReturn($order);
+		$objectService->expects($this->once())
+			->method('updateObject')
+			->with(objectId: 'order-1', data: ['status' => 'cancelled'])
+			->willReturn($order);
 
-        $this->container->expects($this->once())
-            ->method('get')
-            ->with('OCA\OpenRegister\Service\ObjectService')
-            ->willReturn($objectService);
+		$this->container->expects($this->once())
+			->method('get')
+			->with('OCA\OpenRegister\Service\ObjectService')
+			->willReturn($objectService);
 
-        $result = $this->controller->cancel('order-1');
+		$result = $this->controller->cancel('order-1');
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame(Http::STATUS_OK, $result->getStatus());
-        self::assertSame('cancelled', $result->getData()['status']);
+		self::assertInstanceOf(JSONResponse::class, $result);
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+		self::assertSame('cancelled', $result->getData()['status']);
 
-    }//end testCancelAuthorizedUpdatesStatus()
+	}//end testCancelAuthorizedUpdatesStatus()
 
-    /**
-     * A delivered order is terminal → 409, no update attempted.
-     *
-     * @return void
-     */
-    public function testCancelDeliveredOrderIsConflict(): void
-    {
-        $user = $this->signedInUser('admin');
-        $this->userSession->method('getUser')->willReturn($user);
-        $this->actionAuthService->method('requireAction');
-        $this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
+	/**
+	 * A delivered order is terminal → 409, no update attempted.
+	 *
+	 * @return void
+	 */
+	public function testCancelDeliveredOrderIsConflict(): void {
+		$user = $this->signedInUser('admin');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->actionAuthService->method('requireAction');
+		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
 
-        $order = new ObjectEntity();
-        $order->setObject(['id' => 'order-1', 'status' => 'delivered']);
+		$order = new ObjectEntity();
+		$order->setObject(['id' => 'order-1', 'status' => 'delivered']);
 
-        $objectService = $this->createMock(ObjectService::class);
-        $objectService->method('find')->willReturn($order);
-        $objectService->expects($this->never())->method('updateObject');
+		$objectService = $this->createMock(ObjectService::class);
+		$objectService->method('find')->willReturn($order);
+		$objectService->expects($this->never())->method('updateObject');
 
-        $this->container->method('get')->willReturn($objectService);
+		$this->container->method('get')->willReturn($objectService);
 
-        $result = $this->controller->cancel('order-1');
+		$result = $this->controller->cancel('order-1');
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame(Http::STATUS_CONFLICT, $result->getStatus());
+		self::assertInstanceOf(JSONResponse::class, $result);
+		self::assertSame(Http::STATUS_CONFLICT, $result->getStatus());
 
-    }//end testCancelDeliveredOrderIsConflict()
+	}//end testCancelDeliveredOrderIsConflict()
 
-    /**
-     * Missing order → 404.
-     *
-     * @return void
-     */
-    public function testCancelMissingOrderReturnsNotFound(): void
-    {
-        $user = $this->signedInUser('admin');
-        $this->userSession->method('getUser')->willReturn($user);
-        $this->actionAuthService->method('requireAction');
-        $this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
+	/**
+	 * Missing order → 404.
+	 *
+	 * @return void
+	 */
+	public function testCancelMissingOrderReturnsNotFound(): void {
+		$user = $this->signedInUser('admin');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->actionAuthService->method('requireAction');
+		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
 
-        $objectService = $this->createMock(ObjectService::class);
-        $objectService->method('find')->willReturn(null);
+		$objectService = $this->createMock(ObjectService::class);
+		$objectService->method('find')->willReturn(null);
 
-        $this->container->method('get')->willReturn($objectService);
+		$this->container->method('get')->willReturn($objectService);
 
-        $result = $this->controller->cancel('missing');
+		$result = $this->controller->cancel('missing');
 
-        self::assertInstanceOf(JSONResponse::class, $result);
-        self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
+		self::assertInstanceOf(JSONResponse::class, $result);
+		self::assertSame(Http::STATUS_NOT_FOUND, $result->getStatus());
 
-    }//end testCancelMissingOrderReturnsNotFound()
+	}//end testCancelMissingOrderReturnsNotFound()
 }//end class

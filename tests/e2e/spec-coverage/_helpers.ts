@@ -167,6 +167,29 @@ export async function dismissOverlays(page: Page): Promise<void> {
 const APP_BASE = new WeakMap<Page, string>()
 
 /**
+ * Wait for the Nextcloud SPA root to be attached, bounded.
+ *
+ * This replaces the `waitForLoadState('networkidle')` calls this file used to
+ * carry. `networkidle` NEVER settles on Nextcloud (ADR-074 rule 4) — long-poll
+ * notifications and the dashboard's own polling keep at least one request in
+ * flight for the life of the page — so every one of those waits ran to its
+ * timeout and then swallowed the rejection. They were paying a fixed 5 s (or,
+ * in `navClick`, an unbounded wait) for a condition that could not become true.
+ *
+ * `#content-vue` being attached is the condition those waits were reaching for
+ * and it is directly observable, so it resolves as soon as the shell exists
+ * instead of on a timer.
+ *
+ * @param page - the page to wait on
+ */
+async function waitForAppShell(page: Page): Promise<void> {
+	await page
+		.locator(APP_ROOT)
+		.waitFor({ state: 'attached', timeout: 5000 })
+		.catch(() => {})
+}
+
+/**
  * Resolve the app's actual router base by loading the app root once and
  * reading back the path Nextcloud + vue-router settled on.
  *
@@ -177,7 +200,7 @@ async function resolveAppBase(page: Page): Promise<string> {
 	const cached = APP_BASE.get(page)
 	if (cached) return cached
 	await page.goto(APP, { waitUntil: 'domcontentloaded' }).catch(() => {})
-	await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {})
+	await waitForAppShell(page)
 	const base = await page.evaluate(() => {
 		const m = window.location.pathname.match(/^(.*\/apps\/petstore)(\/|$)/)
 		return m ? m[1] : '/apps/petstore'
@@ -198,11 +221,7 @@ export async function go(page: Page, route = ''): Promise<void> {
 	const base = await resolveAppBase(page)
 	const url = route ? `${base}/${route}` : `${base}/`
 	await page.goto(url, { waitUntil: 'domcontentloaded' }).catch(() => {})
-	// `networkidle` is best-effort only: the example-detail route fires a burst
-	// of (legitimately 404-ing, for non-existent demo ids) object-fetch XHRs
-	// that may never let the network fully settle. Bound the wait so it can
-	// never consume the whole test budget and close the page mid-navigation.
-	await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {})
+	await waitForAppShell(page)
 	await dismissOverlays(page)
 	await page.waitForTimeout(800)
 }
@@ -226,7 +245,7 @@ export async function navClick(page: Page, label: string): Promise<void> {
 		.locator(`${APP_ROOT} nav a:has-text("${label}"), ${APP_ROOT} .app-navigation a:has-text("${label}")`)
 		.first()
 	await link.click()
-	await page.waitForLoadState('networkidle').catch(() => {})
+	await waitForAppShell(page)
 	await dismissOverlays(page)
 	await page.waitForTimeout(800)
 }

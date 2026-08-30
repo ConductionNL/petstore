@@ -114,3 +114,68 @@ log server-side and return safe fallback responses.
 - WHEN `SettingsService::isOpenRegisterAvailable()` is invoked
 - THEN the system MUST return a boolean derived from `IAppManager::isInstalled('openregister')`
 - AND the result MUST be safe to call in any request phase (no throw, no heavy I/O)
+
+### REQ-CFG-005: Read a per-user preference
+
+App config (REQ-CFG-001..004) is instance-wide and admin-guarded. Per-user
+preferences are a separate, user-scoped store used by the shared
+`@conduction/nextcloud-vue` widgets (e.g. `CnSupportDialog` remembering that a
+user dismissed a hint). The system MUST expose a
+`GET /api/preferences/{key}` endpoint readable by any logged-in user, scoped to
+that user alone. Keys MUST be sanitised before use so a caller cannot address
+another app's or another scope's config.
+
+@e2e exclude API-level per-user config contract with no UI surface of its own —
+the endpoint is called by shared `@conduction/nextcloud-vue` widgets, never by a
+page in this app, so a browser test would exercise the widget rather than this
+contract; the auth and sanitisation branches are unit-testable.
+
+#### Scenario: Logged-in user reads a preference
+
+- GIVEN a logged-in user and a key the user has previously set
+- WHEN `GET /api/preferences/{key}` is called
+- THEN the system MUST return `{ "value": "<stored value>" }`
+- AND an unset key MUST return `{ "value": null }` rather than an error
+
+#### Scenario: Anonymous caller
+
+- GIVEN no user session
+- WHEN `GET /api/preferences/{key}` is called
+- THEN the system MUST return HTTP 401 with a generic message (per ADR-005)
+
+#### Scenario: Key fails sanitisation
+
+- GIVEN a key that is empty after sanitisation
+- WHEN `GET /api/preferences/{key}` is called
+- THEN the system MUST return HTTP 400 and MUST NOT read any config value
+
+### REQ-CFG-006: Write a per-user preference
+
+The system MUST expose a `PUT /api/preferences/{key}` endpoint that stores a
+value for the calling user only. Writing an empty value MUST clear the
+preference rather than storing an empty string, so that a cleared preference
+and a never-set preference read back identically.
+
+@e2e exclude API-level per-user config contract with no UI surface of its own —
+same reasoning as REQ-CFG-005; the clear-vs-store branch is a storage-layer
+invariant observable through the API and through no page in this app.
+
+#### Scenario: User stores a preference
+
+- GIVEN a logged-in user
+- WHEN `PUT /api/preferences/{key}` is called with a non-empty value
+- THEN the system MUST persist it against that user's UID and this app only
+- AND the response MUST echo `{ "value": "<stored value>" }`
+
+#### Scenario: User clears a preference
+
+- GIVEN a logged-in user with the preference set
+- WHEN `PUT /api/preferences/{key}` is called with an empty value
+- THEN the system MUST delete the stored value
+- AND a subsequent read MUST return `{ "value": null }`
+
+#### Scenario: Anonymous caller
+
+- GIVEN no user session
+- WHEN `PUT /api/preferences/{key}` is called
+- THEN the system MUST return HTTP 401 and MUST NOT write any config value

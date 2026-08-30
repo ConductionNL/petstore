@@ -1,6 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2026 Nextcloud App Template Contributors
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: EUPL-1.2
  *
  * Documentation screenshot capture suite — app-template.
  *
@@ -52,7 +52,7 @@ async function shoot(page: Page, track: 'user' | 'admin', file: string): Promise
 }
 
 // Capture flows are independent — each test re-navigates from
-// `/apps/app-template/` so a selector miss on one doesn't cascade.
+// `/apps/petstore/` so a selector miss on one doesn't cascade.
 // Selector misses are the expected first-run failure mode (UI markup
 // drifts faster than docs); failures land per-test in `test-results/`
 // rather than killing the suite.
@@ -60,7 +60,7 @@ test.describe.configure({ mode: 'default' })
 
 test.beforeEach(async ({ page }) => {
 	page.setViewportSize({ width: 1280, height: 800 })
-	await page.goto('/apps/app-template/')
+	await page.goto('/apps/petstore/', { waitUntil: 'domcontentloaded' })
 })
 
 // ---------------------------------------------------------------------------
@@ -82,8 +82,13 @@ test.describe('docs: user track', () => {
 
 test.describe('docs: admin track', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/settings/admin/app-template')
-		await page.waitForLoadState('networkidle')
+		// ADR-074 rule 4: `networkidle` never settles on Nextcloud (notification
+		// long-polling keeps a request in flight for the life of the page), so
+		// the wait it replaced always ran to timeout. Wait for the mount point
+		// this app's admin section actually renders into instead — see
+		// templates/settings/admin.php.
+		await page.goto('/settings/admin/petstore', { waitUntil: 'domcontentloaded' })
+		await page.locator('#petstore-settings').waitFor({ state: 'attached', timeout: 10000 }).catch(() => {})
 	})
 
 	test('AN admin-settings', async ({ page }) => {

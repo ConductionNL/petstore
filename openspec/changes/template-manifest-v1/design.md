@@ -100,7 +100,7 @@ the template still produces a working app:
 
 ```bash
 # 1. Clone + rename
-git clone https://codeberg.org/Conduction/nextcloud-app-template.git my-app
+git clone https://github.com/ConductionNL/nextcloud-app-template.git my-app
 cd my-app
 
 # 2. Customise app id (search-and-replace 'app-template' → 'my-app'

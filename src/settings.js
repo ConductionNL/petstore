@@ -14,12 +14,13 @@
 // because the Nextcloud admin section is the canonical place for
 // "before the app boots" config (e.g. an app's OR register binding).
 
+import { loadTranslations, translatePlural as n, translate as t } from '@nextcloud/l10n'
+import { createApp, h } from 'vue'
+import AdminRoot from './views/AdminRoot.vue'
+import pinia from './pinia.js'
+
 // MUST be first: sets __webpack_public_path__ before any async chunk loads.
 import './publicPath.js'
-import { createApp, h } from 'vue'
-import { translate as t, translatePlural as n, loadTranslations } from '@nextcloud/l10n'
-import pinia from './pinia.js'
-import AdminRoot from './views/AdminRoot.vue'
 
 let mounted = false
 
