@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://codeberg.org/Conduction/nextcloud-app-template/releases"><img src="https://img.shields.io/gitea/v/release/Conduction/nextcloud-app-template?gitea_url=https%3A%2F%2Fcodeberg.org" alt="Latest release"></a>
-  <a href="https://codeberg.org/Conduction/nextcloud-app-template/src/branch/main/LICENSE"><img src="https://img.shields.io/badge/license-EUPL--1.2-blue" alt="License"></a>
-  <a href="https://ci.codeberg.org/repos/Conduction/nextcloud-app-template"><img src="https://ci.codeberg.org/api/badges/Conduction/nextcloud-app-template/status.svg" alt="Code quality"></a>
+  <a href="https://github.com/ConductionNL/nextcloud-app-template/releases"><img src="https://img.shields.io/github/v/release/ConductionNL/nextcloud-app-template" alt="Latest release"></a>
+  <a href="https://github.com/ConductionNL/nextcloud-app-template/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-EUPL--1.2-blue" alt="License"></a>
+  <a href="https://github.com/ConductionNL/nextcloud-app-template/actions/workflows/code-quality.yml"><img src="https://github.com/ConductionNL/nextcloud-app-template/actions/workflows/code-quality.yml/badge.svg" alt="Code quality"></a>
 </p>
 
 ---
@@ -20,7 +20,7 @@ A starting point for building Nextcloud apps following ConductionNL conventions.
 
 > **Manifest-first** — pages, navigation, and dependencies are declared in `src/manifest.json`. The shell (CnAppRoot) reads the manifest at boot and renders index / detail / dashboard / settings pages without per-page Vue files. Reach for a custom Vue component only when the page is `type: "custom"`. See `openspec/architecture/` and hydra ADR-024 for the architectural rationale.
 
-> **Pre-wired for [OpenRegister](https://codeberg.org/Conduction/openregister)** — `manifest.dependencies` lists `openregister`, so CnAppRoot's dependency-check phase ensures the OR app is installed and enabled before the UI mounts. If your app does not need OpenRegister, remove the entry from `src/manifest.json`, `appinfo/info.xml`, and `openspec/app-config.json`.
+> **Pre-wired for [OpenRegister](https://github.com/ConductionNL/openregister)** — `manifest.dependencies` lists `openregister`, so CnAppRoot's dependency-check phase ensures the OR app is installed and enabled before the UI mounts. If your app does not need OpenRegister, remove the entry from `src/manifest.json`, `appinfo/info.xml`, and `openspec/app-config.json`.
 
 > **Canonical root configs** — `phpcs.xml`, `phpmd.xml`, `psalm.xml`, `phpstan.neon`, and `phpstan-bootstrap.php` in this repo are the fleet canonical. All Conduction PHP apps are expected to mirror these files byte-for-byte; per-app deviations belong in baselines (`phpstan-baseline.neon`, `psalm-baseline.xml`) not in the canonical files. Submit changes here and they propagate to the fleet via the template-sync flow — do **not** diverge per-app.
 
@@ -128,7 +128,7 @@ app-template/
 | Nextcloud | 28 – 33 |
 | PHP | 8.1+ |
 | Node.js | 20+ |
-| [OpenRegister](https://codeberg.org/Conduction/openregister) | latest |
+| [OpenRegister](https://github.com/ConductionNL/openregister) | latest |
 
 ## Installation
 
@@ -144,7 +144,7 @@ app-template/
 
 ```bash
 cd /var/www/html/custom_apps
-git clone https://codeberg.org/Conduction/nextcloud-app-template.git app-template
+git clone https://github.com/ConductionNL/nextcloud-app-template.git app-template
 cd app-template
 npm install && npm run build
 php occ app:enable app-template
@@ -222,7 +222,7 @@ shapes into a single uniform `widgets[]` array with grid coordinates on every
 page type, and introduces a five-kind component registry.
 
 **Design reference:** hydra
-[ADR-036 (Universal Widget Manifest v2)](https://codeberg.org/Conduction/hydra/src/branch/development/openspec/architecture/adr-036-universal-widget-manifest.md)
+[ADR-036 (Universal Widget Manifest v2)](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-036-universal-widget-manifest.md)
 
 **Migration guide** (for apps migrating from v1): `@conduction/nextcloud-vue`
 docs `migrating-to-v2.md` covers the codemod CLI and manual migration steps.
@@ -293,7 +293,7 @@ Companion (a floating assistant rendered by `CnAppRoot` from
   alias `OCA\OpenRegister\Mcp\IMcpToolProvider::{appId}`; OpenRegister's
   `McpToolsService` discovers per-app providers by exactly that alias.
 - `tests/Stubs/Mcp/IMcpToolProvider.php` — a stand-in for the interface until
-  [openregister PR #1466](https://codeberg.org/Conduction/openregister/pulls/1466)
+  openregister PR #1466 (Codeberg, pre-migration — not migrated to GitHub)
   merges; once the openregister app is installed alongside your app the real
   interface takes over transparently.
 - `tests/Unit/Mcp/ExampleToolProviderTest.php` — the contract test.
@@ -311,7 +311,7 @@ Companion (a floating assistant rendered by `CnAppRoot` from
    structured `['error' => ['code' => ..., 'message' => ...]]` array.
 
 References: hydra
-[ADR-034 (AI Chat Companion)](https://codeberg.org/Conduction/hydra/src/branch/development/openspec/architecture/adr-034-ai-chat-companion.md)
+[ADR-034 (AI Chat Companion)](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-034-ai-chat-companion.md)
 and ADR-035; and decidesk's `OCA\Decidesk\Mcp\DecideskToolProvider` as the
 production example (five real tools, deep links, source descriptors).
 
@@ -360,7 +360,7 @@ The copy-me recipe (all four pieces live in this repo):
    procedure, so token-format drift fails CI instead of production forwards.
 
 References: hydra
-[ADR-046 (portaliq external portal)](https://codeberg.org/Conduction/hydra/src/branch/development/openspec/architecture/adr-046-portaliq-external-portal.md)
+[ADR-046 (portaliq external portal)](https://github.com/ConductionNL/hydra/blob/main/openspec/architecture/adr-046-portaliq-external-portal.md)
 (+ 2026-07-06 amendment, contract v2 A6), portaliq's
 `openspec/specs/portal-contribution-contract/spec.md` (the forward side), and
 this repo's `openspec/specs/portal-assertion-verifier/spec.md`.
@@ -443,7 +443,7 @@ Project / spec documentation:
 
 ## Related Apps
 
-- **[OpenRegister](https://codeberg.org/Conduction/openregister)** — Object storage layer (required dependency)
+- **[OpenRegister](https://github.com/ConductionNL/openregister)** — Object storage layer (required dependency)
 
 _Add related apps here as integrations are built._
 

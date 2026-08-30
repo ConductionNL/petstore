@@ -20,7 +20,7 @@ than retrofitting it into every downstream consumer.
 
 The template's `src/manifest.json` MUST exist, MUST be valid JSON,
 and MUST set `$schema` to
-`https://codeberg.org/Conduction/nextcloud-vue/raw/branch/main/src/schemas/app-manifest.schema.json`.
+`https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest.schema.json`.
 The file MUST validate against the v1.x schema published by
 `@conduction/nextcloud-vue` with zero errors.
 

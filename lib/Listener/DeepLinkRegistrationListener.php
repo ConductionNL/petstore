@@ -36,32 +36,30 @@ use OCP\EventDispatcher\IEventListener;
  *
  * @implements IEventListener<Event>
  */
-class DeepLinkRegistrationListener implements IEventListener
-{
-    /**
-     * Handle the deep link registration event.
-     *
-     * @param Event $event The event to handle
-     *
-     * @return void
-     *
-     * @spec openspec/specs/deep-linking/spec.md#REQ-LINK-001
-     */
-    public function handle(Event $event): void
-    {
-        if ($event instanceof DeepLinkRegistrationEvent === false) {
-            return;
-        }
+class DeepLinkRegistrationListener implements IEventListener {
+	/**
+	 * Handle the deep link registration event.
+	 *
+	 * @param Event $event The event to handle
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/deep-linking/spec.md#REQ-LINK-001
+	 */
+	public function handle(Event $event): void {
+		if ($event instanceof DeepLinkRegistrationEvent === false) {
+			return;
+		}
 
-        // Register example object deep links.
-        // Replace 'petstore' with your app ID and update the register slug,
-        // schema slug, and URL template to match your app's actual schemas.
-        $event->register(
-            appId: 'petstore',
-            registerSlug: 'petstore',
-            schemaSlug: 'example',
-            urlTemplate: '/apps/petstore/#/examples/{uuid}'
-        );
+		// Register example object deep links.
+		// Replace 'petstore' with your app ID and update the register slug,
+		// schema slug, and URL template to match your app's actual schemas.
+		$event->register(
+			appId: 'petstore',
+			registerSlug: 'petstore',
+			schemaSlug: 'example',
+			urlTemplate: '/apps/petstore/#/examples/{uuid}'
+		);
 
-    }//end handle()
+	}//end handle()
 }//end class

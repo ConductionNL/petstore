@@ -11,8 +11,8 @@ widget works on @conduction/nextcloud-vue beta.111.
 -->
 <template>
 	<CnWidgetWrapper :title="title"
-		:show-refresh="false"
-		:show-request-feature="false">
+		:showRefresh="false"
+		:showRequestFeature="false">
 		<CnChartWidget v-if="!loading"
 			:type="chartType"
 			:series="series"
@@ -41,26 +41,31 @@ export default {
 			type: [String, Number],
 			required: true,
 		},
+
 		/** OpenRegister schema slug or id to read objects of. */
 		schema: {
 			type: [String, Number],
 			required: true,
 		},
+
 		/** Object property to group/count by (e.g. "category", "status"). */
 		field: {
 			type: String,
 			required: true,
 		},
+
 		/** Card title (e.g. "Pets per category"). */
 		title: {
 			type: String,
 			default: '',
 		},
+
 		/** Chart type passed to CnChartWidget: donut, pie, bar, line, area. */
 		chartType: {
 			type: String,
 			default: 'donut',
 		},
+
 		/** Chart height in pixels. */
 		height: {
 			type: Number,
@@ -79,17 +84,21 @@ export default {
 		sortedEntries() {
 			return Object.entries(this.groups).sort((a, b) => b[1] - a[1])
 		},
+
 		/** Axis charts (bar/line/area) want one named series; circular charts want a flat count array. */
 		isAxisChart() {
 			return ['bar', 'line', 'area'].includes(this.chartType)
 		},
+
 		series() {
 			const counts = this.sortedEntries.map(([, count]) => count)
 			return this.isAxisChart ? [{ name: this.title || this.field, data: counts }] : counts
 		},
+
 		labels() {
 			return this.isAxisChart ? [] : this.sortedEntries.map(([label]) => label)
 		},
+
 		categories() {
 			return this.isAxisChart ? this.sortedEntries.map(([label]) => label) : []
 		},

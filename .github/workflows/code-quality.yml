@@ -19,7 +19,14 @@ jobs:
       app-name: petstore
       php-version: "8.3"
       php-test-versions: '["8.3", "8.4"]'
-      nextcloud-test-refs: '["stable31", "stable32", "stable33"]'
+      # stable31 REMOVED, not dropped for coverage. petstore hard-depends on
+      # openregister (src/manifest.json "dependencies": ["openregister"]), and
+      # openregister declares <nextcloud min-version="32"/>. The stable31 cells
+      # could therefore never enable it and failed at "Install Nextcloud" with
+      # "This is an ENVIRONMENT failure, not an application failure" — before a
+      # line of this repo's code ran. Matches the fleet (procest, pipelinq,
+      # scholiq all test 34/32/33).
+      nextcloud-test-refs: '["stable34", "stable32", "stable33"]'
       enable-psalm: true
       enable-phpstan: true
       enable-phpmetrics: true
@@ -30,9 +37,46 @@ jobs:
       # register / registry validators had NEVER run on a pull request — only
       # eslint and stylelint did. Both scripts are self-contained (each leg is a
       # fresh checkout + `npm ci`).
-      frontend-checks: '["test:unit", "check:specs"]'
+      # `check:manifest` is added here: it is NOT part of `check:specs` in this
+      # repo (that aggregate is json-strict + manifest-v2 + register + registry),
+      # so the v1 manifest validator ran nowhere. Measured on this tree before
+      # enabling: it FAILS — `pages[8].type: "roadmap" not in v1.1 enum`, the
+      # same defect that reproduces in 10 other fleet repos.
+      frontend-checks: '["test:unit", "check:specs", "check:manifest", "check:l10n-js"]'
       enable-phpunit: true
       enable-newman: true
+      # Newman needs the SAME seed as Playwright, and had none. petstore's
+      # collection drives the OpenRegister object API for register `petstore`,
+      # which does not exist on a freshly installed instance — so the creates
+      # return 400 and everything depending on them fails downstream against
+      # objects that were never created. `occ app:enable` cannot provision it:
+      # an IRepairStep runs with no user session, so OpenRegister's RBAC denies
+      # the import as 'Anonymous'. ci-seed.sh already does it and was wired
+      # only to playwright-seed-command.
+      #
+      # Same defect and same fix as ConductionNL/planix#325.
+      #
+      # `SEED_SCOPE=register` is NOT optional here, and leaving it off is what
+      # turned this cell red the moment the seed was wired up (runs
+      # 32756772022 and 32772512725 on `development`; 32670107263 was the last
+      # green, and it was green only because this input did not exist yet and
+      # the whole `Seed test data` step was therefore `if:`-skipped).
+      #
+      # ci-seed.sh ends with a GATE that asserts the webpack bundle serves as
+      # JavaScript. That gate is correct and stays hard-failing — but it is
+      # written for the Playwright job, which has a `Build app frontend` step.
+      # THIS job has none: the Newman job's only Node step is `Setup Node.js
+      # and Newman`, and it runs AFTER the seed. So the bundle can never exist
+      # when this script runs here, `Util::addScript` logs "Could not find
+      # resource petstore/js/petstore-main.js to load" and omits the tag, the
+      # script finds no src to probe, and the gate fires on an environment
+      # that has no subject matter for it.
+      #
+      # The scope prefix stops the shared script after the register import and
+      # verification — the only part Newman actually needs, since every request
+      # in the collection is an HTTP API call. Identical wiring to integriq
+      # (ConductionNL/openconnector), which hit this first.
+      newman-seed-command: 'SEED_SCOPE=register bash apps/petstore/tests/e2e/ci-seed.sh'
       # petstore stores every pet, category and order as an OpenRegister object
       # (register `petstore`), so OpenRegister has to be present for the app to
       # do anything at all. Without it the SPA still boots and the E2E suite
@@ -62,3 +106,32 @@ jobs:
       # imports over the admin HTTP API and then verifies the register and the
       # `pet` / `category` / `order` schemas actually exist.
       playwright-seed-command: 'bash apps/petstore/tests/e2e/ci-seed.sh'
+
+      # ── Coverage ratchet ─────────────────────────────────────────────────
+      # `enable-coverage-guard` defaults to FALSE, which is why both
+      # "Coverage Baseline Protection" and "Coverage Baseline Check" have only
+      # ever reported `skipped`. It needs two inputs this repo did not have,
+      # both added in this commit: `scripts/coverage-guard.php` (byte-identical
+      # to openregister's) and `.coverage-baseline` = 45.56, this repo's own
+      # measured coverage (272 of 597 statements) read from clover.xml in the
+      # `coverage-report` artifact of run 30911249478.
+      enable-coverage-guard: true
+
+      # ── Hydra mechanical gates ───────────────────────────────────────────
+      # `enable-hydra-gates` defaults to FALSE, so this tier has never executed
+      # here — the job reported `skipped`, which the Quality Report renders
+      # identically to a pass.
+      # `enable-axe` deliberately NOT set: a vanilla Nextcloud 34 already carries
+      # serious/critical violations from core's own UI.
+      #
+      # No `hydra-gates-ref` here on purpose. The shared workflow defaults it
+      # to @main, and this workflow is itself consumed at @main, so the two
+      # sides move together and a gate fix reaches this repo without a commit
+      # in this repo. A pin is a silent expiry date: 22 repos sat on v1.0.1 and
+      # 16 gates were dead fleet-wide while every one reported PASS (.github#159),
+      # and a default flipped at @main later reached those old runners and made
+      # them red on gates they had no subject matter for (.github#173).
+      # To hold this repo still for a specific reason, set the input explicitly
+      # and say why — it is still honoured. To roll back for everyone, revert on
+      # ConductionNL/.github main.
+      enable-hydra-gates: true

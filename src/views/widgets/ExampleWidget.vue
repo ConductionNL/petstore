@@ -23,12 +23,12 @@
 	<CnDataTable :rows="items"
 		:columns="columns"
 		:loading="loading"
-		hide-header
+		hideHeader
 		borderless
-		:empty-text="emptyMessage"
-		@row-click="onRowClick">
+		:emptyText="emptyMessage"
+		@rowClick="onRowClick">
 		<template #footer>
-			<a class="cn-data-table__view-all" @click.prevent="onViewAll">
+			<a class="cn-data-table__view-all" :href="viewAllUrl">
 				{{ t('petstore', 'View all') }} →
 			</a>
 		</template>
@@ -36,9 +36,9 @@
 </template>
 
 <script>
+import { CnDataTable } from '@conduction/nextcloud-vue'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
-import { CnDataTable } from '@conduction/nextcloud-vue'
 
 export default {
 	name: 'ExampleWidget',
@@ -46,15 +46,21 @@ export default {
 	props: {
 		title: { type: String, default: '' },
 	},
+
 	data: () => ({
 		items: [],
 		loading: true,
 		emptyMessage: '',
+		// A REAL link, not a click handler on a bare <a>. The footer target is
+		// a plain navigation, so an href gives keyboard focus, Enter/middle-click
+		// and the link role for free (WCAG 2.2 AA — 2.1.1 Keyboard, 4.1.2).
+		viewAllUrl: generateUrl('/apps/petstore/examples'),
 		columns: [
 			{ key: 'mainText', cellClass: 'cn-cell--strong' },
 			{ key: 'subText', cellClass: 'cn-cell--muted cn-cell--end' },
 		],
 	}),
+
 	/**
 	 * Load widget rows on mount; degrade to an empty state on failure.
 	 *
@@ -84,6 +90,7 @@ export default {
 			this.loading = false
 		}
 	},
+
 	methods: {
 		/**
 		 * Navigate to the clicked pet in the same tab. The native dashboard
@@ -97,15 +104,6 @@ export default {
 			if (row?.targetUrl) {
 				window.location.href = row.targetUrl
 			}
-		},
-		/**
-		 * Navigate to the app's full pet list in the same tab.
-		 *
-		 * @spec openspec/specs/scaffold-components/spec.md#REQ-COMP-003
-		 * @return {void}
-		 */
-		onViewAll() {
-			window.location.href = generateUrl('/apps/petstore/examples')
 		},
 	},
 }

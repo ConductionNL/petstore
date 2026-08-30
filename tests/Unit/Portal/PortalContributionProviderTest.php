@@ -21,8 +21,9 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-contribution/tasks.md#task-4
- * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-6
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-001
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-002
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-003
  */
 
 declare(strict_types=1);
@@ -35,187 +36,179 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for PortalContributionProvider.
  *
- * @spec openspec/changes/portal-contribution/tasks.md#task-4
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-001
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-002
+ * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-003
  */
-class PortalContributionProviderTest extends TestCase
-{
+class PortalContributionProviderTest extends TestCase {
 
-    /**
-     * The provider under test.
-     *
-     * @var PortalContributionProvider
-     */
-    private PortalContributionProvider $provider;
+	/**
+	 * The provider under test.
+	 *
+	 * @var PortalContributionProvider
+	 */
+	private PortalContributionProvider $provider;
 
-    /**
-     * A fully server-derived client subject, as portaliq's auth edge builds it.
-     *
-     * @var array<string, mixed>
-     */
-    private const CLIENT_SUBJECT = [
-        'subjectRef'   => '00000000-0000-0000-0000-000000000000',
-        'audience'     => 'client',
-        'organisation' => '00000000-0000-0000-0000-000000000000',
-        'trust'        => 'substantial',
-    ];
+	/**
+	 * A fully server-derived client subject, as portaliq's auth edge builds it.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private const CLIENT_SUBJECT = [
+		'subjectRef' => '00000000-0000-0000-0000-000000000000',
+		'audience' => 'client',
+		'organisation' => '00000000-0000-0000-0000-000000000000',
+		'trust' => 'substantial',
+	];
 
-    /**
-     * Set up the provider — direct construction, no dependencies by contract.
-     *
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->provider = new PortalContributionProvider();
+	/**
+	 * Set up the provider — direct construction, no dependencies by contract.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->provider = new PortalContributionProvider();
 
-    }//end setUp()
+	}//end setUp()
 
-    /**
-     * The class is plain: no interfaces, no parent, no constructor deps.
-     *
-     * @return void
-     */
-    public function testClassIsPlainAndDependencyFree(): void
-    {
-        $reflection = new \ReflectionClass(PortalContributionProvider::class);
+	/**
+	 * The class is plain: no interfaces, no parent, no constructor deps.
+	 *
+	 * @return void
+	 */
+	public function testClassIsPlainAndDependencyFree(): void {
+		$reflection = new \ReflectionClass(PortalContributionProvider::class);
 
-        $this->assertSame([], $reflection->getInterfaceNames());
-        $this->assertFalse($reflection->getParentClass());
-        $this->assertNull($reflection->getConstructor());
+		$this->assertSame([], $reflection->getInterfaceNames());
+		$this->assertFalse($reflection->getParentClass());
+		$this->assertNull($reflection->getConstructor());
 
-    }//end testClassIsPlainAndDependencyFree()
+	}//end testClassIsPlainAndDependencyFree()
 
-    /**
-     * getAudiences() (v2) returns exactly ['client'].
-     *
-     * @return void
-     */
-    public function testGetAudiencesReturnsClient(): void
-    {
-        $this->assertSame(['client'], $this->provider->getAudiences());
+	/**
+	 * getAudiences() (v2) returns exactly ['client'].
+	 *
+	 * @return void
+	 */
+	public function testGetAudiencesReturnsClient(): void {
+		$this->assertSame(['client'], $this->provider->getAudiences());
 
-    }//end testGetAudiencesReturnsClient()
+	}//end testGetAudiencesReturnsClient()
 
-    /**
-     * getAudience() (v1 fallback) agrees with the v2 declaration.
-     *
-     * @return void
-     */
-    public function testGetAudienceReturnsClient(): void
-    {
-        $this->assertSame('client', $this->provider->getAudience());
-        $this->assertContains($this->provider->getAudience(), $this->provider->getAudiences());
+	/**
+	 * getAudience() (v1 fallback) agrees with the v2 declaration.
+	 *
+	 * @return void
+	 */
+	public function testGetAudienceReturnsClient(): void {
+		$this->assertSame('client', $this->provider->getAudience());
+		$this->assertContains($this->provider->getAudience(), $this->provider->getAudiences());
 
-    }//end testGetAudienceReturnsClient()
+	}//end testGetAudienceReturnsClient()
 
-    /**
-     * Non-client subjects get null — fail-closed audience filtering.
-     *
-     * @return void
-     */
-    public function testGetContributionReturnsNullForNonClientSubjects(): void
-    {
-        $supplierSubject             = self::CLIENT_SUBJECT;
-        $supplierSubject['audience'] = 'supplier';
+	/**
+	 * Non-client subjects get null — fail-closed audience filtering.
+	 *
+	 * @return void
+	 */
+	public function testGetContributionReturnsNullForNonClientSubjects(): void {
+		$supplierSubject = self::CLIENT_SUBJECT;
+		$supplierSubject['audience'] = 'supplier';
 
-        $this->assertNull($this->provider->getContribution($supplierSubject));
-        $this->assertNull($this->provider->getContribution([]));
+		$this->assertNull($this->provider->getContribution($supplierSubject));
+		$this->assertNull($this->provider->getContribution([]));
 
-    }//end testGetContributionReturnsNullForNonClientSubjects()
+	}//end testGetContributionReturnsNullForNonClientSubjects()
 
-    /**
-     * A client subject receives the labelled manifest with all four sections.
-     *
-     * @return void
-     */
-    public function testGetContributionReturnsManifestForClientSubject(): void
-    {
-        $manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
+	/**
+	 * A client subject receives the labelled manifest with all four sections.
+	 *
+	 * @return void
+	 */
+	public function testGetContributionReturnsManifestForClientSubject(): void {
+		$manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
 
-        $this->assertIsArray($manifest);
-        $this->assertSame('Pet Store', $manifest['label']);
-        $this->assertArrayHasKey('collections', $manifest);
-        $this->assertArrayHasKey('actions', $manifest);
-        $this->assertSame([], $manifest['notifications']);
+		$this->assertIsArray($manifest);
+		$this->assertSame('Pet Store', $manifest['label']);
+		$this->assertArrayHasKey('collections', $manifest);
+		$this->assertArrayHasKey('actions', $manifest);
+		$this->assertSame([], $manifest['notifications']);
 
-    }//end testGetContributionReturnsManifestForClientSubject()
+	}//end testGetContributionReturnsManifestForClientSubject()
 
-    /**
-     * Both collections are owner-scoped petstore register reads (A4).
-     *
-     * @return void
-     */
-    public function testCollectionsAreOwnerScoped(): void
-    {
-        $manifest    = $this->provider->getContribution(self::CLIENT_SUBJECT);
-        $collections = $manifest['collections'];
+	/**
+	 * Both collections are owner-scoped petstore register reads (A4).
+	 *
+	 * @return void
+	 */
+	public function testCollectionsAreOwnerScoped(): void {
+		$manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
+		$collections = $manifest['collections'];
 
-        $this->assertCount(2, $collections);
-        $this->assertSame(
-            ['petCollection', 'orderCollection'],
-            array_column($collections, 'id')
-        );
-        $this->assertSame(
-            ['pet', 'order'],
-            array_column($collections, 'schema')
-        );
+		$this->assertCount(2, $collections);
+		$this->assertSame(
+			['petCollection', 'orderCollection'],
+			array_column($collections, 'id')
+		);
+		$this->assertSame(
+			['pet', 'order'],
+			array_column($collections, 'schema')
+		);
 
-        foreach ($collections as $collection) {
-            $this->assertSame('petstore', $collection['register']);
-            $this->assertSame('owner', $collection['scopeField']);
-            $this->assertTrue($collection['listable']);
-            $this->assertNotEmpty($collection['label']);
-        }
+		foreach ($collections as $collection) {
+			$this->assertSame('petstore', $collection['register']);
+			$this->assertSame('owner', $collection['scopeField']);
+			$this->assertTrue($collection['listable']);
+			$this->assertNotEmpty($collection['label']);
+		}
 
-    }//end testCollectionsAreOwnerScoped()
+	}//end testCollectionsAreOwnerScoped()
 
-    /**
-     * createOrder is the first action and whitelists exactly pet, quantity, shipDate.
-     *
-     * @return void
-     */
-    public function testCreateOrderActionWhitelistsFields(): void
-    {
-        $manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
-        $actions  = $manifest['actions'];
+	/**
+	 * createOrder is the first action and whitelists exactly pet, quantity, shipDate.
+	 *
+	 * @return void
+	 */
+	public function testCreateOrderActionWhitelistsFields(): void {
+		$manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
+		$actions = $manifest['actions'];
 
-        $this->assertCount(2, $actions);
+		$this->assertCount(2, $actions);
 
-        $action = $actions[0];
-        $this->assertSame('createOrder', $action['id']);
-        $this->assertSame('create', $action['type']);
-        $this->assertSame('petstore', $action['register']);
-        $this->assertSame('order', $action['schema']);
-        $this->assertNotEmpty($action['label']);
-        $this->assertSame(['pet', 'quantity', 'shipDate'], $action['fields']);
+		$action = $actions[0];
+		$this->assertSame('createOrder', $action['id']);
+		$this->assertSame('create', $action['type']);
+		$this->assertSame('petstore', $action['register']);
+		$this->assertSame('order', $action['schema']);
+		$this->assertNotEmpty($action['label']);
+		$this->assertSame(['pet', 'quantity', 'shipDate'], $action['fields']);
 
-    }//end testCreateOrderActionWhitelistsFields()
+	}//end testCreateOrderActionWhitelistsFields()
 
-    /**
-     * renamePet is declared as a contract-v2 A6 endpoint action: an
-     * instance-local absolute path + POST, no `type` key (only create-actions
-     * carry one), and an SSRF-safe endpoint declaration.
-     *
-     * @return void
-     *
-     * @spec openspec/changes/portal-assertion-verifier/tasks.md#task-6
-     */
-    public function testRenamePetEndpointActionIsDeclared(): void
-    {
-        $manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
-        $action   = $manifest['actions'][1];
+	/**
+	 * renamePet is declared as a contract-v2 A6 endpoint action: an
+	 * instance-local absolute path + POST, no `type` key (only create-actions
+	 * carry one), and an SSRF-safe endpoint declaration.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-003
+	 */
+	public function testRenamePetEndpointActionIsDeclared(): void {
+		$manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
+		$action = $manifest['actions'][1];
 
-        $this->assertSame('renamePet', $action['id']);
-        $this->assertNotEmpty($action['label']);
-        $this->assertSame('/apps/petstore/api/portal/pets/rename', $action['endpoint']);
-        $this->assertSame('POST', $action['method']);
-        $this->assertArrayNotHasKey('type', $action);
+		$this->assertSame('renamePet', $action['id']);
+		$this->assertNotEmpty($action['label']);
+		$this->assertSame('/apps/petstore/api/portal/pets/rename', $action['endpoint']);
+		$this->assertSame('POST', $action['method']);
+		$this->assertArrayNotHasKey('type', $action);
 
-        // Portaliq's SSRF guard: instance-local absolute path only.
-        $this->assertStringStartsWith('/', $action['endpoint']);
-        $this->assertStringNotContainsString('://', $action['endpoint']);
-        $this->assertFalse(str_starts_with($action['endpoint'], '//'));
+		// Portaliq's SSRF guard: instance-local absolute path only.
+		$this->assertStringStartsWith('/', $action['endpoint']);
+		$this->assertStringNotContainsString('://', $action['endpoint']);
+		$this->assertFalse(str_starts_with($action['endpoint'], '//'));
 
-    }//end testRenamePetEndpointActionIsDeclared()
+	}//end testRenamePetEndpointActionIsDeclared()
 }//end class

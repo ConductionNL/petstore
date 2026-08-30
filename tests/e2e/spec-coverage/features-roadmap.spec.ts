@@ -41,6 +41,16 @@ test.describe('features-roadmap — in-app content', () => {
 		// @e2e openspec/specs/deep-linking/spec.md
 		await go(page, 'features-roadmap')
 		expect(await appMounted(page)).toBe(true)
+
+		// Assert the MANIFEST PAGE the shell resolved, not just "a heading that
+		// says roadmap". CnPageRenderer stamps `data-page-id` with the manifest
+		// page id, so this pins route -> page -> `src/views/FeaturesRoadmap.vue`.
+		// A heading-text assertion alone passes on the DEFAULT route too, which
+		// is the exact failure mode of a hash URL on a history-mode router.
+		await expect(
+			page.locator(`${APP_ROOT} [data-page-id="FeaturesRoadmap"]`),
+		).toBeAttached()
+
 		await expect(
 			page.locator(APP_ROOT).getByRole('heading', { name: /feature|roadmap/i }).first(),
 		).toBeVisible()

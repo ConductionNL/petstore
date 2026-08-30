@@ -22,39 +22,36 @@ declare(strict_types=1);
 namespace OCA\OpenRegister\Db;
 
 if (class_exists(ObjectEntity::class) === false) {
-    /**
-     * Stub ObjectEntity — used only in standalone unit tests.
-     */
-    class ObjectEntity
-    {
+	/**
+	 * Stub ObjectEntity — used only in standalone unit tests.
+	 */
+	class ObjectEntity {
 
-        /**
-         * The object data.
-         *
-         * @var array<string, mixed>
-         */
-        private array $object = [];
+		/**
+		 * The object data.
+		 *
+		 * @var array<string, mixed>
+		 */
+		private array $object = [];
 
-        /**
-         * Get the object data.
-         *
-         * @return array<string, mixed>
-         */
-        public function getObject(): array
-        {
-            return $this->object;
-        }//end getObject()
+		/**
+		 * Get the object data.
+		 *
+		 * @return array<string, mixed>
+		 */
+		public function getObject(): array {
+			return $this->object;
+		}//end getObject()
 
-        /**
-         * Set the object data.
-         *
-         * @param array<string, mixed> $object The object data.
-         *
-         * @return void
-         */
-        public function setObject(array $object): void
-        {
-            $this->object = $object;
-        }//end setObject()
-    }//end class
+		/**
+		 * Set the object data.
+		 *
+		 * @param array<string, mixed> $object The object data.
+		 *
+		 * @return void
+		 */
+		public function setObject(array $object): void {
+			$this->object = $object;
+		}//end setObject()
+	}//end class
 }//end if

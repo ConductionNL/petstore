@@ -7,26 +7,26 @@ carry per-app values, which are app-private, and which should never exist in
 a repo root.
 
 The authoritative architecture decision is
-[ADR-033 in hydra](https://codeberg.org/Conduction/hydra/src/branch/development/openspec/architecture/adr-033-root-config-consolidation.md);
-this doc is the developer-facing summary. When the two disagree, ADR-033 wins.
+[ADR-039 in hydra](https://github.com/ConductionNL/hydra/blob/development/openspec/architecture/adr-039-root-config-consolidation.md);
+this doc is the developer-facing summary. When the two disagree, ADR-039 wins.
 
 ## Tier A — Strictly canonical (byte-for-byte synced)
 
 Identical across every fleet app. When the template's copy changes, the
-[`hydra/scripts/fleet-sync/`](https://codeberg.org/Conduction/hydra/src/branch/development/scripts/fleet-sync)
+[`hydra/scripts/fleet-sync/`](https://github.com/ConductionNL/hydra/tree/development/scripts/fleet-sync)
 tool — run locally by a developer — opens a PR on every app in the fleet.
 
 | File | What it does |
 |---|---|
-| `phpcs.xml` | PHPCS ruleset. Wires the Conduction custom sniffs + standard NC + PHPCompatibility. |
-| `phpmd.xml` | PHPMD ruleset for `lib/` source. |
-| `psalm.xml` | Psalm config (level + ignored files). |
-| `phpstan.neon` | PHPStan config (level + paths). |
+| `phpcs.xml` | PHPCS **stub** — declares `<file>lib</file>` and references `vendor/conduction/hydra-gates/quality-config/phpcs.xml`. Semantics only; formatting belongs to php-cs-fixer. |
+| `phpmd.xml` | PHPMD **stub** — references the same package's `quality-config/phpmd.xml`. |
+| `.php-cs-fixer.dist.php` | php-cs-fixer config, from `conduction/coding-standard` (which extends `nextcloud/coding-standard` and may only add to it). |
+| `psalm.xml` | Psalm config (level + ignored files). Psalm has no config inheritance, so this one is still a full per-app copy. |
+| `phpstan.neon` | PHPStan **stub** — includes the package's `quality-config/phpstan-base.neon` plus this app's own baseline and app-only ignores. |
 | `phpstan-bootstrap.php` | Bootstrap stubs so PHPStan can resolve `\OC` accessors. |
-| `phpcs-custom-sniffs/CustomSniffs/Sniffs/**` | The custom-sniff ruleset (SpecTagSniff, NoLegacyServerAccessorsSniff, etc.). |
+| `.editorconfig` | Editor defaults (tab indent), matching Nextcloud core and what php-cs-fixer enforces. |
 | `stylelint.config.js` | CSS/SCSS lint config for `src/**`. |
 | `eslint.config.js` | ESLint flat config (replaces `.eslintrc.*`) for `src/`. |
-| `.prettierrc` | Prettier config. |
 | `.gitattributes` | Line-ending normalization + binary-file marks. |
 | `.npmrc` | npm registry policy (cooldown + `legacy-peer-deps=true`). |
 | `.nvmrc` | Node version floor (currently `20`). |
@@ -163,7 +163,7 @@ a canonical change. That's a small cost paid for a real security
 improvement.
 
 Full design rationale + the sync script are in
-[`hydra/scripts/fleet-sync/`](https://codeberg.org/Conduction/hydra/src/branch/development/scripts/fleet-sync).
+[`hydra/scripts/fleet-sync/`](https://github.com/ConductionNL/hydra/tree/development/scripts/fleet-sync).
 
 ## What's NOT in scope
 
