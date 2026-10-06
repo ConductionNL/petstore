@@ -130,7 +130,7 @@ class PortalContributionProviderTest extends TestCase {
 		$manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
 
 		$this->assertIsArray($manifest);
-		$this->assertSame('Pet Store', $manifest['label']);
+		$this->assertSame('Bestellingen', $manifest['label']);
 		$this->assertArrayHasKey('collections', $manifest);
 		$this->assertArrayHasKey('actions', $manifest);
 		$this->assertSame([], $manifest['notifications']);
@@ -211,4 +211,46 @@ class PortalContributionProviderTest extends TestCase {
 		$this->assertFalse(str_starts_with($action['endpoint'], '//'));
 
 	}//end testRenamePetEndpointActionIsDeclared()
+	/**
+	 * The pages sit under one Dutch menu group, and every label a resident reads is Dutch.
+	 *
+	 * Portaliq's group contract: pages with the same `group` share one heading
+	 * in the site's menu. Without declared pages the menu named them after the
+	 * app ("Pet Store") and in English ("My pets", "My orders").
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-pages-in-dutch-groups/specs/portal-contribution/spec.md#requirement-every-portal-page-names-its-menu-group-in-dutch
+	 */
+	public function testThePagesSitUnderADutchGroupAndEveryLabelIsDutch(): void {
+		$manifest = $this->provider->getContribution(self::CLIENT_SUBJECT);
+
+		$this->assertSame(
+			[
+				[
+					'id' => 'petCollection',
+					'label' => 'Mijn huisdieren',
+					'group' => 'Bestellingen',
+					'blocks' => [
+						['type' => 'collection', 'collection' => 'petCollection'],
+						['type' => 'detail', 'collection' => 'petCollection'],
+					],
+				],
+				[
+					'id' => 'orderCollection',
+					'label' => 'Mijn bestellingen',
+					'group' => 'Bestellingen',
+					'blocks' => [
+						['type' => 'action', 'action' => 'createOrder'],
+						['type' => 'collection', 'collection' => 'orderCollection'],
+						['type' => 'detail', 'collection' => 'orderCollection'],
+					],
+				],
+			],
+			$manifest['pages']
+		);
+		$this->assertSame(['Mijn huisdieren', 'Mijn bestellingen'], array_column($manifest['collections'], 'label'));
+		$this->assertSame(['Een bestelling plaatsen', 'De naam van een huisdier wijzigen'], array_column($manifest['actions'], 'label'));
+	}//end testThePagesSitUnderADutchGroupAndEveryLabelIsDutch()
+
 }//end class
