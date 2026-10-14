@@ -215,7 +215,7 @@ class PortalActionControllerTest extends TestCase {
 
 		$this->controller = new PortalActionController(
 			request: $this->request,
-			verifier: new PortalAssertionVerifier(config: null, secretOverride: self::SECRET),
+			verifier: new PortalAssertionVerifier(secretOverride: self::SECRET),
 			container: $this->container,
 			throttler: $this->createMock(IThrottler::class),
 			logger: $this->createMock(LoggerInterface::class),
@@ -422,7 +422,7 @@ class PortalActionControllerTest extends TestCase {
 
 		$controller = new PortalActionController(
 			request: $request,
-			verifier: new PortalAssertionVerifier(config: null, secretOverride: self::SECRET),
+			verifier: new PortalAssertionVerifier(secretOverride: self::SECRET),
 			container: $container,
 			throttler: $this->createMock(IThrottler::class),
 			logger: $this->createMock(LoggerInterface::class),
