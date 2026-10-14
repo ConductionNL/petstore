@@ -52,6 +52,14 @@ namespace OCA\PetStore\Portal;
  * @spec openspec/specs/portal-contribution/spec.md#REQ-PORT-000
  */
 class PortalContributionProvider {
+
+	/**
+	 * The menu heading a resident reads above the pet store's pages (portaliq's `group` contract).
+	 *
+	 * @var string
+	 */
+	public const GROUP = 'Bestellingen';
+
 	/**
 	 * The audiences this provider contributes to (contract v2, preferred).
 	 *
@@ -111,14 +119,15 @@ class PortalContributionProvider {
 		}
 
 		return [
-			'label' => 'Pet Store',
+			// The menu heading over the pages (portaliq's `group`), not the app name.
+			'label' => self::GROUP,
 			'collections' => [
 				[
 					'id' => 'petCollection',
 					'register' => 'petstore',
 					'schema' => 'pet',
 					'scopeField' => 'owner',
-					'label' => 'My pets',
+					'label' => 'Mijn huisdieren',
 					'listable' => true,
 				],
 				[
@@ -126,7 +135,7 @@ class PortalContributionProvider {
 					'register' => 'petstore',
 					'schema' => 'order',
 					'scopeField' => 'owner',
-					'label' => 'My orders',
+					'label' => 'Mijn bestellingen',
 					'listable' => true,
 				],
 			],
@@ -134,7 +143,7 @@ class PortalContributionProvider {
 				[
 					'id' => 'createOrder',
 					'type' => 'create',
-					'label' => 'Place an order',
+					'label' => 'Een bestelling plaatsen',
 					'register' => 'petstore',
 					'schema' => 'order',
 					'fields' => [
@@ -151,9 +160,32 @@ class PortalContributionProvider {
 				// `type` key (only create-actions carry one).
 				[
 					'id' => 'renamePet',
-					'label' => 'Rename a pet',
+					'label' => 'De naam van een huisdier wijzigen',
 					'endpoint' => '/apps/petstore/api/portal/pets/rename',
 					'method' => 'POST',
+				],
+			],
+			// One page per collection, as portaliq would make them, declared
+			// so they carry the group the site's menu shows above them.
+			'pages' => [
+				[
+					'id' => 'petCollection',
+					'label' => 'Mijn huisdieren',
+					'group' => self::GROUP,
+					'blocks' => [
+						['type' => 'collection', 'collection' => 'petCollection'],
+						['type' => 'detail', 'collection' => 'petCollection'],
+					],
+				],
+				[
+					'id' => 'orderCollection',
+					'label' => 'Mijn bestellingen',
+					'group' => self::GROUP,
+					'blocks' => [
+						['type' => 'action', 'action' => 'createOrder'],
+						['type' => 'collection', 'collection' => 'orderCollection'],
+						['type' => 'detail', 'collection' => 'orderCollection'],
+					],
 				],
 			],
 			'notifications' => [],
